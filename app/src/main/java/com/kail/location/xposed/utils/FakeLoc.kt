@@ -19,7 +19,7 @@ object FakeLoc {
     /**
      * 是否允许打印调试日志
      */
-    var enableDebugLog = true
+    var enableDebugLog = false
 
     /**
      * 模拟定位服务开关
@@ -98,7 +98,7 @@ object FakeLoc {
     /**
      * 位置上报间隔（毫秒），仅用于部分需要控制频率的场景
      */
-    var reportIntervalMs = 100
+    var reportIntervalMs = 200
 
     /**
      * 上一次的位置

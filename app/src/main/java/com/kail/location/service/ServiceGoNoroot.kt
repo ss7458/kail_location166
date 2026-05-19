@@ -70,6 +70,8 @@ class ServiceGoNoroot : Service() {
         const val DEFAULT_BEA = 0.0f
 
         private const val HANDLER_MSG_ID = 0
+        private const val LOCATION_UPDATE_INTERVAL_MS = 200L
+        private const val LOCATION_UPDATE_INTERVAL_SECONDS = LOCATION_UPDATE_INTERVAL_MS / 1000.0
         private const val SERVICE_GO_HANDLER_NAME = "ServiceGoNorootLocation"
 
         private const val SERVICE_GO_NOTE_ID = 1
@@ -494,13 +496,11 @@ class ServiceGoNoroot : Service() {
     }
 
     private fun initGoLocation() {
-        mLocHandlerThread = HandlerThread(SERVICE_GO_HANDLER_NAME, Process.THREAD_PRIORITY_FOREGROUND)
+        mLocHandlerThread = HandlerThread(SERVICE_GO_HANDLER_NAME, Process.THREAD_PRIORITY_BACKGROUND)
         mLocHandlerThread.start()
         mLocHandler = object : Handler(mLocHandlerThread.looper) {
             override fun handleMessage(msg: Message) {
                 try {
-                    Thread.sleep(50)
-
                     if (!isStop) {
                         if (mRoutePoints.size >= 2) {
                             val speedForStep = if (speedFluctuation) {
@@ -508,7 +508,7 @@ class ServiceGoNoroot : Service() {
                             } else {
                                 mSpeed
                             }
-                            advanceAlongRoute(speedForStep * 0.05)
+                            advanceAlongRoute(speedForStep * LOCATION_UPDATE_INTERVAL_SECONDS)
                             updateJoystickStatus()
                         }
                     }
@@ -518,14 +518,14 @@ class ServiceGoNoroot : Service() {
                         setLocationGPS()
                     }
 
-                    sendEmptyMessage(HANDLER_MSG_ID)
+                    sendEmptyMessageDelayed(HANDLER_MSG_ID, LOCATION_UPDATE_INTERVAL_MS)
                 } catch (e: InterruptedException) {
                     KailLog.e(this@ServiceGoNoroot, "ServiceGoNoroot", "handleMessage interrupted: ${e.message}")
                     Thread.currentThread().interrupt()
                 } catch (e: Exception) {
                     KailLog.e(this@ServiceGoNoroot, "ServiceGoNoroot", "handleMessage exception: ${e.message}")
                     if (!isStop) {
-                        sendEmptyMessageDelayed(HANDLER_MSG_ID, 100)
+                        sendEmptyMessageDelayed(HANDLER_MSG_ID, LOCATION_UPDATE_INTERVAL_MS)
                     }
                 }
             }

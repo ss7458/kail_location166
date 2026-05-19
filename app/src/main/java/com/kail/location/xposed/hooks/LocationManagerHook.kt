@@ -28,7 +28,7 @@ object LocationManagerHook: BaseLocationHook() {
             }
         }
         if(cLocationManager.declaredMethods.filter {
-            it.name == "getLastKnownLocation" && it.parameterTypes.size > 1
+            it.name == "getLastKnownLocation"
         }.map {
             XposedBridge.hookMethod(it, hookGetLastKnownLocation)
         }.isEmpty()) {

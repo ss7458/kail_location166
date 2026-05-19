@@ -189,8 +189,8 @@ internal object KailCommandHandler {
                     out.getBoolean("loopBroadcastLocation", FakeLoc.loopBroadcastLocation).let { FakeLoc.loopBroadcastLocation = it }
                     out.getInt("minSatellites", FakeLoc.minSatellites).let { FakeLoc.minSatellites = it }
                     out.getFloat("accuracy", FakeLoc.accuracy).let { FakeLoc.accuracy = it }
-                    out.getInt("reportIntervalMs", 100).let {
-                        FakeLoc.reportIntervalMs = it
+                    out.getInt("reportIntervalMs", 200).let {
+                        FakeLoc.reportIntervalMs = it.coerceAtLeast(200)
                     }
                     out.putBoolean("ok", true)
                     KailLog.d(null, "XPOSED", "KAIL接收：批量配置更新")
