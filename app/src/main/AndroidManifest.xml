@@ -78,10 +78,6 @@
             android:name="xposedscope"
             android:resource="@array/xposed_scope" />
 
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3992562752831504~6622551614" />
-
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
