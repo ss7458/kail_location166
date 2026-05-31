@@ -38,12 +38,6 @@ fun IndependentSimulationScreen(
 
     val isEnabled by viewModel.isEnabled.collectAsState()
     val targetPackages by viewModel.targetPackages.collectAsState()
-    val modeLocation by viewModel.modeLocation.collectAsState()
-    val modeRoute by viewModel.modeRoute.collectAsState()
-    val modeWifi by viewModel.modeWifi.collectAsState()
-    val modeCell by viewModel.modeCell.collectAsState()
-    val modeGnss by viewModel.modeGnss.collectAsState()
-    val modeJitter by viewModel.modeJitter.collectAsState()
 
     var showAppPicker by remember { mutableStateOf(false) }
     var selectedPackages by remember {
@@ -87,7 +81,7 @@ fun IndependentSimulationScreen(
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        text = "仅对选中的应用生效，具体参数在各自模拟页面设置",
+                        text = "选择目标应用后开启。开启后，在位置/路线/WiFi/基站/步频页面点\"开始模拟\"，都只对这里选中的应用生效，其它应用读到真实数据。",
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(top = 4.dp)
                     )
@@ -130,69 +124,28 @@ fun IndependentSimulationScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Mode Selection Title
-            Text(
-                text = "选择要模拟的模式",
-                style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-
-            // Mode Selection Chips - 2 per row
-            val modes = listOf(
-                Triple("位置模拟", modeLocation) { viewModel.setModeLocation(!modeLocation) },
-                Triple("路线模拟", modeRoute) { viewModel.setModeRoute(!modeRoute) },
-                Triple("WiFi模拟", modeWifi) { viewModel.setModeWifi(!modeWifi) },
-                Triple("基站模拟", modeCell) { viewModel.setModeCell(!modeCell) },
-                Triple("卫星模拟", modeGnss) { viewModel.setModeGnss(!modeGnss) },
-                Triple("位置抖动", modeJitter) { viewModel.setModeJitter(!modeJitter) },
-            )
-
-            modes.chunked(2).forEach { rowModes ->
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    rowModes.forEachIndexed { index, (label, selected, onToggle) ->
-                        FilterChip(
-                            selected = selected,
-                            onClick = onToggle,
-                            label = { Text(label) },
-                            modifier = Modifier.weight(1f)
-                        )
-                        if (index < rowModes.size - 1) {
-                            Spacer(modifier = Modifier.width(8.dp))
-                        }
-                    }
-                    // Fill remaining space if odd number
-                    if (rowModes.size < 2) {
-                        Spacer(modifier = Modifier.weight(1f))
-                    }
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
             Spacer(modifier = Modifier.height(32.dp))
 
             // Start/Stop Button
             Button(
                 onClick = {
                     if (!isEnabled && selectedPackages.isEmpty()) return@Button
-                    if (!isEnabled && !viewModel.hasAnyModeSelected()) return@Button
                     viewModel.setEnabled(!isEnabled)
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (isEnabled) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                 ),
-                enabled = isEnabled || (selectedPackages.isNotEmpty() && viewModel.hasAnyModeSelected())
+                enabled = isEnabled || selectedPackages.isNotEmpty()
             ) {
                 Text(
                     text = if (isEnabled) "停止独立模拟" else "开始独立模拟"
                 )
             }
 
-            if (!isEnabled && selectedPackages.isNotEmpty() && !viewModel.hasAnyModeSelected()) {
+            if (!isEnabled && selectedPackages.isEmpty()) {
                 Text(
-                    text = "请至少选择一个模拟模式",
+                    text = stringResource(R.string.ind_sim_no_apps),
                     color = MaterialTheme.colorScheme.error,
                     fontSize = 12.sp,
                     modifier = Modifier.padding(top = 8.dp)

@@ -119,6 +119,25 @@ class ServiceGoRoot : Service() {
     private var mockLocService: IMockLocationManager? = null
 
     /**
+     * Target-app allow-list driven by the "独立模拟" (Independent Simulation)
+     * screen. When non-empty, every mock surface (location / GNSS / WiFi /
+     * cell) is restricted to ONLY these packages via FakeLocation's
+     * setAllowMockPackages; all other apps read real data. Empty means the
+     * default FakeLocation behaviour (mock for all apps).
+     *
+     * Read from prefs on demand so a mock started from any screen always
+     * picks up the latest independent-mode selection.
+     */
+    private val independentAllowPackages: List<String>
+        get() = runCatching {
+            val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+            val enabled = prefs.getBoolean("independent_enabled", false)
+            if (!enabled) return emptyList()
+            (prefs.getString("independent_target_packages", "") ?: "")
+                .split(",").map { it.trim() }.filter { it.isNotEmpty() }
+        }.getOrDefault(emptyList())
+
+    /**
      * Set true only when the start intent flagged WIFI_ONLY/CELL_ONLY — those
      * modes intentionally do not run the location loop.
      */
@@ -176,6 +195,8 @@ class ServiceGoRoot : Service() {
         const val CONTROL_SET_STEP = "set_step"
         const val CONTROL_STOP_WIFI = "stop_wifi"
         const val CONTROL_STOP_CELL = "stop_cell"
+        const val CONTROL_SET_ALLOW_PACKAGES = "set_allow_packages"
+        const val EXTRA_ALLOW_PACKAGES = "EXTRA_ALLOW_PACKAGES"
 
         const val COORD_WGS84 = ServiceConstants.COORD_WGS84
         const val COORD_BD09 = ServiceConstants.COORD_BD09
@@ -184,6 +205,16 @@ class ServiceGoRoot : Service() {
         const val ACTION_STATUS_CHANGED = ServiceConstants.ACTION_STATUS_CHANGED
         const val EXTRA_IS_SIMULATING = ServiceConstants.EXTRA_IS_SIMULATING
         const val EXTRA_IS_PAUSED = ServiceConstants.EXTRA_IS_PAUSED
+
+        /**
+         * True while a ServiceGoRoot instance is alive. Lets the Independent
+         * Simulation screen decide whether to push a live allow-list update
+         * (only meaningful when a mock session is actually running).
+         */
+        @Volatile
+        @JvmStatic
+        var isRunning: Boolean = false
+            private set
 
         // service_mock_wifi (IMockWifiManager) raw-transaction constants.
         private const val WIFI_DESCRIPTOR = "com.kail.location.aidl.IMockWifiManager"
@@ -196,6 +227,7 @@ class ServiceGoRoot : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        isRunning = true
         KailLog.i(this, TAG, "onCreate started")
         runCatching { mNotificationHelper.initAndStartForeground() }
             .onFailure { KailLog.e(this, TAG, "initNotification: ${it.message}") }
@@ -320,6 +352,7 @@ class ServiceGoRoot : Service() {
 
     override fun onDestroy() {
         KailLog.i(this, TAG, "onDestroy started")
+        isRunning = false
         runCatching {
             broadcastStatusStopped()
             isStop = true
@@ -400,6 +433,13 @@ class ServiceGoRoot : Service() {
                 KailLog.i(this, TAG, "Cell mock stopped via control")
                 if (!isAnyMockActive()) stopSelf()
             }.onFailure { KailLog.e(this, TAG, "stop_cell: ${it.message}") }
+
+            CONTROL_SET_ALLOW_PACKAGES -> runCatching {
+                val pkgs = intent.getStringArrayListExtra(EXTRA_ALLOW_PACKAGES) ?: arrayListOf()
+                // Run off the main thread: resolving binders + injecting target
+                // apps can block briefly.
+                Thread({ applyAllowPackages(pkgs) }, "ServiceGoRootAllowPkgs").start()
+            }.onFailure { KailLog.e(this, TAG, "set_allow_packages: ${it.message}") }
 
             CONTROL_SEEK -> {
                 val ratio = intent.getFloatExtra(EXTRA_SEEK_RATIO, 0f).coerceIn(0f, 1f)
@@ -547,6 +587,44 @@ class ServiceGoRoot : Service() {
         return null
     }
 
+    /**
+     * Push the independent-mode target-app allow-list into the FakeLocation
+     * injection layer. With a non-empty list, location/GNSS/WiFi/cell mocking
+     * only affects those packages (FakeLocation's setAllowMockPackages /
+     * MockWifiConfigManager.setAllowMockPackages); every other app reads real
+     * data. An empty list clears the restriction (mock for all apps).
+     *
+     * Called on every mock start so the latest selection always applies, and
+     * directly from the CONTROL_SET_ALLOW_PACKAGES action so toggling
+     * independent mode takes effect live.
+     */
+    private fun applyAllowPackages(pkgs: List<String>) {
+        val list = ArrayList(pkgs)
+        // service_mock_location (covers location, GNSS, cells — all gated by
+        // MockLocationHookManager.isAllowMockPackage).
+        runCatching {
+            resolveMockLocService()?.setAllowMockPackages(if (list.isEmpty()) null else list)
+        }.onFailure { KailLog.e(this, TAG, "setAllowMockPackages(loc): ${it.message}") }
+        // service_mock_wifi (MockWifiConfigManager.setAllowMockPackages, code 7).
+        runCatching {
+            val binder = resolveMockWifiBinder()
+            if (binder != null) {
+                val data = Parcel.obtain()
+                val reply = Parcel.obtain()
+                try {
+                    data.writeInterfaceToken(WIFI_DESCRIPTOR)
+                    if (list.isEmpty()) data.writeStringList(null) else data.writeStringList(list)
+                    binder.transact(7, data, reply, 0) // setAllowMockPackages
+                    reply.readException()
+                } finally {
+                    reply.recycle()
+                    data.recycle()
+                }
+            }
+        }.onFailure { KailLog.e(this, TAG, "setAllowMockPackages(wifi): ${it.message}") }
+        KailLog.i(this, TAG, "allowMockPackages applied: ${if (list.isEmpty()) "<all apps>" else list.joinToString()}")
+    }
+
     private fun startMockLocationOnInjection() {
         // Stage the FakeLocation toolchain on disk, run kail_inject (with the
         // 5s watchdog), and grant mock_location AppOps.  RootDeployer is
@@ -575,6 +653,7 @@ class ServiceGoRoot : Service() {
                 }
             }
             applyWifiMockOnInjection()
+            applyAllowPackages(independentAllowPackages)
             KailLog.i(this, TAG, "wifiOnly: inject staged, WiFi networks pushed, location+GNSS skipped")
             return
         }
@@ -586,6 +665,7 @@ class ServiceGoRoot : Service() {
             // seeds a base fix from the cell coordinates, but it keeps GNSS
             // satellite mocking OFF and does not run the moving-location loop.
             applyCellMockOnInjection()
+            applyAllowPackages(independentAllowPackages)
             KailLog.i(this, TAG, "cellOnly: inject staged, cell towers pushed, GNSS skipped")
             return
         }
@@ -601,6 +681,7 @@ class ServiceGoRoot : Service() {
                 svc.startMockLocation()
                 svc.setIntervalTimeout(currentLocationUpdateIntervalMs())
                 pushLocationToInjection()
+                applyAllowPackages(independentAllowPackages)
                 KailLog.i(this, TAG, "FakeLocation mock-location active lat=$mCurLat lng=$mCurLng")
             }.onFailure { KailLog.e(this, TAG, "startMockLocation (binder): ${it.message}") }
             return
@@ -621,6 +702,9 @@ class ServiceGoRoot : Service() {
         // Clear any scoped block-list left over from cell-only mode so the next
         // normal location session isn't silently blocked.
         runCatching { mockLocService?.setSafeApps(null) }
+        // Clear the independent-mode allow-list so a later "mock all apps"
+        // session isn't accidentally restricted to stale target packages.
+        runCatching { mockLocService?.setAllowMockPackages(null) }
         runCatching { stopWifiMockOnInjection() }
         fakelocStartCalled = false
         runCatching { mMockLocationProvider.cleanup() }
