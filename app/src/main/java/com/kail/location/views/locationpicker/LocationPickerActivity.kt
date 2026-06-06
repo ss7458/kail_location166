@@ -189,7 +189,7 @@ class LocationPickerActivity : BaseActivity(), SensorEventListener {
             initMapLocation()
         } catch (e: Throwable) {
             KailLog.e(this, "LocationPickerActivity", "Error initializing MapView: ${e.message}")
-            Toast.makeText(this, "地图初始化失败: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.picker_map_init_failed, e.message), Toast.LENGTH_LONG).show()
         }
 
         // initMapButton() // Handled by Compose
@@ -563,7 +563,7 @@ class LocationPickerActivity : BaseActivity(), SensorEventListener {
 
             override fun onGetReverseGeoCodeResult(reverseGeoCodeResult: ReverseGeoCodeResult?) {
                 if (reverseGeoCodeResult == null || reverseGeoCodeResult.error != SearchResult.ERRORNO.NO_ERROR) {
-                    Toast.makeText(this@LocationPickerActivity, "抱歉，未能找到结果", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@LocationPickerActivity, getString(R.string.picker_search_no_results), Toast.LENGTH_LONG).show()
                     return
                 }
 

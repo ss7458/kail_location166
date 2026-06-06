@@ -40,9 +40,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.kail.location.R
 import com.kail.location.network.RuoYiClient
 
 @Composable
@@ -98,7 +100,7 @@ fun AnnouncementDialog(
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = notice.title.ifEmpty { "公告" },
+                            text = notice.title.ifEmpty { stringResource(R.string.announcement_default_title) },
                             style = MaterialTheme.typography.titleLarge,
                             color = Color.White,
                             fontWeight = FontWeight.Bold
@@ -162,7 +164,7 @@ fun AnnouncementDialog(
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text("上一条")
+                            Text(stringResource(R.string.announcement_previous))
                         }
                     }
 
@@ -175,7 +177,7 @@ fun AnnouncementDialog(
                                 containerColor = MaterialTheme.colorScheme.primary
                             )
                         ) {
-                            Text("下一条")
+                            Text(stringResource(R.string.announcement_next))
                         }
                     }
 
@@ -188,7 +190,7 @@ fun AnnouncementDialog(
                                 containerColor = MaterialTheme.colorScheme.primary
                             )
                         ) {
-                            Text("我知道了")
+                            Text(stringResource(R.string.announcement_got_it))
                         }
                     }
                 }

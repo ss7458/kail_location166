@@ -2,6 +2,7 @@ package com.kail.location.sandbox
 
 import android.content.pm.ApplicationInfo
 import android.graphics.drawable.Drawable
+import com.kail.location.R
 import com.kail.location.utils.KailLog
 import top.niunaijun.blackbox.BlackBoxCore
 import top.niunaijun.blackbox.utils.AbiUtils
@@ -104,14 +105,14 @@ object SandboxManager {
             val result = BlackBoxCore.get().installPackageAsUser(packageName, userId)
             if (result.success) {
                 KailLog.i(null, TAG, "cloneApp: $packageName installed (userId=$userId)")
-                Pair(true, "安装成功")
+                Pair(true, hostContext!!.getString(R.string.sandbox_install_success))
             } else {
                 KailLog.w(null, TAG, "cloneApp: $packageName install failed: ${result.msg}")
-                Pair(false, "安装失败: ${result.msg}")
+                Pair(false, hostContext!!.getString(R.string.sandbox_install_failed, result.msg))
             }
         } catch (e: Exception) {
             KailLog.e(null, TAG, "cloneApp: $packageName threw", e)
-            Pair(false, "安装失败: ${e.message}")
+            Pair(false, hostContext!!.getString(R.string.sandbox_install_failed, e.message))
         }
     }
 
@@ -122,10 +123,10 @@ object SandboxManager {
         return try {
             BlackBoxCore.get().uninstallPackageAsUser(packageName, userId)
             KailLog.i(null, TAG, "uninstallApp: $packageName uninstalled (userId=$userId)")
-            Pair(true, "卸载成功")
+            Pair(true, hostContext!!.getString(R.string.sandbox_uninstall_success))
         } catch (e: Exception) {
             KailLog.e(null, TAG, "uninstallApp: $packageName threw", e)
-            Pair(false, "卸载失败: ${e.message}")
+            Pair(false, hostContext!!.getString(R.string.sandbox_uninstall_failed, e.message))
         }
     }
 
@@ -140,11 +141,11 @@ object SandboxManager {
                 Pair(true, "")
             } else {
                 KailLog.w(null, TAG, "launchApp: $packageName returned false")
-                Pair(false, "启动失败")
+                Pair(false, hostContext!!.getString(R.string.sandbox_launch_failed))
             }
         } catch (e: Exception) {
             KailLog.e(null, TAG, "launchApp: $packageName threw", e)
-            Pair(false, "启动失败: ${e.message}")
+            Pair(false, hostContext!!.getString(R.string.sandbox_launch_failed_msg, e.message))
         }
     }
 
@@ -155,10 +156,10 @@ object SandboxManager {
         return try {
             BlackBoxCore.get().clearPackage(packageName, userId)
             KailLog.i(null, TAG, "clearAppData: $packageName cleared (userId=$userId)")
-            Pair(true, "清除成功")
+            Pair(true, hostContext!!.getString(R.string.sandbox_clear_success))
         } catch (e: Exception) {
             KailLog.e(null, TAG, "clearAppData: $packageName threw", e)
-            Pair(false, "清除失败: ${e.message}")
+            Pair(false, hostContext!!.getString(R.string.sandbox_clear_failed, e.message))
         }
     }
 
@@ -169,10 +170,10 @@ object SandboxManager {
         return try {
             BlackBoxCore.get().stopPackage(packageName, userId)
             KailLog.i(null, TAG, "stopApp: $packageName stopped (userId=$userId)")
-            Pair(true, "已停止运行")
+            Pair(true, hostContext!!.getString(R.string.sandbox_stopped))
         } catch (e: Exception) {
             KailLog.e(null, TAG, "stopApp: $packageName threw", e)
-            Pair(false, "停止失败: ${e.message}")
+            Pair(false, hostContext!!.getString(R.string.sandbox_stop_failed, e.message))
         }
     }
 

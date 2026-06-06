@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import com.kail.location.R
 import com.kail.location.views.base.BaseActivity
 import com.kail.location.views.theme.locationTheme
 import com.kail.location.viewmodels.SponsorViewModel
@@ -28,21 +29,20 @@ class SponsorActivity : BaseActivity() {
                             }
                         }
                     },
-                    onWechatCheckout = {
-                        viewModel.createWechatCheckout { url ->
-                            if (url.isNotEmpty()) {
-                                val clipboard = getSystemService(android.content.ClipboardManager::class.java)
-                                clipboard?.setPrimaryClip(android.content.ClipData.newPlainText("checkout", url))
-                                android.widget.Toast.makeText(this, "支付链接已复制，请在电脑浏览器中打开支付", android.widget.Toast.LENGTH_LONG).show()
-                            }
-                        }
-                    },
+                    onWechatCheckout = { viewModel.createWechatCheckout() },
                     isCreatingCheckout = viewModel.isCreatingCheckout,
                     checkoutError = viewModel.checkoutError,
                     plans = viewModel.plans,
                     selectedPlanId = viewModel.selectedPlanId,
                     onSelectPlan = { viewModel.selectPlan(it) },
-                    plansLoaded = viewModel.plansLoaded
+                    plansLoaded = viewModel.plansLoaded,
+                    wechatPayUrl = viewModel.wechatPayUrl,
+                    onCopyUrl = { url ->
+                        val clipboard = getSystemService(android.content.ClipboardManager::class.java)
+                                        ?: return@SponsorScreen
+                        clipboard.setPrimaryClip(android.content.ClipData.newPlainText("checkout", url))
+                        android.widget.Toast.makeText(this, getString(R.string.sponsor_copied), android.widget.Toast.LENGTH_SHORT).show()
+                    }
                 )
             }
         }

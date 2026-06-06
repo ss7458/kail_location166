@@ -15,8 +15,6 @@ android {
         applicationId = "com.kail.location"
         minSdk = 27
         targetSdk = 36
-        // Keep versionCode stable for patch builds; bump it only on 0.1
-        // versionName releases (for example 1.6.x -> 1.7.0).
         versionCode = 36
         versionName = "1.6.3"
 

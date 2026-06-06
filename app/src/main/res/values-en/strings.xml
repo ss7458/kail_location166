@@ -103,16 +103,11 @@
     <string name="nav_menu_history">History</string>
     <string name="nav_menu_location_simulation">Location Simulation</string>
     <string name="nav_menu_route_simulation">Route Simulation</string>
-    <string name="loc_sim_title">Location Simulation</string>
-    <string name="loc_sim_target">Target Location</string>
-    <string name="loc_sim_none">NONE</string>
-    <string name="loc_sim_lat_lng">Coordinates: %1$s, %2$s</string>
-    <string name="loc_sim_start">Start Simulation</string>
-    <string name="loc_sim_stop">Stop Simulation</string>
-    <string name="loc_sim_base_station">Base Station</string>
-    <string name="loc_sim_joystick">Joystick</string>
-    <string name="loc_sim_history_title">History Locations</string>
-    <string name="loc_sim_add_tips">Tap the \"+\" button to add</string>
+    <string name="nav_menu_sim_group">Simulation</string>
+    <string name="nav_menu_independent_sim">Independent Sim</string>
+    <string name="nav_menu_root_app_hide">Root &amp; App Hiding</string>
+    <string name="nav_menu_wifi_sim">WiFi Simulation</string>
+    <string name="nav_menu_cell_sim">Cell Tower Sim</string>
     <string name="nav_menu_settings">Settings</string>
     <string name="nav_menu_dev">Developer Options</string>
     <string name="nav_menu_more">More</string>
@@ -336,10 +331,16 @@
     <string name="drawer_run_mode">Run Mode</string>
     <string name="drawer_sandbox">Sandbox Engine</string>
     <string name="drawer_xposed_settings">Xposed Settings</string>
+    <string name="drawer_action_login">Login / Register</string>
+    <string name="drawer_action_logout">Logout</string>
+    <string name="drawer_logged_in_as">Logged in as</string>
+    <string name="drawer_not_logged_in">Not logged in</string>
 
     <!-- Sponsor -->
     <string name="sponsor_copied">Copied</string>
     <string name="sponsor_copy_address">Copy Address</string>
+    <string name="sponsor_wechat_hint">Open the link in a desktop browser, select country China</string>
+    <string name="sponsor_copy">Copy</string>
 
     <!-- Welcome -->
     <string name="welcome_read">I have read</string>
@@ -418,4 +419,333 @@
     <string name="setting_nmea_summary">Forge NMEA data output</string>
     <string name="setting_wlan_title">Simulate WLAN Data</string>
     <string name="setting_wlan_summary">Forge WiFi positioning data</string>
+
+    <!-- Usage Manager -->
+    <string name="usage_not_logged_in">Please log in first to use simulation</string>
+    <string name="usage_free_exhausted">Free daily simulations exhausted. Subscribe for unlimited use.</string>
+    <string name="usage_count_exhausted">Simulation count exhausted</string>
+
+    <!-- API Errors -->
+    <string name="api_error_remaining">Failed to get remaining count</string>
+    <string name="api_error_send_code">Failed to send verification code</string>
+    <string name="api_error_login">Login failed</string>
+    <string name="api_error_plans">Failed to get plan list</string>
+    <string name="api_error_notices">Failed to get notices</string>
+    <string name="api_error_subscription">Failed to get subscription status</string>
+
+    <!-- Sponsor Errors -->
+    <string name="sponsor_error_not_logged_in">Not logged in</string>
+    <string name="sponsor_error_select_plan">Please select a plan</string>
+    <string name="sponsor_error_create_checkout">Failed to create checkout</string>
+
+    <!-- Sponsor Screen -->
+    <string name="sponsor_top_title">Subscription &amp; Sponsorship</string>
+    <string name="sponsor_member_title">Member Subscription</string>
+    <string name="sponsor_select_hint">Choose a plan to unlock all features</string>
+    <string name="sponsor_subscribed_text">Subscribed</string>
+    <string name="sponsor_thanks">Thank you for your support!</string>
+    <string name="sponsor_billing_once">One-time</string>
+    <string name="sponsor_billing_month">/month</string>
+    <string name="sponsor_billing_year">/year</string>
+    <string name="sponsor_login_first">Please log in first to subscribe</string>
+    <string name="sponsor_credit_card">Credit/Debit Card</string>
+    <string name="sponsor_wechat_pay">WeChat Pay</string>
+    <string name="sponsor_support_title">Sponsorship</string>
+    <string name="sponsor_tron_hint">You can also sponsor via TRON USDT:</string>
+    <string name="sponsor_copy_tron_address">Copy TRON Address</string>
+
+    <!-- Login Screen -->
+    <string name="login_hint_text">Only QQ email and Gmail supported. Enter verification code to login or auto-register.</string>
+    <string name="login_register_btn">Login / Register</string>
+
+    <!-- Profile -->
+    <string name="profile_member_status">Membership Status</string>
+    <string name="profile_not_subscribed">Not Subscribed</string>
+    <string name="profile_subscribe_now">Subscribe Now</string>
+
+    <!-- Cell Simulation Screen -->
+    <string name="cell_sim_empty_text">No simulated cell towers</string>
+    <string name="cell_sim_scan_hint">Scan or add cell towers below</string>
+    <string name="cell_sim_deselect_all">Deselect All</string>
+    <string name="cell_sim_select_all">Select All</string>
+    <string name="cell_sim_running_title">Cell Tower Simulation Running</string>
+    <string name="cell_sim_title_short">Cell Tower Sim</string>
+    <string name="cell_sim_more_fmt">+ %d more...</string>
+    <string name="cell_sim_start">Start Simulation</string>
+    <string name="cell_sim_stop">Stop Simulation</string>
+    <string name="cell_sim_status_running">Running</string>
+    <string name="cell_sim_scan_count_fmt">Scanned %d cell towers</string>
+    <string name="cell_sim_location_fmt">Location: %s</string>
+
+    <!-- WiFi Simulation Screen -->
+    <string name="wifi_sim_empty_text">No simulated WiFi</string>
+    <string name="wifi_sim_scan_hint">Scan or add WiFi networks below</string>
+    <string name="wifi_sim_deselect_all">Deselect All</string>
+    <string name="wifi_sim_select_all">Select All</string>
+    <string name="wifi_sim_running_title">WiFi Simulation Running</string>
+    <string name="wifi_sim_title_short">WiFi Sim</string>
+    <string name="wifi_sim_start">Start Simulation</string>
+    <string name="wifi_sim_stop">Stop Simulation</string>
+    <string name="wifi_sim_status_running">Running</string>
+    <string name="wifi_sim_scan_count_fmt">Scanned %d WiFi networks</string>
+    <string name="wifi_sim_add_label">Add</string>
+
+    <!-- Announcement Dialog -->
+    <string name="announcement_default_title">Announcement</string>
+    <string name="announcement_previous">Previous</string>
+    <string name="announcement_next">Next</string>
+    <string name="announcement_got_it">Got it</string>
+
+    <!-- Independent Simulation -->
+    <string name="ind_sim_running">Independent Simulation Running</string>
+    <string name="ind_sim_stopped">Independent Simulation Stopped</string>
+    <string name="ind_sim_description">Select target apps and enable. Once enabled, \"Start Simulation\" in Location/Route/WiFi/Cell/Step pages will only affect selected apps. Other apps read real data.</string>
+    <string name="ind_sim_stop_btn">Stop Independent Simulation</string>
+    <string name="ind_sim_start_btn">Start Independent Simulation</string>
+
+    <!-- Checkout WebView -->
+    <string name="checkout_title">Checkout</string>
+    <string name="checkout_back_desc">Back</string>
+
+    <!-- Location Picker -->
+    <string name="picker_map_init_failed">Map initialization failed: %s</string>
+    <string name="picker_search_no_results">Sorry, no results found</string>
+
+    <!-- Update -->
+    <string name="update_found_title">New version found: %s</string>
+
+    <!-- Location Simulation -->
+    <string name="location_rename_title">Rename Location</string>
+
+    <!-- Sandbox Manager/Activity/Screen -->
+    <string name="sandbox_install_success">Install successful</string>
+    <string name="sandbox_install_failed">Install failed: %s</string>
+    <string name="sandbox_uninstall_success">Uninstall successful</string>
+    <string name="sandbox_uninstall_failed">Uninstall failed: %s</string>
+    <string name="sandbox_launch_failed">Launch failed</string>
+    <string name="sandbox_launch_failed_msg">Launch failed: %s</string>
+    <string name="sandbox_clear_success">Clear successful</string>
+    <string name="sandbox_clear_failed">Clear failed: %s</string>
+    <string name="sandbox_stopped">Stopped</string>
+    <string name="sandbox_stop_failed">Stop failed: %s</string>
+    <string name="sandbox_loading_failed">Failed to load sandbox apps: %s</string>
+    <string name="sandbox_system_apps_failed">Failed to load system apps: %s</string>
+    <string name="sandbox_title_fmt">Sandbox - %s</string>
+    <string name="sandbox_creating_shortcut">Creating shortcut...</string>
+    <string name="sandbox_shortcut_failed">Failed to create shortcut: %s</string>
+    <string name="sandbox_invalid_shortcut">Invalid shortcut</string>
+    <string name="sandbox_empty">No apps in sandbox</string>
+    <string name="sandbox_empty_hint">Tap + to clone an app</string>
+    <string name="sandbox_launch_app">Launch App</string>
+    <string name="sandbox_clear_data">Clear Data</string>
+    <string name="sandbox_stop_running">Stop</string>
+    <string name="sandbox_uninstall_app">Uninstall App</string>
+    <string name="sandbox_create_shortcut">Create Shortcut</string>
+    <string name="sandbox_clear_data_btn">Clear Data</string>
+    <string name="sandbox_uninstall_btn">Uninstall</string>
+    <string name="sandbox_clone_title">Clone App</string>
+    <string name="sandbox_search_placeholder">Search apps...</string>
+    <string name="sandbox_load_system_apps">Loading system app list</string>
+    <string name="sandbox_settings_title">Sandbox Settings</string>
+    <string name="sandbox_hide_root">Hide Root</string>
+    <string name="sandbox_hide_root_desc">Hide Root access from sandboxed apps</string>
+    <string name="sandbox_restart_to_apply">Restart app to apply</string>
+    <string name="sandbox_daemon">Daemon</string>
+    <string name="sandbox_daemon_desc">Keep sandbox service running in background</string>
+    <string name="sandbox_vpn">Use VPN</string>
+    <string name="sandbox_vpn_desc">Route sandbox traffic through VPN, may improve network access</string>
+    <string name="sandbox_disable_secure">Disable FLAG_SECURE</string>
+    <string name="sandbox_disable_secure_desc">Allow screenshots and screen recording in sandbox apps</string>
+    <string name="sandbox_step_sim">Step Simulation</string>
+    <string name="sandbox_step_sim_desc">Simulate step sensor data for sandbox apps</string>
+    <string name="sandbox_step_fmt">Cadence: %d steps/min</string>
+    <string name="sandbox_step_adjust">Tap to adjust cadence</string>
+    <string name="sandbox_gms">GMS Management</string>
+    <string name="sandbox_gms_desc">Manage Google Services Framework</string>
+    <string name="sandbox_gms_coming">Feature in development</string>
+    <string name="sandbox_gms_unsupported">Device does not support GMS</string>
+    <string name="sandbox_send_log">Send Log</string>
+    <string name="sandbox_send_log_desc">Upload debug logs to developer</string>
+    <string name="sandbox_log_sent">Log sent successfully</string>
+    <string name="sandbox_log_failed">Failed to send log: %s</string>
+    <string name="sandbox_log_sending">Sending log...</string>
+    <string name="sandbox_adjust_cadence">Adjust Cadence</string>
+    <string name="sandbox_cadence_fmt">%d steps/min</string>
+    <string name="sandbox_cadence_range">Range: 30 - 240 steps/min</string>
+
+    <!-- Settings -->
+    <string name="settings_step_sim">Step Simulation</string>
+    <string name="settings_step_sim_enable">Enable Step Simulation</string>
+    <string name="settings_step_sim_summary">Simulate step data for pedometer apps</string>
+    <string name="settings_step_type">Step Data Type</string>
+
+    <!-- Cell ViewModel -->
+    <string name="cell_fetch_no_location">Unable to get current location. Please set a mock location or enable GPS first.</string>
+    <string name="cell_fetch_no_key">Please configure the OpenCellID API Key in settings</string>
+    <string name="cell_fetch_no_data">No cell tower data found. This area may have no coverage or API limit reached.</string>
+    <string name="cell_fetch_failed">Network request failed: %s</string>
+
+    <!-- NFC -->
+    <string name="nfc_read_failed">Read failed: %s</string>
+
+    <!-- Xposed Settings -->
+    <string name="xposed_not_set">Not set</string>
+
+    <!-- Welcome -->
+    <string name="welcome_cannot_open_settings">Cannot open settings page, please enable manually</string>
+
+    <!-- Login / Register -->
+    <string name="login_screen_title">Account</string>
+    <string name="login_tab_login">Login</string>
+    <string name="login_tab_register">Register</string>
+    <string name="login_dialog_title">Login</string>
+    <string name="register_dialog_title">Register</string>
+    <string name="login_username_hint">Username</string>
+    <string name="login_email_hint">Email</string>
+    <string name="login_password_hint">Password</string>
+    <string name="register_nickname_hint">Nickname</string>
+    <string name="register_password_confirm_hint">Confirm Password</string>
+    <string name="register_verification_code_hint">Verification Code</string>
+    <string name="register_send_code">Send Code</string>
+    <string name="login_action_login">Login</string>
+    <string name="login_action_register">Register</string>
+    <string name="login_forgot_password">Forgot Password?</string>
+    <string name="login_error_empty_fields">Required fields cannot be empty</string>
+    <string name="login_error_empty_email">Email cannot be empty</string>
+    <string name="login_error_invalid_email_domain">Only QQ email (@qq.com) and Gmail (@gmail.com) are supported. Please use a different email.</string>
+    <string name="register_error_password_mismatch">Passwords do not match</string>
+    <string name="register_error_send_code_failed">Failed to send verification code</string>
+    <string name="login_error_unknown">Operation failed, please try again later</string>
+    <string name="forgot_password_title">Forgot Password</string>
+    <string name="forgot_password_description">Enter your email and verification code to reset your password.</string>
+    <string name="forgot_password_new_password_hint">New Password</string>
+    <string name="forgot_password_send">Reset Password</string>
+    <string name="forgot_password_success">Password reset successful</string>
+    <string name="forgot_password_failed">Reset failed, please try again later</string>
+    <string name="profile_title">Profile</string>
+
+    <!-- Location Simulation -->
+    <string name="loc_sim_title">Location Simulation</string>
+    <string name="loc_sim_target">Target Location</string>
+    <string name="loc_sim_none">NONE</string>
+    <string name="loc_sim_lat_lng">Lng/Lat: %1$s,%2$s</string>
+    <string name="loc_sim_start">Start Simulation</string>
+    <string name="sim_starting">Starting...</string>
+    <string name="loc_sim_stop">Stop Simulation</string>
+    <string name="loc_sim_base_station">Cell Tower</string>
+    <string name="loc_sim_joystick">Joystick</string>
+    <string name="loc_sim_history_title">History</string>
+    <string name="loc_sim_add_tips">Tap "+" in the top right to add</string>
+
+    <!-- Root & App Hide -->
+    <string name="root_hide_title">Root &amp; App Hiding</string>
+    <string name="root_hide_status_running">Hiding Active</string>
+    <string name="root_hide_status_stopped">Hiding Stopped</string>
+    <string name="root_hide_desc">Select target apps and enable. When enabled, Root/framework traces and installed app list will be hidden from selected apps. Other apps are unaffected.</string>
+    <string name="root_hide_hide_root">Hide Root</string>
+    <string name="root_hide_hide_root_summary">Hide Root, Magisk, Xposed traces from target apps</string>
+    <string name="root_hide_hide_applist">Hide App List</string>
+    <string name="root_hide_hide_applist_summary">Hide installed app list from target apps (requires Hide Root)</string>
+    <string name="root_hide_target_apps">Target Apps</string>
+    <string name="root_hide_target_apps_hint">Tap to select apps to hide</string>
+    <string name="root_hide_start">Start Hiding</string>
+    <string name="root_hide_stop">Stop Hiding</string>
+    <string name="root_hide_no_apps">Please select target apps and enable at least one hiding option</string>
+    <string name="root_hide_select_apps">Select Target Apps</string>
+
+    <!-- Independent Simulation -->
+    <string name="ind_sim_title">Independent Simulation</string>
+    <string name="ind_sim_target_apps">Target Apps</string>
+    <string name="ind_sim_target_apps_hint">Tap to select apps to simulate</string>
+    <string name="ind_sim_sim_type">Simulation Type</string>
+    <string name="ind_sim_location">Location Simulation</string>
+    <string name="ind_sim_route">Route Simulation</string>
+    <string name="ind_sim_wifi_mock">WiFi Simulation</string>
+    <string name="ind_sim_cell_mock">Cell Tower Simulation</string>
+    <string name="ind_sim_gnss_mock">GPS Satellite Status Simulation</string>
+    <string name="ind_sim_gnss_mock_summary">Forge GnssStatus satellite data (anti-detection)</string>
+    <string name="ind_sim_jitter_mock">Location Jitter</string>
+    <string name="ind_sim_jitter_mock_summary">Add random offset to simulated location</string>
+    <string name="ind_sim_start">Start Independent Simulation</string>
+    <string name="ind_sim_stop">Stop Independent Simulation</string>
+    <string name="ind_sim_no_apps">Please select target apps first</string>
+    <string name="ind_sim_select_apps">Select Target Apps</string>
+    <string name="ind_sim_search_apps">Search Apps</string>
+    <string name="ind_sim_selected_count">%d app(s) selected</string>
+
+    <!-- WiFi Simulation -->
+    <string name="wifi_sim_title">WiFi Simulation</string>
+    <string name="wifi_sim_enable">Enable WiFi Simulation</string>
+    <string name="wifi_sim_enable_summary">Forge WiFi scan results and connection info</string>
+    <string name="wifi_sim_add">Add WiFi</string>
+    <string name="wifi_sim_list">WiFi List</string>
+    <string name="wifi_sim_empty">No WiFi data. Tap to add.</string>
+    <string name="wifi_sim_ssid">SSID</string>
+    <string name="wifi_sim_bssid">BSSID (MAC)</string>
+    <string name="wifi_sim_rssi">Signal Strength (dBm)</string>
+    <string name="wifi_sim_frequency">Frequency (MHz)</string>
+    <string name="wifi_sim_capabilities">Encryption</string>
+    <string name="wifi_sim_delete">Delete</string>
+    <string name="wifi_sim_edit">Edit</string>
+    <string name="wifi_sim_name">Name</string>
+    <string name="wifi_sim_history">History</string>
+    <string name="wifi_sim_current_target">Current Target WiFi</string>
+    <string name="wifi_sim_select_prompt">Tap a WiFi below to select</string>
+    <string name="wifi_sim_rename">Rename</string>
+    <string name="wifi_sim_rename_title">Rename WiFi</string>
+    <string name="wifi_sim_picker_title">Select WiFi</string>
+    <string name="wifi_sim_scan_nearby">Scan Nearby WiFi</string>
+    <string name="wifi_sim_scanning">Scanning...</string>
+    <string name="wifi_sim_scan_prompt">Tap the button above to scan nearby WiFi</string>
+    <string name="wifi_sim_scan_prompt2">Or tap + to add manually</string>
+    <string name="wifi_sim_manual_add">Add WiFi Manually</string>
+    <string name="wifi_sim_use">Use</string>
+    <string name="wifi_sim_scan_result_title">Scanned WiFi</string>
+    <string name="wifi_sim_scan_empty">No WiFi found. Make sure WiFi is on and you are in a coverage area.</string>
+
+    <!-- Cell Simulation -->
+    <string name="cell_sim_title">Cell Tower Simulation</string>
+    <string name="cell_sim_enable">Enable Cell Tower Simulation</string>
+    <string name="cell_sim_enable_summary">Forge cell tower location and signal info</string>
+    <string name="cell_sim_add">Add Cell Tower</string>
+    <string name="cell_sim_list">Cell Tower List</string>
+    <string name="cell_sim_empty">No cell tower data. Tap to add.</string>
+    <string name="cell_sim_type">Network Type</string>
+    <string name="cell_sim_mcc">MCC</string>
+    <string name="cell_sim_mnc">MNC</string>
+    <string name="cell_sim_lac">LAC/TAC</string>
+    <string name="cell_sim_cid">CID/CellId</string>
+    <string name="cell_sim_psc">PSC/PCI</string>
+    <string name="cell_sim_lat">Latitude</string>
+    <string name="cell_sim_lon">Longitude</string>
+    <string name="cell_sim_radius">Coverage Radius (m)</string>
+    <string name="cell_sim_delete">Delete</string>
+    <string name="cell_sim_edit">Edit</string>
+    <string name="cell_sim_scan_current">Get Nearby Cell Towers</string>
+    <string name="cell_sim_scanning">Scanning cell towers...</string>
+    <string name="cell_sim_scan_result_title">Scanned Cell Towers</string>
+    <string name="cell_sim_scan_empty">No cell towers found. Ensure location permission is granted and you are in a coverage area.</string>
+    <string name="cell_sim_scan_add_all">Add All</string>
+    <string name="cell_sim_fetch_network">Fetch from Network</string>
+    <string name="cell_sim_fetching_network">Fetching...</string>
+    <string name="cell_sim_history">History</string>
+
+
+    <string name="setting_opencellid_key">OpenCellID API Key</string>
+    <string name="setting_opencellid_key_summary">Used to query nearby cell towers by coordinates. Register at opencellid.org first.</string>
+    <string name="vm_system_not_ready">System not ready. Please try again in %1$d seconds (about %2$d seconds remaining).</string>
+    <string name="service_root_fallback_noroot">ROOT not granted, falling back to test provider (easily detected). Grant KailLocation root access in your root manager.</string>
+    <string name="service_root_fallback_binder">Injection failed, falling back to test provider. Please retry later or restart your device.</string>
+    <string name="cell_type_gsm">GSM</string>
+    <string name="cell_type_cdma">CDMA</string>
+    <string name="cell_type_lte">LTE</string>
+    <string name="cell_type_wcdma">WCDMA</string>
+    <string-array name="array_sim_scheme">
+        <item>@string/setting_sim_fourier</item>
+        <item>@string/setting_sim_sine_noise</item>
+    </string-array>
+    <string-array name="array_sim_scheme_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
 </resources>

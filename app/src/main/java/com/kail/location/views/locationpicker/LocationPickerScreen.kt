@@ -313,7 +313,7 @@ fun UpdateDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("发现新版本: ${info.version}") },  // TODO: use string resource if available
+        title = { Text(stringResource(R.string.update_found_title, info.version)) },
         text = {
              Text(info.content)
         },

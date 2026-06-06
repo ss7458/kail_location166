@@ -150,13 +150,13 @@ fun CellSimulationScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "暂无模拟基站",
+                            text = stringResource(R.string.cell_sim_empty_text),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "点击下方按钮扫描或添加基站",
+                            text = stringResource(R.string.cell_sim_scan_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                         )
@@ -215,7 +215,7 @@ fun CellSimulationScreen(
                         enabled = !isSimulating
                     ) {
                         Text(
-                            if (selectedIds.size == cellList.size) "取消全选" else "全选",
+                            if (selectedIds.size == cellList.size) stringResource(R.string.cell_sim_deselect_all) else stringResource(R.string.cell_sim_select_all),
                             fontSize = 12.sp
                         )
                     }
@@ -329,7 +329,7 @@ fun CellTargetCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = if (isSimulating) "基站模拟运行中" else "基站模拟",
+                    text = if (isSimulating) stringResource(R.string.cell_sim_running_title) else stringResource(R.string.cell_sim_title_short),
                     color = if (isSimulating) MaterialTheme.colorScheme.primary else Color.Gray,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
@@ -350,7 +350,7 @@ fun CellTargetCard(
             }
             if (activeList.size > 3) {
                 Text(
-                    text = "+ ${activeList.size - 3} 更多...",
+                    text = stringResource(R.string.cell_sim_more_fmt, activeList.size - 3),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 )
@@ -371,7 +371,7 @@ fun CellTargetCard(
                         shape = RoundedCornerShape(20.dp),
                         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp)
                     ) {
-                        Text("开始模拟", fontSize = 14.sp)
+                        Text(stringResource(R.string.cell_sim_start), fontSize = 14.sp)
                     }
                 } else {
                     Button(
@@ -380,7 +380,7 @@ fun CellTargetCard(
                         shape = RoundedCornerShape(20.dp),
                         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp)
                     ) {
-                        Text("停止模拟", fontSize = 14.sp)
+                        Text(stringResource(R.string.cell_sim_stop), fontSize = 14.sp)
                     }
                 }
 
@@ -390,7 +390,7 @@ fun CellTargetCard(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
-                            text = "运行中",
+                            text = stringResource(R.string.cell_sim_status_running),
                             color = MaterialTheme.colorScheme.primary,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
@@ -514,7 +514,7 @@ fun CellScanResultDialog(
                         .verticalScroll(rememberScrollState())
                 ) {
                     Text(
-                        text = "扫描到 ${scannedCells.size} 个基站",
+                        text = stringResource(R.string.cell_sim_scan_count_fmt, scannedCells.size),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(bottom = 8.dp)
@@ -538,7 +538,7 @@ fun CellScanResultDialog(
                                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                                 )
                                 Text(
-                                    text = "位置: ${String.format("%.6f", cell.latitude)}, ${String.format("%.6f", cell.longitude)}",
+                                    text = stringResource(R.string.cell_sim_location_fmt, String.format("%.6f, %.6f", cell.latitude, cell.longitude)),
                                     fontSize = 12.sp,
                                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                                 )

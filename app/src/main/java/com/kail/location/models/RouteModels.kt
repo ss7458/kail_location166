@@ -12,7 +12,7 @@ data class RouteInfo(
     val id: String,
     val startName: String,
     val endName: String,
-    val distance: String = "104米"
+    val distance: String = "104m"
 )
 
 /**

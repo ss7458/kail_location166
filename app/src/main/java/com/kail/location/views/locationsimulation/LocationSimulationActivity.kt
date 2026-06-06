@@ -21,6 +21,7 @@ import com.kail.location.views.locationpicker.LocationPickerActivity
 import com.kail.location.views.navigationsimulation.NavigationSimulationActivity
 import com.kail.location.utils.GoUtils
 import com.kail.location.views.common.AnnouncementDialog
+import com.kail.location.views.common.UpdateDownloadDialog
 import androidx.compose.runtime.LaunchedEffect
 
 
@@ -55,10 +56,15 @@ class LocationSimulationActivity : BaseActivity() {
                 val selectedRecordId by viewModel.selectedRecordId.collectAsState()
                 val runMode by viewModel.runMode.collectAsState()
                 val noticeList by viewModel.noticeList.collectAsState()
+                val updateInfo by viewModel.updateInfo.collectAsState()
+                val isDownloading by viewModel.isDownloading.collectAsState()
+                val downloadProgress by viewModel.downloadProgress.collectAsState()
+                val installUri by viewModel.installUri.collectAsState()
 
                 val version = packageManager.getPackageInfo(packageName, 0).versionName ?: ""
 
                 LaunchedEffect(Unit) {
+                    viewModel.checkUpdate(this@LocationSimulationActivity, true)
                     viewModel.checkAnnouncement()
                 }
 
@@ -162,7 +168,7 @@ class LocationSimulationActivity : BaseActivity() {
                         startActivity(Intent(this, LocationPickerActivity::class.java))
                     },
                     appVersion = version,
-                    onCheckUpdate = { viewModel.checkUpdate(this) }
+                    onCheckUpdate = { viewModel.checkUpdate(this@LocationSimulationActivity) }
                 )
 
                 if (noticeList.isNotEmpty()) {
@@ -170,6 +176,29 @@ class LocationSimulationActivity : BaseActivity() {
                         notices = noticeList,
                         onDismiss = { viewModel.dismissNotice() }
                     )
+                }
+
+                if (updateInfo != null) {
+                    UpdateDownloadDialog(
+                        info = updateInfo!!,
+                        downloading = isDownloading,
+                        progress = downloadProgress,
+                        onDismiss = { viewModel.dismissUpdateDialog() },
+                        onStartDownload = { viewModel.startUpdateDownload(this@LocationSimulationActivity) }
+                    )
+                }
+                if (installUri != null) {
+                    LaunchedEffect(installUri) {
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW).apply {
+                                setDataAndType(installUri, "application/vnd.android.package-archive")
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            }
+                            startActivity(intent)
+                        } catch (_: Exception) {}
+                        viewModel.clearInstallUri()
+                        viewModel.dismissUpdateDialog()
+                    }
                 }
             }
         }

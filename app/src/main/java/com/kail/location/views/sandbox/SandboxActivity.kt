@@ -149,15 +149,15 @@ class SandboxActivity : BaseActivity() {
 
             val shortcut = ShortcutInfoCompat.Builder(this, "sandbox_$packageName")
                 .setShortLabel(name)
-                .setLongLabel("沙盒 - $name")
+                .setLongLabel(getString(R.string.sandbox_title_fmt, name))
                 .setIcon(shortcutIcon)
                 .setIntent(intent)
                 .build()
 
             ShortcutManagerCompat.requestPinShortcut(this, shortcut, null)
-            Toast.makeText(this, "正在创建快捷方式...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.sandbox_creating_shortcut), Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
-            Toast.makeText(this, "创建快捷方式失败: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.sandbox_shortcut_failed, e.message), Toast.LENGTH_SHORT).show()
         }
     }
 }

@@ -4,27 +4,42 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kail.location.R
 import com.kail.location.viewmodels.RootAppHideViewModel
+import com.kail.location.views.common.AppDrawer
 import com.kail.location.views.independentsimulation.AppPickerDialog
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RootAppHideScreen(
     viewModel: RootAppHideViewModel,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onNavigate: (Int) -> Unit = {},
+    appVersion: String = ""
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+
+    val appPrefs = remember {
+        androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
+    }
+    var runMode by remember {
+        mutableStateOf(appPrefs.getString("setting_run_mode", "developer") ?: "developer")
+    }
 
     val isEnabled by viewModel.isEnabled.collectAsState()
     val hideRoot by viewModel.hideRoot.collectAsState()
@@ -38,30 +53,56 @@ fun RootAppHideScreen(
 
     val canStart = selectedPackages.isNotEmpty() && (hideRoot || hideAppList)
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.root_hide_title)) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        gesturesEnabled = drawerState.isOpen,
+        drawerContent = {
+            AppDrawer(
+                drawerState = drawerState,
+                currentScreen = "RootAppHide",
+                onNavigate = onNavigate,
+                appVersion = appVersion,
+                runMode = runMode,
+                onRunModeChange = { mode ->
+                    runMode = mode
+                    appPrefs.edit().putString("setting_run_mode", mode).apply()
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
-                )
+                onDeveloperModeSelected = {
+                    runMode = "developer"
+                    appPrefs.edit().putString("setting_run_mode", "developer").apply()
+                },
+                scope = scope
             )
         }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(scrollState)
-                .padding(16.dp)
-        ) {
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(stringResource(R.string.root_hide_title)) },
+                    navigationIcon = {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(
+                                Icons.Default.Menu,
+                                contentDescription = "Menu",
+                                tint = Color.White
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = Color.White,
+                        navigationIconContentColor = Color.White
+                    )
+                )
+            }
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(scrollState)
+                    .padding(16.dp)
+            ) {
             // Status Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -222,5 +263,6 @@ fun RootAppHideScreen(
                 )
             }
         }
+    }
     }
 }

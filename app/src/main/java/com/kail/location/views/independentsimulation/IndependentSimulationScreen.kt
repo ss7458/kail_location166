@@ -9,8 +9,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,17 +24,29 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.kail.location.R
 import com.kail.location.viewmodels.IndependentSimulationViewModel
+import com.kail.location.views.common.AppDrawer
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IndependentSimulationScreen(
     viewModel: IndependentSimulationViewModel,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onNavigate: (Int) -> Unit = {},
+    appVersion: String = ""
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+
+    // Reflect & persist the shared run mode
+    val appPrefs = remember {
+        androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
+    }
+    var runMode by remember {
+        mutableStateOf(appPrefs.getString("setting_run_mode", "developer") ?: "developer")
+    }
 
     val isEnabled by viewModel.isEnabled.collectAsState()
     val targetPackages by viewModel.targetPackages.collectAsState()
@@ -44,30 +56,56 @@ fun IndependentSimulationScreen(
         mutableStateOf(targetPackages.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet())
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.ind_sim_title)) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        gesturesEnabled = drawerState.isOpen,
+        drawerContent = {
+            AppDrawer(
+                drawerState = drawerState,
+                currentScreen = "IndependentSimulation",
+                onNavigate = onNavigate,
+                appVersion = appVersion,
+                runMode = runMode,
+                onRunModeChange = { mode ->
+                    runMode = mode
+                    appPrefs.edit().putString("setting_run_mode", mode).apply()
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
-                )
+                onDeveloperModeSelected = {
+                    runMode = "developer"
+                    appPrefs.edit().putString("setting_run_mode", "developer").apply()
+                },
+                scope = scope
             )
         }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(scrollState)
-                .padding(16.dp)
-        ) {
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(stringResource(R.string.ind_sim_title)) },
+                    navigationIcon = {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(
+                                Icons.Default.Menu,
+                                contentDescription = "Menu",
+                                tint = Color.White
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = Color.White,
+                        navigationIconContentColor = Color.White
+                    )
+                )
+            }
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(scrollState)
+                    .padding(16.dp)
+            ) {
             // Status Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -77,11 +115,11 @@ fun IndependentSimulationScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = if (isEnabled) "独立模拟运行中" else "独立模拟已停止",
+                        text = if (isEnabled) stringResource(R.string.ind_sim_running) else stringResource(R.string.ind_sim_stopped),
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        text = "选择目标应用后开启。开启后，在位置/路线/WiFi/基站/步频页面点\"开始模拟\"，都只对这里选中的应用生效，其它应用读到真实数据。",
+                        text = stringResource(R.string.ind_sim_description),
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(top = 4.dp)
                     )
@@ -139,7 +177,7 @@ fun IndependentSimulationScreen(
                 enabled = isEnabled || selectedPackages.isNotEmpty()
             ) {
                 Text(
-                    text = if (isEnabled) "停止独立模拟" else "开始独立模拟"
+                    text = if (isEnabled) stringResource(R.string.ind_sim_stop_btn) else stringResource(R.string.ind_sim_start_btn)
                 )
             }
 
@@ -163,6 +201,7 @@ fun IndependentSimulationScreen(
                 )
             }
         }
+    }
     }
 }
 

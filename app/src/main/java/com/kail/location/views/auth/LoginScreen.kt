@@ -92,7 +92,7 @@ fun LoginScreen(onBack: () -> Unit) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "仅支持 QQ 邮箱与谷歌邮箱，输入验证码即可登录或自动注册",
+                text = stringResource(R.string.login_hint_text),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -249,7 +249,7 @@ fun LoginScreen(onBack: () -> Unit) {
                     )
                 } else {
                     Text(
-                        text = "登录 / 注册",
+                        text = stringResource(R.string.login_register_btn),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )

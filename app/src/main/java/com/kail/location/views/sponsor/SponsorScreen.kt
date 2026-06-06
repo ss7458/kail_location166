@@ -1,9 +1,8 @@
 package com.kail.location.views.sponsor
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -15,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,7 +33,9 @@ fun SponsorScreen(
     plans: List<RuoYiClient.SubscriptionPlan>,
     selectedPlanId: Long?,
     onSelectPlan: (Long) -> Unit,
-    plansLoaded: Boolean
+    plansLoaded: Boolean,
+    wechatPayUrl: String?,
+    onCopyUrl: (String) -> Unit
 ) {
     val context = LocalContext.current
     val isLoggedIn = AuthManager.isLoggedIn
@@ -42,10 +44,10 @@ fun SponsorScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("订阅与赞助") },
+                title = { Text(stringResource(R.string.sponsor_top_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.checkout_back_desc))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -75,9 +77,9 @@ fun SponsorScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text("会员订阅", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.sponsor_member_title), fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("选择套餐以解锁全部功能", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.sponsor_select_hint), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -90,10 +92,10 @@ fun SponsorScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("已订阅", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.sponsor_subscribed_text), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         }
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("感谢您的支持！", style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.sponsor_thanks), style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             } else if (plansLoaded && plans.isNotEmpty()) {
@@ -130,9 +132,9 @@ fun SponsorScreen(
                             }
                             val priceText = String.format("%.2f", plan.price / 100.0)
                             val billingText = when (plan.billingInterval) {
-                                "one-time" -> "一次性"
-                                "month" -> "/月"
-                                "year" -> "/年"
+                                "one-time" -> stringResource(R.string.sponsor_billing_once)
+                                "month" -> stringResource(R.string.sponsor_billing_month)
+                                "year" -> stringResource(R.string.sponsor_billing_year)
                                 else -> ""
                             }
                             Text(
@@ -158,7 +160,7 @@ fun SponsorScreen(
                     Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.error)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("请先登录后再订阅", color = MaterialTheme.colorScheme.onErrorContainer)
+                        Text(stringResource(R.string.sponsor_login_first), color = MaterialTheme.colorScheme.onErrorContainer)
                     }
                 }
             } else if (!isSubscribed && plansLoaded) {
@@ -173,7 +175,7 @@ fun SponsorScreen(
                     } else {
                         Icon(Icons.Default.ShoppingCart, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("信用卡/银行卡", fontSize = 16.sp)
+                        Text(stringResource(R.string.sponsor_credit_card), fontSize = 16.sp)
                     }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -183,7 +185,7 @@ fun SponsorScreen(
                     modifier = Modifier.fillMaxWidth().height(52.dp),
                     shape = MaterialTheme.shapes.medium
                 ) {
-                    Text("微信支付", fontSize = 16.sp, color = MaterialTheme.colorScheme.primary)
+                    Text(stringResource(R.string.sponsor_wechat_pay), fontSize = 16.sp, color = MaterialTheme.colorScheme.primary)
                 }
             }
 
@@ -197,12 +199,35 @@ fun SponsorScreen(
                 }
             }
 
+            wechatPayUrl?.let { url ->
+                Spacer(modifier = Modifier.height(16.dp))
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(stringResource(R.string.sponsor_wechat_hint), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        SelectionContainer {
+                            Text(url, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Spacer(modifier = Modifier.weight(1f))
+                            Button(onClick = { onCopyUrl(url) }) {
+                                Text(stringResource(R.string.sponsor_copy))
+                            }
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(32.dp))
             HorizontalDivider()
             Spacer(modifier = Modifier.height(16.dp))
-            Text("赞助支持", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.sponsor_support_title), fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("您也可以直接通过 TRON USDT 赞助：", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.sponsor_tron_hint), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(modifier = Modifier.height(8.dp))
             Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                 Text("TVvudxmNTwzRFe3z7ts9srZE1srkqXgmxm", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(12.dp))
@@ -214,7 +239,7 @@ fun SponsorScreen(
                     clipboard?.setPrimaryClip(android.content.ClipData.newPlainText("TRON Address", "TVvudxmNTwzRFe3z7ts9srZE1srkqXgmxm"))
                 },
                 modifier = Modifier.fillMaxWidth()
-            ) { Text("复制 TRON 地址") }
+            ) { Text(stringResource(R.string.sponsor_copy_tron_address)) }
         }
     }
 }

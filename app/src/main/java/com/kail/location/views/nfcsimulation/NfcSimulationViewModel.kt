@@ -193,7 +193,7 @@ class NfcSimulationViewModel : ViewModel() {
                 it.close()
             } catch (e: Exception) {
                 KailLog.w(null, TAG, "onNfcTagDetected: read NDEF message failed: ${e.message}")
-                _ndefContent.value = context?.getString(R.string.nfc_sim_read_failed, e.message) ?: "读取失败: ${e.message}"
+                _ndefContent.value = context?.getString(R.string.nfc_sim_read_failed, e.message) ?: context?.getString(R.string.nfc_read_failed, e.message ?: "") ?: "read failed: ${e.message}"
             }
         }
     }

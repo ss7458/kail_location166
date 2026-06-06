@@ -176,13 +176,13 @@ fun SandboxScreen(
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                text = "沙盒中暂无应用",
+                                text = stringResource(R.string.sandbox_empty),
                                 color = Color.Gray,
                                 style = MaterialTheme.typography.bodyMedium
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = "点击右下角 + 按钮克隆应用",
+                                text = stringResource(R.string.sandbox_empty_hint),
                                 color = Color.Gray,
                                 style = MaterialTheme.typography.bodySmall
                             )
@@ -242,7 +242,7 @@ fun SandboxScreen(
                     ) {
                         Icon(Icons.Default.PlayArrow, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text("启动应用")
+                        Text(stringResource(R.string.sandbox_launch_app))
                     }
                     Row(
                         modifier = Modifier
@@ -256,7 +256,7 @@ fun SandboxScreen(
                     ) {
                         Icon(Icons.Default.Clear, contentDescription = null, tint = Color.Gray)
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text("清除数据")
+                        Text(stringResource(R.string.sandbox_clear_data))
                     }
                     Row(
                         modifier = Modifier
@@ -270,7 +270,7 @@ fun SandboxScreen(
                     ) {
                         Icon(Icons.Default.Refresh, contentDescription = null, tint = Color.Gray)
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text("停止运行")
+                        Text(stringResource(R.string.sandbox_stop_running))
                     }
                     Divider()
                     Row(
@@ -285,7 +285,7 @@ fun SandboxScreen(
                     ) {
                         Icon(Icons.Default.Delete, contentDescription = null, tint = Color.Red)
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text("卸载应用", color = Color.Red)
+                        Text(stringResource(R.string.sandbox_uninstall_app), color = Color.Red)
                     }
                 }
             },
@@ -373,7 +373,7 @@ fun SandboxAppItem(
                     modifier = Modifier.size(16.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("创建快捷方式", fontSize = 12.sp)
+                Text(stringResource(R.string.sandbox_create_shortcut), fontSize = 12.sp)
             }
             Spacer(modifier = Modifier.height(4.dp))
             Row(
@@ -391,7 +391,7 @@ fun SandboxAppItem(
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("清除数据", fontSize = 12.sp)
+                    Text(stringResource(R.string.sandbox_clear_data_btn), fontSize = 12.sp)
                 }
                 OutlinedButton(
                     onClick = onDeleteApp,
@@ -405,7 +405,7 @@ fun SandboxAppItem(
                         tint = Color.Red
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("卸载", fontSize = 12.sp, color = Color.Red)
+                    Text(stringResource(R.string.sandbox_uninstall_btn), fontSize = 12.sp, color = Color.Red)
                 }
             }
         }
@@ -481,14 +481,14 @@ fun InstallDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("克隆应用") },
+        title = { Text(stringResource(R.string.sandbox_clone_title)) },
         text = {
             Column(modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp)) {
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = onSearchQueryChange,
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("搜索应用...") },
+                    placeholder = { Text(stringResource(R.string.sandbox_search_placeholder)) },
                     singleLine = true
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -501,7 +501,7 @@ fun InstallDialog(
                     }
                 } else if (systemApps.isEmpty()) {
                     TextButton(onClick = onLoadApps, modifier = Modifier.fillMaxWidth()) {
-                        Text("加载系统应用列表")
+                        Text(stringResource(R.string.sandbox_load_system_apps))
                     }
                 } else {
                     LazyVerticalGrid(
@@ -592,7 +592,7 @@ fun SandboxSettingsDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("沙盒设置") },
+        title = { Text(stringResource(R.string.sandbox_settings_title)) },
         text = {
             Column(
                 modifier = Modifier
@@ -600,79 +600,79 @@ fun SandboxSettingsDialog(
                     .verticalScroll(rememberScrollState())
             ) {
                 SettingsSwitchRow(
-                    title = "隐藏 Root",
-                    description = "对沙盒应用隐藏 Root 权限",
+                    title = stringResource(R.string.sandbox_hide_root),
+                    description = stringResource(R.string.sandbox_hide_root_desc),
                     checked = hideRoot,
                     onCheckedChange = {
                         hideRoot = it
                         SandboxSettingsManager.hideRoot = it
-                        toastMessage = "重启应用生效"
+                        toastMessage = context.getString(R.string.sandbox_restart_to_apply)
                     }
                 )
                 SettingsSwitchRow(
-                    title = "守护进程",
-                    description = "保持沙盒服务在后台运行",
+                    title = stringResource(R.string.sandbox_daemon),
+                    description = stringResource(R.string.sandbox_daemon_desc),
                     checked = daemonEnable,
                     onCheckedChange = {
                         daemonEnable = it
                         SandboxSettingsManager.daemonEnable = it
-                        toastMessage = "重启应用生效"
+                        toastMessage = context.getString(R.string.sandbox_restart_to_apply)
                     }
                 )
                 SettingsSwitchRow(
-                    title = "使用 VPN 网络",
-                    description = "通过 VPN 路由沙盒应用流量，可能改善网络访问",
+                    title = stringResource(R.string.sandbox_vpn),
+                    description = stringResource(R.string.sandbox_vpn_desc),
                     checked = useVpnNetwork,
                     onCheckedChange = {
                         useVpnNetwork = it
                         SandboxSettingsManager.useVpnNetwork = it
-                        toastMessage = "重启应用生效"
+                        toastMessage = context.getString(R.string.sandbox_restart_to_apply)
                     }
                 )
                 SettingsSwitchRow(
-                    title = "禁用 FLAG_SECURE",
-                    description = "允许在沙盒应用中截屏和录屏",
+                    title = stringResource(R.string.sandbox_disable_secure),
+                    description = stringResource(R.string.sandbox_disable_secure_desc),
                     checked = disableFlagSecure,
                     onCheckedChange = {
                         disableFlagSecure = it
                         SandboxSettingsManager.disableFlagSecure = it
-                        toastMessage = "重启应用生效"
+                        toastMessage = context.getString(R.string.sandbox_restart_to_apply)
                     }
                 )
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
                 SettingsSwitchRow(
-                    title = "步频模拟",
-                    description = "为沙盒应用模拟步频传感器数据",
+                    title = stringResource(R.string.sandbox_step_sim),
+                    description = stringResource(R.string.sandbox_step_sim_desc),
                     checked = stepSimEnabled,
                     onCheckedChange = { stepSimEnabled = it }
                 )
                 if (stepSimEnabled) {
                     SettingsActionRow(
-                        title = "步频: ${stepSimSpm.toInt()} 步/分钟",
-                        description = "点击调整步频",
+                        title = stringResource(R.string.sandbox_step_fmt, stepSimSpm.toInt()),
+                        description = stringResource(R.string.sandbox_step_adjust),
                         onClick = { showStepSimDialog = true }
                     )
                 }
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
                 if (isSupportGms) {
                     SettingsActionRow(
-                        title = "GMS 管理",
-                        description = "管理 Google 服务框架",
+                        title = stringResource(R.string.sandbox_gms),
+                        description = stringResource(R.string.sandbox_gms_desc),
                         onClick = {
-                            toastMessage = "功能开发中"
+                            toastMessage = context.getString(R.string.sandbox_gms_coming)
                         }
                     )
                 } else {
                     SettingsActionRow(
-                        title = "GMS 管理",
-                        description = "当前设备不支持 GMS",
+                        title = stringResource(R.string.sandbox_gms),
+                        description = stringResource(R.string.sandbox_gms_unsupported),
                         enabled = false,
                         onClick = {}
                     )
                 }
                 SettingsActionRow(
-                    title = "发送日志",
-                    description = "上传调试日志到开发者",
+                    title = stringResource(R.string.sandbox_send_log),
+                    description = stringResource(R.string.sandbox_send_log_desc),
                     onClick = {
                         if (!isSendingLogs) {
                             isSendingLogs = true
@@ -680,18 +680,18 @@ fun SandboxSettingsDialog(
                                 SandboxSettingsManager.sendLogs(
                                     object : top.niunaijun.blackbox.BlackBoxCore.LogSendListener {
                                         override fun onSuccess() {
-                                            toastMessage = "日志发送成功"
+                                            toastMessage = context.getString(R.string.sandbox_log_sent)
                                             isSendingLogs = false
                                         }
                                         override fun onFailure(error: String?) {
-                                            toastMessage = "日志发送失败: $error"
+                                            toastMessage = context.getString(R.string.sandbox_log_failed, error ?: "")
                                             isSendingLogs = false
                                         }
                                     }
                                 )
-                                toastMessage = "正在发送日志..."
+                                toastMessage = context.getString(R.string.sandbox_log_sending)
                             } catch (e: Exception) {
-                                toastMessage = "发送失败: ${e.message}"
+                                toastMessage = context.getString(R.string.sandbox_log_failed, e.message ?: "")
                                 isSendingLogs = false
                             }
                         }
@@ -710,10 +710,10 @@ fun SandboxSettingsDialog(
         var tempSpm by remember { mutableStateOf(stepSimSpm) }
         AlertDialog(
             onDismissRequest = { showStepSimDialog = false },
-            title = { Text("调整步频") },
+            title = { Text(stringResource(R.string.sandbox_adjust_cadence)) },
             text = {
                 Column {
-                    Text("${tempSpm.toInt()} 步/分钟", fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                    Text(stringResource(R.string.sandbox_cadence_fmt, tempSpm.toInt()), fontSize = 18.sp, fontWeight = FontWeight.Medium)
                     Slider(
                         value = tempSpm,
                         onValueChange = { tempSpm = it },
@@ -721,7 +721,7 @@ fun SandboxSettingsDialog(
                         steps = 20,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
-                    Text("步频范围: 30 - 240 步/分钟", fontSize = 12.sp, color = Color.Gray)
+                    Text(stringResource(R.string.sandbox_cadence_range), fontSize = 12.sp, color = Color.Gray)
                 }
             },
             confirmButton = {

@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.kail.location.R
 import com.kail.location.sandbox.SandboxManager
 import com.kail.location.utils.KailLog
 
@@ -57,7 +58,7 @@ class SandboxViewModel(application: Application) : AndroidViewModel(application)
             } catch (e: Exception) {
                 KailLog.e(getApplication(), TAG, "loadSandboxApps failed", e)
                 withContext(Dispatchers.Main) {
-                    _toastMessage.value = "加载沙盒应用失败: ${e.message}"
+                    _toastMessage.value = getApplication<Application>().getString(R.string.sandbox_loading_failed, e.message)
                     _isLoading.value = false
                 }
             }
@@ -81,7 +82,7 @@ class SandboxViewModel(application: Application) : AndroidViewModel(application)
             } catch (e: Exception) {
                 KailLog.e(getApplication(), TAG, "Error loading system apps: ${e.message}", e)
                 withContext(Dispatchers.Main) {
-                    _toastMessage.value = "加载系统应用失败: ${e.message}"
+                    _toastMessage.value = getApplication<Application>().getString(R.string.sandbox_system_apps_failed, e.message)
                     _isLoading.value = false
                 }
             }

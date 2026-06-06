@@ -3,6 +3,7 @@ package com.kail.location.views.sandbox
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import com.kail.location.R
 import com.kail.location.views.base.BaseActivity
 import top.niunaijun.blackbox.BlackBoxCore
 
@@ -19,7 +20,7 @@ class SandboxLauncherActivity : BaseActivity() {
         val userId = intent.getIntExtra("user_id", 0)
 
         if (packageName.isNullOrEmpty()) {
-            Toast.makeText(this, "无效的快捷方式", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.sandbox_invalid_shortcut), Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -27,10 +28,10 @@ class SandboxLauncherActivity : BaseActivity() {
         try {
             val success = BlackBoxCore.get().launchApk(packageName, userId)
             if (!success) {
-                Toast.makeText(this, "启动失败", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.sandbox_launch_failed), Toast.LENGTH_SHORT).show()
             }
         } catch (e: Exception) {
-            Toast.makeText(this, "启动失败: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.sandbox_launch_failed_msg, e.message), Toast.LENGTH_SHORT).show()
         }
 
         finish()

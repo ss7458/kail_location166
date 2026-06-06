@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
+import com.kail.location.R
 import com.kail.location.views.base.BaseActivity
 import com.kail.location.views.theme.locationTheme
 
@@ -37,10 +38,10 @@ class CheckoutWebViewActivity : BaseActivity() {
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = { Text("结账") },
+                            title = { Text(getString(R.string.checkout_title)) },
                             navigationIcon = {
                                 IconButton(onClick = { finish() }) {
-                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
+                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = getString(R.string.checkout_back_desc))
                                 }
                             },
                             colors = TopAppBarDefaults.topAppBarColors(

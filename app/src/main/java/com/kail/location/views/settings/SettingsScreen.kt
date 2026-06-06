@@ -241,17 +241,17 @@ fun SettingsScreen(
             )
 
             // ===== Group: 步频模拟 =====
-            PreferenceCategory(title = "步频模拟")
+            PreferenceCategory(title = stringResource(R.string.settings_step_sim))
 
             SwitchPreference(
-                title = "启用步频模拟",
+                title = stringResource(R.string.settings_step_sim_enable),
                 checked = stepSimEnabled,
                 onCheckedChange = { viewModel.updateBooleanPreference(SettingsViewModel.KEY_STEP_SIM_ENABLED, it) },
-                summary = "模拟步频数据用于计步类应用"
+                summary = stringResource(R.string.settings_step_sim_summary)
             )
 
             ListPreference(
-                title = "步频数据类型",
+                title = stringResource(R.string.settings_step_type),
                 currentValue = simScheme,
                 entries = stringArrayResource(R.array.array_sim_scheme),
                 entryValues = stringArrayResource(R.array.array_sim_scheme_values),

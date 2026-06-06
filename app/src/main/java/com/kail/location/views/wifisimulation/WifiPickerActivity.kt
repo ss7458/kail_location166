@@ -243,7 +243,7 @@ fun NearbyWifiItem(
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
                             ) {
-                                Text("添加", fontSize = 12.sp)
+                                Text(stringResource(R.string.wifi_sim_add_label), fontSize = 12.sp)
                             }
         }
     }

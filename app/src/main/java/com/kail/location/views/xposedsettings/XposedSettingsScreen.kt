@@ -224,7 +224,7 @@ fun EditTextPreference(
         headlineContent = { Text(title) },
         supportingContent = {
             Column {
-                Text(value.ifEmpty { "未设置" })
+                Text(value.ifEmpty { stringResource(R.string.xposed_not_set) })
                 if (description.isNotEmpty()) {
                     Text(description, style = MaterialTheme.typography.bodySmall)
                 }

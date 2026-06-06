@@ -8,6 +8,7 @@ import android.telephony.TelephonyManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.preference.PreferenceManager
+import com.kail.location.R
 import com.kail.location.models.CellInfo
 import com.kail.location.utils.KailLog
 import kotlinx.coroutines.Dispatchers
@@ -439,7 +440,7 @@ target_packages="""
                 val (lat, lng) = getCurrentWgs84Location()
                 KailLog.d(getApplication(), TAG, "fetchCellsFromNetwork: location lat=$lat lon=$lng")
                 if (lat == 0.0 && lng == 0.0) {
-                    _networkFetchError.value = "无法获取当前位置，请先设置模拟位置或开启GPS"
+                    _networkFetchError.value = getApplication<Application>().getString(R.string.cell_fetch_no_location)
                     _isFetchingNetwork.value = false
                     return@launch
                 }
@@ -447,7 +448,7 @@ target_packages="""
                 val apiKey = prefs.getString(SettingsViewModel.KEY_OPENCELLID_API_KEY, "") ?: ""
                 KailLog.d(getApplication(), TAG, "fetchCellsFromNetwork: apiKey length=${apiKey.length} blank=${apiKey.isBlank()}")
                 if (apiKey.isBlank()) {
-                    _networkFetchError.value = "请先在设置中配置 OpenCellID API Key"
+                    _networkFetchError.value = getApplication<Application>().getString(R.string.cell_fetch_no_key)
                     _isFetchingNetwork.value = false
                     return@launch
                 }
@@ -461,13 +462,13 @@ target_packages="""
                 KailLog.i(getApplication(), TAG, "fetchCellsFromNetwork: fetched ${cells.size} cells")
 
                 if (cells.isEmpty()) {
-                    _networkFetchError.value = "未查询到基站数据，该区域可能无覆盖或API限制"
+                    _networkFetchError.value = getApplication<Application>().getString(R.string.cell_fetch_no_data)
                 } else {
                     _scannedCells.value = cells
                 }
             } catch (e: Exception) {
                 KailLog.e(getApplication(), TAG, "fetchCellsFromNetwork failed", e)
-                _networkFetchError.value = "网络请求失败: ${e.message}"
+                _networkFetchError.value = getApplication<Application>().getString(R.string.cell_fetch_failed, e.message)
             } finally {
                 _isFetchingNetwork.value = false
             }

@@ -150,13 +150,13 @@ fun WifiSimulationScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "暂无模拟WiFi",
+                            text = stringResource(R.string.wifi_sim_empty_text),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "点击下方按钮扫描附近WiFi",
+                            text = stringResource(R.string.wifi_sim_scan_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                         )
@@ -227,7 +227,7 @@ fun WifiSimulationScreen(
                         enabled = !isSimulating
                     ) {
                         Text(
-                            if (selectedIds.size == wifiList.size) "取消全选" else "全选",
+                            if (selectedIds.size == wifiList.size) stringResource(R.string.wifi_sim_deselect_all) else stringResource(R.string.wifi_sim_select_all),
                             fontSize = 12.sp
                         )
                     }
@@ -366,7 +366,7 @@ fun WifiScanResultDialog(
                         .verticalScroll(androidx.compose.foundation.rememberScrollState())
                 ) {
                     Text(
-                        text = "扫描到 ${nearbyResults.size} 个WiFi",
+                        text = stringResource(R.string.wifi_sim_scan_count_fmt, nearbyResults.size),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(bottom = 8.dp)
@@ -401,7 +401,7 @@ fun WifiScanResultDialog(
                                     onClick = { onAdd(result) },
                                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
                                 ) {
-                                    Text("添加", fontSize = 12.sp)
+                                    Text(stringResource(R.string.wifi_sim_add_label), fontSize = 12.sp)
                                 }
                             }
                         }
@@ -445,7 +445,7 @@ fun WifiTargetCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = if (isSimulating) "WiFi模拟运行中" else "WiFi模拟",
+                    text = if (isSimulating) stringResource(R.string.wifi_sim_running_title) else stringResource(R.string.wifi_sim_title_short),
                     color = if (isSimulating) MaterialTheme.colorScheme.primary else Color.Gray,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
@@ -474,7 +474,7 @@ fun WifiTargetCard(
             }
             if (activeList.size > 3) {
                 Text(
-                    text = "+ ${activeList.size - 3} 更多...",
+                    text = stringResource(R.string.cell_sim_more_fmt, activeList.size - 3),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 )
@@ -496,7 +496,7 @@ fun WifiTargetCard(
                         shape = RoundedCornerShape(20.dp),
                         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp)
                     ) {
-                        Text("开始模拟", fontSize = 14.sp)
+                        Text(stringResource(R.string.wifi_sim_start), fontSize = 14.sp)
                     }
                 } else {
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -506,7 +506,7 @@ fun WifiTargetCard(
                             shape = RoundedCornerShape(20.dp),
                             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp)
                         ) {
-                            Text("停止模拟", fontSize = 14.sp)
+                            Text(stringResource(R.string.wifi_sim_stop), fontSize = 14.sp)
                         }
                     }
                 }
@@ -517,7 +517,7 @@ fun WifiTargetCard(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
-                            text = "运行中",
+                            text = stringResource(R.string.wifi_sim_status_running),
                             color = MaterialTheme.colorScheme.primary,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,

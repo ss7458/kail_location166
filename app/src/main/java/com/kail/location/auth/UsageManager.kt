@@ -1,6 +1,7 @@
 package com.kail.location.auth
 
 import android.content.Context
+import com.kail.location.R
 import com.kail.location.network.RuoYiClient
 import com.kail.location.utils.KailLog
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +41,7 @@ object UsageManager {
         if (!AuthManager.isLoggedIn) {
             KailLog.i(context, TAG, "canStartSimulation=false: not logged in")
             withContext(Dispatchers.Main) {
-                android.widget.Toast.makeText(context, "请先登录后再使用模拟功能", android.widget.Toast.LENGTH_SHORT).show()
+                android.widget.Toast.makeText(context, context.getString(R.string.usage_not_logged_in), android.widget.Toast.LENGTH_SHORT).show()
             }
             return false
         }
@@ -60,7 +61,7 @@ object UsageManager {
             KailLog.i(context, TAG, "canStartSimulation: remaining free count=$remaining")
             if (remaining <= 0) {
                 withContext(Dispatchers.Main) {
-                    android.widget.Toast.makeText(context, "今日免费模拟次数已用完，订阅后可无限使用", android.widget.Toast.LENGTH_SHORT).show()
+                    android.widget.Toast.makeText(context, context.getString(R.string.usage_free_exhausted), android.widget.Toast.LENGTH_SHORT).show()
                 }
                 false
             } else {
@@ -69,7 +70,7 @@ object UsageManager {
         } else {
             KailLog.w(context, TAG, "canStartSimulation: check failed: ${result.exceptionOrNull()?.message}")
             withContext(Dispatchers.Main) {
-                android.widget.Toast.makeText(context, "今日免费模拟次数已用完，订阅后可无限使用", android.widget.Toast.LENGTH_SHORT).show()
+                android.widget.Toast.makeText(context, context.getString(R.string.usage_free_exhausted), android.widget.Toast.LENGTH_SHORT).show()
             }
             false
         }
@@ -93,7 +94,7 @@ object UsageManager {
         } else {
             KailLog.w(context, TAG, "consumeSimulation failed: ${result.exceptionOrNull()?.message}")
             withContext(Dispatchers.Main) {
-                android.widget.Toast.makeText(context, "模拟次数已用完", android.widget.Toast.LENGTH_SHORT).show()
+                android.widget.Toast.makeText(context, context.getString(R.string.usage_count_exhausted), android.widget.Toast.LENGTH_SHORT).show()
             }
             false
         }

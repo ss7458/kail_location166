@@ -144,12 +144,12 @@ fun ProfileScreen(onBack: () -> Unit, onGoSponsor: () -> Unit = {}) {
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = "会员状态",
+                            text = stringResource(R.string.profile_member_status),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = if (isSubscribed) "已订阅" else "未订阅",
+                            text = if (isSubscribed) stringResource(R.string.sponsor_subscribed_text) else stringResource(R.string.profile_not_subscribed),
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Bold,
                             color = if (isSubscribed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
@@ -168,7 +168,7 @@ fun ProfileScreen(onBack: () -> Unit, onGoSponsor: () -> Unit = {}) {
                 ) {
                     Icon(Icons.Default.Star, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("订阅会员", fontSize = 16.sp)
+                    Text(stringResource(R.string.profile_subscribe_now), fontSize = 16.sp)
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))

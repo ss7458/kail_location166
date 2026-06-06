@@ -267,7 +267,7 @@ fun LocationSimulationScreen(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(stringResource(R.string.route_sim_cadence_text), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
-                                        Text("${stepCadenceSpm.toInt()} 步/分钟 · 约 ${((kmh * 10).toInt() / 10f)} km/h", fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
+                                        Text(stringResource(R.string.route_sim_cadence_format, stepCadenceSpm.toInt(), ((kmh * 10).toInt() / 10f)), fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
                                     }
                                     Slider(
                                         value = stepCadenceSpm,
@@ -393,7 +393,7 @@ fun LocationSimulationScreen(
     if (renameTarget != null) {
         AlertDialog(
             onDismissRequest = { renameTarget = null },
-            title = { Text("重命名位置") },
+            title = { Text(stringResource(R.string.location_rename_title)) },
             text = {
                 OutlinedTextField(value = renameText, onValueChange = { renameText = it })
             },

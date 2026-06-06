@@ -3,8 +3,10 @@ package com.kail.location.viewmodels
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.kail.location.R
 import com.kail.location.auth.AuthManager
 import com.kail.location.network.RuoYiClient
 import com.kail.location.utils.KailLog
@@ -16,7 +18,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
-class SponsorViewModel : ViewModel() {
+class SponsorViewModel(application: Application) : AndroidViewModel(application) {
 
     companion object {
         private const val TAG = "SponsorViewModel"
@@ -31,6 +33,8 @@ class SponsorViewModel : ViewModel() {
     var checkoutError by mutableStateOf<String?>(null)
         private set
     var plansLoaded by mutableStateOf(false)
+    var wechatPayUrl by mutableStateOf<String?>(null)
+        private set
 
     fun loadPlans() {
         val token = AuthManager.token ?: return
@@ -56,11 +60,12 @@ class SponsorViewModel : ViewModel() {
     }
 
     private fun createCheckoutUrl(onUrl: (String) -> Unit) {
-        val token = AuthManager.token ?: run { checkoutError = "未登录"; return }
-        val planId = selectedPlanId ?: run { checkoutError = "请选择套餐"; return }
+        val token = AuthManager.token ?: run { checkoutError = getApplication<Application>().getString(R.string.sponsor_error_not_logged_in); return }
+        val planId = selectedPlanId ?: run { checkoutError = getApplication<Application>().getString(R.string.sponsor_error_select_plan); return }
 
         isCreatingCheckout = true
         checkoutError = null
+        val errorCreateCheckout = getApplication<Application>().getString(R.string.sponsor_error_create_checkout)
 
         viewModelScope.launch {
             val result = withContext(Dispatchers.IO) {
@@ -80,7 +85,7 @@ class SponsorViewModel : ViewModel() {
                     if (root.optInt("code", -1) == 0) {
                         root.getJSONObject("data").getString("checkoutUrl")
                     } else {
-                        throw Exception(root.optString("msg", "创建结算页面失败"))
+                        throw Exception(root.optString("msg", errorCreateCheckout))
                     }
                 }
             }
@@ -96,7 +101,10 @@ class SponsorViewModel : ViewModel() {
     }
 
     fun createCheckout(onUrl: (String) -> Unit) { createCheckoutUrl(onUrl) }
-    fun createWechatCheckout(onUrl: (String) -> Unit) { createCheckoutUrl(onUrl) }
+    fun createWechatCheckout() {
+        wechatPayUrl = null
+        createCheckoutUrl { url -> wechatPayUrl = url }
+    }
 
     fun checkSubscriptionStatus() {
         val token = AuthManager.token ?: return

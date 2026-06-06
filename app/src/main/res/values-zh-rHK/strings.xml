@@ -83,16 +83,11 @@
     <string name="nav_menu_history">歷史紀錄</string>
     <string name="nav_menu_location_simulation">位置模擬</string>
     <string name="nav_menu_route_simulation">路線模擬</string>
-    <string name="loc_sim_title">位置模擬</string>
-    <string name="loc_sim_target">目標位置</string>
-    <string name="loc_sim_none">無</string>
-    <string name="loc_sim_lat_lng">經緯度：%1$s,%2$s</string>
-    <string name="loc_sim_start">開始模擬</string>
-    <string name="loc_sim_stop">停止模擬</string>
-    <string name="loc_sim_base_station">基站</string>
-    <string name="loc_sim_joystick">搖桿</string>
-    <string name="loc_sim_history_title">歷史位置</string>
-    <string name="loc_sim_add_tips">點擊右上角「+」按鈕進行新增</string>
+    <string name="nav_menu_sim_group">模擬</string>
+    <string name="nav_menu_independent_sim">獨立模擬</string>
+    <string name="nav_menu_root_app_hide">Root 與應用隱藏</string>
+    <string name="nav_menu_wifi_sim">WiFi 模擬</string>
+    <string name="nav_menu_cell_sim">基站模擬</string>
     <string name="nav_menu_settings">設定</string>
     <string name="nav_menu_dev">開發者選項</string>
     <string name="nav_menu_more">更多</string>
@@ -309,9 +304,15 @@
     <string name="drawer_run_mode">運行模式</string>
     <string name="drawer_sandbox">沙盒引擎</string>
     <string name="drawer_xposed_settings">Xposed 設定</string>
+    <string name="drawer_action_login">登入 / 註冊</string>
+    <string name="drawer_action_logout">退出登入</string>
+    <string name="drawer_logged_in_as">已登入</string>
+    <string name="drawer_not_logged_in">未登入</string>
 
     <string name="sponsor_copied">已複製</string>
     <string name="sponsor_copy_address">複製地址</string>
+    <string name="sponsor_wechat_hint">將下方連結在電腦瀏覽器打開，國家選擇中國</string>
+    <string name="sponsor_copy">複製</string>
 
     <string name="welcome_read">已閱讀</string>
     <string name="welcome_and">和</string>
@@ -380,4 +381,345 @@
     <string name="setting_nmea_summary">偽造 NMEA 資料輸出</string>
     <string name="setting_wlan_title">模擬 WLAN 資料</string>
     <string name="setting_wlan_summary">偽造 Wi‑Fi 定位資料</string>
+
+    <!-- Usage Manager -->
+    <string name="usage_not_logged_in">請先登入後再使用模擬功能</string>
+    <string name="usage_free_exhausted">今日免費模擬次數已用完，訂閱後可無限使用</string>
+    <string name="usage_count_exhausted">模擬次數已用完</string>
+
+    <!-- API Errors -->
+    <string name="api_error_remaining">獲取剩餘次數失敗</string>
+    <string name="api_error_send_code">發送驗證碼失敗</string>
+    <string name="api_error_login">登入失敗</string>
+    <string name="api_error_plans">獲取套餐列表失敗</string>
+    <string name="api_error_notices">獲取公告失敗</string>
+    <string name="api_error_subscription">獲取訂閱狀態失敗</string>
+
+    <!-- Sponsor Errors -->
+    <string name="sponsor_error_not_logged_in">未登入</string>
+    <string name="sponsor_error_select_plan">請選擇套餐</string>
+    <string name="sponsor_error_create_checkout">建立結算頁面失敗</string>
+
+    <!-- Sponsor Screen -->
+    <string name="sponsor_top_title">訂閱與贊助</string>
+    <string name="sponsor_member_title">會員訂閱</string>
+    <string name="sponsor_select_hint">選擇套餐以解鎖全部功能</string>
+    <string name="sponsor_subscribed_text">已訂閱</string>
+    <string name="sponsor_thanks">感謝您的支援！</string>
+    <string name="sponsor_billing_once">一次性</string>
+    <string name="sponsor_billing_month">/月</string>
+    <string name="sponsor_billing_year">/年</string>
+    <string name="sponsor_login_first">請先登入後再訂閱</string>
+    <string name="sponsor_credit_card">信用卡/簽帳卡</string>
+    <string name="sponsor_wechat_pay">微信支付</string>
+    <string name="sponsor_support_title">贊助支援</string>
+    <string name="sponsor_tron_hint">您也可以直接透過 TRON USDT 贊助：</string>
+    <string name="sponsor_copy_tron_address">複製 TRON 地址</string>
+
+    <!-- Login Screen -->
+    <string name="login_hint_text">僅支援 QQ 郵箱與 Google 郵箱，輸入驗證碼即可登入或自動註冊</string>
+    <string name="login_register_btn">登入 / 註冊</string>
+
+    <!-- Profile -->
+    <string name="profile_member_status">會員狀態</string>
+    <string name="profile_not_subscribed">未訂閱</string>
+    <string name="profile_subscribe_now">訂閱會員</string>
+
+    <!-- Cell Simulation Screen -->
+    <string name="cell_sim_empty_text">暫無模擬基站</string>
+    <string name="cell_sim_scan_hint">點擊下方按鈕掃描或新增基站</string>
+    <string name="cell_sim_deselect_all">取消全選</string>
+    <string name="cell_sim_select_all">全選</string>
+    <string name="cell_sim_running_title">基站模擬執行中</string>
+    <string name="cell_sim_title_short">基站模擬</string>
+    <string name="cell_sim_more_fmt">+ %d 更多...</string>
+    <string name="cell_sim_start">開始模擬</string>
+    <string name="cell_sim_stop">停止模擬</string>
+    <string name="cell_sim_status_running">執行中</string>
+    <string name="cell_sim_scan_count_fmt">掃描到 %d 個基站</string>
+    <string name="cell_sim_location_fmt">位置: %s</string>
+
+    <!-- WiFi Simulation Screen -->
+    <string name="wifi_sim_empty_text">暫無模擬WiFi</string>
+    <string name="wifi_sim_scan_hint">點擊下方按鈕掃描附近WiFi</string>
+    <string name="wifi_sim_deselect_all">取消全選</string>
+    <string name="wifi_sim_select_all">全選</string>
+    <string name="wifi_sim_running_title">WiFi模擬執行中</string>
+    <string name="wifi_sim_title_short">WiFi模擬</string>
+    <string name="wifi_sim_start">開始模擬</string>
+    <string name="wifi_sim_stop">停止模擬</string>
+    <string name="wifi_sim_status_running">執行中</string>
+    <string name="wifi_sim_scan_count_fmt">掃描到 %d 個WiFi</string>
+    <string name="wifi_sim_add_label">新增</string>
+
+    <!-- Announcement Dialog -->
+    <string name="announcement_default_title">公告</string>
+    <string name="announcement_previous">上一條</string>
+    <string name="announcement_next">下一條</string>
+    <string name="announcement_got_it">我知道了</string>
+
+    <!-- Independent Simulation -->
+    <string name="ind_sim_running">獨立模擬執行中</string>
+    <string name="ind_sim_stopped">獨立模擬已停止</string>
+    <string name="ind_sim_description">選擇目標應用後開啟。開啟後，在位置/路線/WiFi/基站/步頻頁面點「開始模擬」，都只對這裏選擇的應用生效，其它應用讀到真實資料。</string>
+    <string name="ind_sim_stop_btn">停止獨立模擬</string>
+    <string name="ind_sim_start_btn">開始獨立模擬</string>
+
+    <!-- Checkout WebView -->
+    <string name="checkout_title">結帳</string>
+    <string name="checkout_back_desc">返回</string>
+
+    <!-- Location Picker -->
+    <string name="picker_map_init_failed">地圖初始化失敗: %s</string>
+    <string name="picker_search_no_results">抱歉，未能找到結果</string>
+
+    <!-- Update -->
+    <string name="update_found_title">發現新版本: %s</string>
+
+    <!-- Location Simulation -->
+    <string name="location_rename_title">重新命名位置</string>
+
+    <!-- Sandbox Manager/Activity/Screen -->
+    <string name="sandbox_install_success">安裝成功</string>
+    <string name="sandbox_install_failed">安裝失敗: %s</string>
+    <string name="sandbox_uninstall_success">解除安裝成功</string>
+    <string name="sandbox_uninstall_failed">解除安裝失敗: %s</string>
+    <string name="sandbox_launch_failed">啟動失敗</string>
+    <string name="sandbox_launch_failed_msg">啟動失敗: %s</string>
+    <string name="sandbox_clear_success">清除成功</string>
+    <string name="sandbox_clear_failed">清除失敗: %s</string>
+    <string name="sandbox_stopped">已停止執行</string>
+    <string name="sandbox_stop_failed">停止失敗: %s</string>
+    <string name="sandbox_loading_failed">載入沙盒應用失敗: %s</string>
+    <string name="sandbox_system_apps_failed">載入系統應用失敗: %s</string>
+    <string name="sandbox_title_fmt">沙盒 - %s</string>
+    <string name="sandbox_creating_shortcut">正在建立捷徑...</string>
+    <string name="sandbox_shortcut_failed">建立捷徑失敗: %s</string>
+    <string name="sandbox_invalid_shortcut">無效的捷徑</string>
+    <string name="sandbox_empty">沙盒中暫無應用</string>
+    <string name="sandbox_empty_hint">點擊右下角 + 按鈕克隆應用</string>
+    <string name="sandbox_launch_app">啟動應用</string>
+    <string name="sandbox_clear_data">清除資料</string>
+    <string name="sandbox_stop_running">停止執行</string>
+    <string name="sandbox_uninstall_app">解除安裝應用</string>
+    <string name="sandbox_create_shortcut">建立捷徑</string>
+    <string name="sandbox_clear_data_btn">清除資料</string>
+    <string name="sandbox_uninstall_btn">解除安裝</string>
+    <string name="sandbox_clone_title">克隆應用</string>
+    <string name="sandbox_search_placeholder">搜尋應用...</string>
+    <string name="sandbox_load_system_apps">載入系統應用列表</string>
+    <string name="sandbox_settings_title">沙盒設定</string>
+    <string name="sandbox_hide_root">隱藏 Root</string>
+    <string name="sandbox_hide_root_desc">對沙盒應用隱藏 Root 權限</string>
+    <string name="sandbox_restart_to_apply">重新啟動應用生效</string>
+    <string name="sandbox_daemon">守護程序</string>
+    <string name="sandbox_daemon_desc">保持沙盒服務在背景執行</string>
+    <string name="sandbox_vpn">使用 VPN 網路</string>
+    <string name="sandbox_vpn_desc">透過 VPN 路由沙盒應用流量，可能改善網路存取</string>
+    <string name="sandbox_disable_secure">停用 FLAG_SECURE</string>
+    <string name="sandbox_disable_secure_desc">允許在沙盒應用中截圖和錄影</string>
+    <string name="sandbox_step_sim">步頻模擬</string>
+    <string name="sandbox_step_sim_desc">為沙盒應用模擬步頻感測器資料</string>
+    <string name="sandbox_step_fmt">步頻: %d 步/分鐘</string>
+    <string name="sandbox_step_adjust">點擊調整步頻</string>
+    <string name="sandbox_gms">GMS 管理</string>
+    <string name="sandbox_gms_desc">管理 Google 服務框架</string>
+    <string name="sandbox_gms_coming">功能開發中</string>
+    <string name="sandbox_gms_unsupported">目前裝置不支援 GMS</string>
+    <string name="sandbox_send_log">傳送記錄</string>
+    <string name="sandbox_send_log_desc">上傳偵錯記錄到開發者</string>
+    <string name="sandbox_log_sent">記錄傳送成功</string>
+    <string name="sandbox_log_failed">記錄傳送失敗: %s</string>
+    <string name="sandbox_log_sending">正在傳送記錄...</string>
+    <string name="sandbox_adjust_cadence">調整步頻</string>
+    <string name="sandbox_cadence_fmt">%d 步/分鐘</string>
+    <string name="sandbox_cadence_range">步頻範圍: 30 - 240 步/分鐘</string>
+
+    <!-- Settings -->
+    <string name="settings_step_sim">步頻模擬</string>
+    <string name="settings_step_sim_enable">啟用步頻模擬</string>
+    <string name="settings_step_sim_summary">模擬步頻資料用於計步類應用</string>
+    <string name="settings_step_type">步頻資料類型</string>
+
+    <!-- Cell ViewModel -->
+    <string name="cell_fetch_no_location">無法取得目前位置，請先設定模擬位置或開啟GPS</string>
+    <string name="cell_fetch_no_key">請先在設定中設定 OpenCellID API Key</string>
+    <string name="cell_fetch_no_data">未查詢到基站資料，該區域可能無覆蓋或API限制</string>
+    <string name="cell_fetch_failed">網路請求失敗: %s</string>
+
+    <!-- NFC -->
+    <string name="nfc_read_failed">讀取失敗: %s</string>
+
+    <!-- Xposed Settings -->
+    <string name="xposed_not_set">未設定</string>
+
+    <!-- Welcome -->
+    <string name="welcome_cannot_open_settings">無法開啟設定頁面，請手動開啟</string>
+
+    <!-- Login / Register -->
+    <string name="login_screen_title">帳戶</string>
+    <string name="login_tab_login">登入</string>
+    <string name="login_tab_register">註冊</string>
+    <string name="login_dialog_title">登入</string>
+    <string name="register_dialog_title">註冊</string>
+    <string name="login_username_hint">使用者名稱</string>
+    <string name="login_email_hint">郵箱地址</string>
+    <string name="login_password_hint">密碼</string>
+    <string name="register_nickname_hint">暱稱</string>
+    <string name="register_password_confirm_hint">確認密碼</string>
+    <string name="register_verification_code_hint">信箱驗證碼</string>
+    <string name="register_send_code">發送驗證碼</string>
+    <string name="login_action_login">登入</string>
+    <string name="login_action_register">註冊</string>
+    <string name="login_forgot_password">忘記密碼？</string>
+    <string name="login_error_empty_fields">必填項不能為空</string>
+    <string name="login_error_empty_email">郵箱不能為空</string>
+    <string name="login_error_invalid_email_domain">僅支援 QQ 郵箱（@qq.com）與 Google 郵箱（@gmail.com）登入</string>
+    <string name="register_error_password_mismatch">兩次輸入的密碼不一致</string>
+    <string name="register_error_send_code_failed">發送驗證碼失敗</string>
+    <string name="login_error_unknown">操作失敗，請稍後重試</string>
+    <string name="forgot_password_title">忘記密碼</string>
+    <string name="forgot_password_description">請輸入郵箱和驗證碼重設密碼。</string>
+    <string name="forgot_password_new_password_hint">新密碼</string>
+    <string name="forgot_password_send">重設密碼</string>
+    <string name="forgot_password_success">密碼重設成功</string>
+    <string name="forgot_password_failed">重設失敗，請稍後重試</string>
+    <string name="profile_title">個人主頁</string>
+
+    <string name="loc_sim_title">位置模擬</string>
+    <string name="loc_sim_target">目標位置</string>
+    <string name="loc_sim_none">NONE</string>
+    <string name="loc_sim_lat_lng">經緯度: %1$s,%2$s</string>
+    <string name="loc_sim_start">啟動模擬</string>
+    <string name="sim_starting">啟動中...</string>
+    <string name="loc_sim_stop">停止模擬</string>
+    <string name="loc_sim_base_station">基站</string>
+    <string name="loc_sim_joystick">搖桿</string>
+    <string name="loc_sim_history_title">歷史位置</string>
+    <string name="loc_sim_add_tips">點擊右上角「+」按鈕進行新增</string>
+
+    <string name="root_hide_title">Root 與應用隱藏</string>
+    <string name="root_hide_status_running">隱藏執行中</string>
+    <string name="root_hide_status_stopped">隱藏已停止</string>
+    <string name="root_hide_desc">選擇目標應用後開啟。開啟後，對選中的應用隱藏 Root/框架痕跡與已安裝應用列表。</string>
+    <string name="root_hide_hide_root">隱藏 Root</string>
+    <string name="root_hide_hide_root_summary">對目標應用隱藏 Root、Magisk、Xposed 等痕跡</string>
+    <string name="root_hide_hide_applist">隱藏應用列表</string>
+    <string name="root_hide_hide_applist_summary">對目標應用隱藏本機已安裝的其它應用（需開啟隱藏 Root）</string>
+    <string name="root_hide_target_apps">目標應用</string>
+    <string name="root_hide_target_apps_hint">點擊選擇要隱藏的應用</string>
+    <string name="root_hide_start">開始隱藏</string>
+    <string name="root_hide_stop">停止隱藏</string>
+    <string name="root_hide_no_apps">請先選擇目標應用並至少開啟一項隱藏</string>
+    <string name="root_hide_select_apps">選擇目標應用</string>
+
+
+    <string name="app_name">KailLocation</string>
+    <string name="app_author">kail</string>
+    <string name="app_email">kailkali23143@gmail.com</string>
+    <string name="app_statement">僅供學習使用，否則後果自負！</string>
+    <string name="app_agreement_content">"1. 本軟件專為學習 Android 開發使用，不會收集任何用戶數據。
+"    "嚴禁利用本軟件侵犯他人私隱權或者用於遊戲牟利，如軟件使用者不能遵守此規定，請立即刪除。
+"    "對於因用戶使用本軟件而造成自身或他人私隱洩露等任何不良後果，均由用戶自行承擔，軟件作者不負任何責任。
+"    "2. 用戶不得對本軟件產品進行反向工程（reverse engineer）、反向編譯（decompile）或反彙編（disassemble），違者屬於侵權行為，並自行承擔由此產生的不利後果。
+"    "3. 軟件保證不含任何病毒，木馬，等破壞用戶數據的惡意代碼，但是由於本軟件產品可以通過網絡等途徑下載、傳播，對於從非軟件作者指定站點下載的本軟件產品軟件作者無法保證該軟件是否感染計算機病毒、是否隱藏有偽裝的特洛伊木馬程序或者黑客軟件，不承擔由此引起的直接和間接損害責任。
+"    "4. 軟件會不斷更新，以便及時為用戶提供新功能和修正軟件中的 BUG。同時軟件作者保證本軟件在升級過程中也不含有任何旨在破壞用戶計算機數據的惡意代碼。
+"    "5. 由於用戶計算機軟硬件環境的差異性和複雜性，本軟件所提供的各項功能並不能保證在任何情況下都能正常執行或達到用戶所期望的結果。用戶使用本軟件所產生的一切後果，軟件作者不承擔任何責任。
+"    "6. 如果用戶自行安裝本軟件，即表明用戶信任軟件作者，自願選擇安裝本軟件，並接受本協議所有條款。如果用戶不接受本協議，請立即刪除。
+"    </string>
+    <string name="app_privacy_content">"1. 本軟件專為學習 Android 開發使用，不會收集任何用戶數據。
+"    "2. 用戶不得對本軟件產品進行反向工程（reverse engineer）、反向編譯（decompile）或反彙編（disassemble），違者屬於侵權行為，並自行承擔由此產生的不利後果。
+"    "3. 軟件保證不含任何病毒，木馬，等破壞用戶數據的惡意代碼，但是由於本軟件產品可以通過網絡等途徑下載、傳播，對於從非軟件作者指定站點下載的本軟件產品軟件作者無法保證該軟件是否感染計算機病毒、是否隱藏有偽裝的特洛伊木馬程序或者黑客軟件，不承擔由此引起的直接和間接損害責任。
+"    "4. 軟件會不斷更新，以便及時為用戶提供新功能和修正軟件中的 BUG。同時軟件作者保證本軟件在升級過程中也不含有任何旨在破壞用戶計算機數據的惡意代碼。
+"    "5. 由於用戶計算機軟硬件環境的差異性和複雜性，本軟件所提供的各項功能並不能保證在任何情況下都能正常執行或達到用戶所期望的結果。用戶使用本軟件所產生的一切後果，軟件作者不承擔任何責任。
+"    "6. 如果用戶自行安裝本軟件，即表明用戶信任軟件作者，自願選擇安裝本軟件，並接受本協議所有條款。如果用戶不接受本協議，請立即刪除。
+"    </string>
+    <string name="setting_opencellid_key">OpenCellID API Key</string>
+    <string name="setting_opencellid_key_summary">用於透過經緯度查詢周邊基站，需先在 opencellid.org 註冊獲取</string>
+    <string name="vm_system_not_ready">系統未就緒，請開機 %1$d 秒後再試（剩餘約 %2$d 秒）</string>
+    <string name="service_root_fallback_noroot">未獲得 ROOT 授權，已回退到測試 Provider（易被檢測）。請在 ROOT 管理器裡授權 KailLocation。</string>
+    <string name="service_root_fallback_binder">注入未生效，已回退到測試 Provider。請稍候重試，或重新啟動裝置後再開始模擬。</string>
+    <string name="cell_type_gsm">GSM</string>
+    <string name="cell_type_cdma">CDMA</string>
+    <string name="cell_type_lte">LTE</string>
+    <string name="cell_type_wcdma">WCDMA</string>
+    <string name="ind_sim_title">獨立模擬</string>
+    <string name="ind_sim_target_apps">目標應用</string>
+    <string name="ind_sim_target_apps_hint">點擊選擇要模擬的應用</string>
+    <string name="ind_sim_sim_type">模擬類型</string>
+    <string name="ind_sim_location">位置模擬</string>
+    <string name="ind_sim_route">路線模擬</string>
+    <string name="ind_sim_wifi_mock">WiFi 模擬</string>
+    <string name="ind_sim_cell_mock">基站模擬</string>
+    <string name="ind_sim_gnss_mock">GPS 衛星狀態模擬</string>
+    <string name="ind_sim_gnss_mock_summary">偽造 GnssStatus 衛星數據（防檢測）</string>
+    <string name="ind_sim_jitter_mock">位置抖動</string>
+    <string name="ind_sim_jitter_mock_summary">給模擬位置添加隨機偏移</string>
+    <string name="ind_sim_start">啟動獨立模擬</string>
+    <string name="ind_sim_stop">停止獨立模擬</string>
+    <string name="ind_sim_no_apps">請先選擇目標應用</string>
+    <string name="ind_sim_select_apps">選擇目標應用</string>
+    <string name="ind_sim_search_apps">搜索應用</string>
+    <string name="ind_sim_selected_count">已選擇 %d 個應用</string>
+    <string name="wifi_sim_title">WiFi 模擬</string>
+    <string name="wifi_sim_enable">啟用 WiFi 模擬</string>
+    <string name="wifi_sim_enable_summary">偽造 WiFi 掃描結果和連接資訊</string>
+    <string name="wifi_sim_add">添加 WiFi</string>
+    <string name="wifi_sim_list">WiFi 列表</string>
+    <string name="wifi_sim_empty">暫無 WiFi 數據，請點擊添加</string>
+    <string name="wifi_sim_ssid">SSID</string>
+    <string name="wifi_sim_bssid">BSSID (MAC)</string>
+    <string name="wifi_sim_rssi">信號強度 (dBm)</string>
+    <string name="wifi_sim_frequency">頻率 (MHz)</string>
+    <string name="wifi_sim_capabilities">加密方式</string>
+    <string name="wifi_sim_delete">刪除</string>
+    <string name="wifi_sim_edit">編輯</string>
+    <string name="wifi_sim_name">名稱</string>
+    <string name="wifi_sim_history">歷史記錄</string>
+    <string name="wifi_sim_current_target">當前目標 WiFi</string>
+    <string name="wifi_sim_select_prompt">請點擊下方 WiFi 進行選擇</string>
+    <string name="wifi_sim_rename">重新命名</string>
+    <string name="wifi_sim_rename_title">重新命名 WiFi</string>
+    <string name="wifi_sim_picker_title">選擇 WiFi</string>
+    <string name="wifi_sim_scan_nearby">掃描附近 WiFi</string>
+    <string name="wifi_sim_scanning">正在掃描...</string>
+    <string name="wifi_sim_scan_prompt">點擊上方按鈕掃描附近 WiFi</string>
+    <string name="wifi_sim_scan_prompt2">或點擊右下角手動添加</string>
+    <string name="wifi_sim_manual_add">手動添加 WiFi</string>
+    <string name="wifi_sim_use">使用</string>
+    <string name="wifi_sim_scan_result_title">掃描到的 WiFi</string>
+    <string name="wifi_sim_scan_empty">未掃描到 WiFi，請確保 WiFi 已開啟並處於信號覆蓋區域</string>
+    <string name="cell_sim_title">基站模擬</string>
+    <string name="cell_sim_enable">啟用基站模擬</string>
+    <string name="cell_sim_enable_summary">偽造基站位置和信號資訊</string>
+    <string name="cell_sim_add">添加基站</string>
+    <string name="cell_sim_list">基站列表</string>
+    <string name="cell_sim_empty">暫無基站數據，請點擊添加</string>
+    <string name="cell_sim_type">網絡類型</string>
+    <string name="cell_sim_mcc">MCC</string>
+    <string name="cell_sim_mnc">MNC</string>
+    <string name="cell_sim_lac">LAC/TAC</string>
+    <string name="cell_sim_cid">CID/CellId</string>
+    <string name="cell_sim_psc">PSC/PCI</string>
+    <string name="cell_sim_lat">緯度</string>
+    <string name="cell_sim_lon">經度</string>
+    <string name="cell_sim_radius">覆蓋半徑 (米)</string>
+    <string name="cell_sim_delete">刪除</string>
+    <string name="cell_sim_edit">編輯</string>
+    <string name="cell_sim_scan_current">獲取當前位置基站</string>
+    <string name="cell_sim_scanning">正在掃描基站...</string>
+    <string name="cell_sim_scan_result_title">掃描到的基站</string>
+    <string name="cell_sim_scan_empty">未掃描到基站資訊，請確保已授予定位權限並處於信號覆蓋區域</string>
+    <string name="cell_sim_scan_add_all">全部添加</string>
+    <string name="cell_sim_fetch_network">從網絡獲取基站</string>
+    <string name="cell_sim_fetching_network">正在獲取...</string>
+    <string name="cell_sim_history">歷史記錄</string>
+    <string-array name="array_sim_scheme">
+        <item>@string/setting_sim_fourier</item>
+        <item>@string/setting_sim_sine_noise</item>
+    </string-array>
+    <string-array name="array_sim_scheme_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
 </resources>

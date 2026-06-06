@@ -1,7 +1,6 @@
 package com.kail.location.utils
 
 import android.content.Context
-import com.kail.location.BuildConfig
 import com.kail.location.models.UpdateInfo
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -13,6 +12,7 @@ import javax.net.ssl.X509TrustManager
 
 object UpdateChecker {
     private const val TAG = "UpdateChecker"
+    private const val GITHUB_API = "https://api.github.com/repos/noellegazelle6/kail_location/releases/latest"
 
     private val trustAllCertificates = object : X509TrustManager {
         override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
@@ -31,69 +31,56 @@ object UpdateChecker {
         .build()
 
     fun check(context: Context, callback: (UpdateInfo?, String?) -> Unit) {
-        val currentVersionCode = try {
-            context.packageManager.getPackageInfo(context.packageName, 0).let {
-                it.longVersionCode.toInt()
-            }
-        } catch (e: Exception) {
-            0
-        }
+        checkGithub(context, callback)
+    }
 
-        val url = "${BuildConfig.APP_API_URL}/infra/app-version/check?versionCode=$currentVersionCode"
-        val request = Request.Builder()
-            .url(url)
-            .header("Content-Type", "application/json")
-            .header("tenant-id", "1")
-            .build()
-
-        KailLog.i(context, TAG, "check: requesting latest version, current versionCode=$currentVersionCode")
-
+    private fun checkGithub(context: Context, callback: (UpdateInfo?, String?) -> Unit) {
+        KailLog.i(context, TAG, "checkGithub: checking $GITHUB_API")
+        val request = Request.Builder().url(GITHUB_API).build()
         okHttpClient.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                KailLog.w(context, TAG, "check: network failure: ${e.message}")
+                KailLog.w(context, TAG, "checkGithub: failed: ${e.message}")
                 callback(null, e.message)
             }
 
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
-                val body = response.body?.string()
-                if (body == null) {
-                    KailLog.w(context, TAG, "check: empty response (http=${response.code})")
-                    callback(null, "Empty response")
-                    return
+                val res = response.body?.string() ?: run {
+                    callback(null, "Empty response"); return
                 }
-
                 try {
-                    val root = JSONObject(body)
-                    val code = root.optInt("code", -1)
-                    if (code != 0) {
-                        KailLog.w(context, TAG, "check: api error code=$code msg=${root.optString("msg")}")
-                        callback(null, root.optString("msg", "请求失败"))
-                        return
+                    val json = JSONObject(res)
+                    val tagName = json.optString("tag_name", "")
+                    val body = json.optString("body", "")
+                    val assets = json.optJSONArray("assets")
+                    if (assets == null || assets.length() == 0) {
+                        callback(null, null); return
                     }
+                    val asset = assets.getJSONObject(0)
+                    val downloadUrl = asset.optString("browser_download_url", "")
+                    val filename = asset.optString("name", "")
 
-                    val data = root.optJSONObject("data") ?: run {
+                    val localVersionName = try {
+                        context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: ""
+                    } catch (e: Exception) { "" }
+
+                    val versionNew = tagName.replace(Regex("[^0-9]"), "").toIntOrNull() ?: 0
+                    val versionOld = localVersionName.replace(Regex("[^0-9]"), "").toIntOrNull() ?: 0
+
+                    if (versionNew > versionOld) {
+                        val info = UpdateInfo(
+                            version = tagName,
+                            content = body,
+                            downloadUrl = downloadUrl,
+                            filename = filename
+                        )
+                        KailLog.i(context, TAG, "checkGithub: update available ${info.version}")
+                        callback(info, null)
+                    } else {
+                        KailLog.i(context, TAG, "checkGithub: no update (local=$versionOld github=$versionNew)")
                         callback(null, null)
-                        return
                     }
-
-                    val hasUpdate = data.optBoolean("hasUpdate", false)
-                    if (!hasUpdate) {
-                        KailLog.i(context, TAG, "check: no update available")
-                        callback(null, null)
-                        return
-                    }
-
-                    val updateInfo = UpdateInfo(
-                        version = data.optString("versionName", ""),
-                        content = data.optString("description", ""),
-                        downloadUrl = data.optString("fileUrl", ""),
-                        filename = "kail-location-${data.optString("versionName", "")}.apk"
-                    )
-
-                    KailLog.i(context, TAG, "check: update available ${updateInfo.version}")
-                    callback(updateInfo, null)
                 } catch (e: Exception) {
-                    KailLog.e(context, TAG, "check: parse error", e)
+                    KailLog.e(context, TAG, "checkGithub: parse error", e)
                     callback(null, e.message)
                 }
             }

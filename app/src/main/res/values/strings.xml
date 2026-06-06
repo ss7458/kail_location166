@@ -503,6 +503,8 @@
     <!-- Sponsor -->
     <string name="sponsor_copied">已复制</string>
     <string name="sponsor_copy_address">复制地址</string>
+    <string name="sponsor_wechat_hint">将下方连接在电脑浏览器打开，国家选择中国</string>
+    <string name="sponsor_copy">复制</string>
 
     <!-- Welcome -->
     <string name="welcome_read">已阅读</string>
@@ -582,4 +584,178 @@
     <string name="setting_nmea_summary">伪造 NMEA 数据输出</string>
     <string name="setting_wlan_title">模拟 WLAN 数据</string>
     <string name="setting_wlan_summary">伪造 WiFi 定位数据</string>
+
+    <!-- Usage Manager -->
+    <string name="usage_not_logged_in">请先登录后再使用模拟功能</string>
+    <string name="usage_free_exhausted">今日免费模拟次数已用完，订阅后可无限使用</string>
+    <string name="usage_count_exhausted">模拟次数已用完</string>
+
+    <!-- API Errors -->
+    <string name="api_error_remaining">获取剩余次数失败</string>
+    <string name="api_error_send_code">发送验证码失败</string>
+    <string name="api_error_login">登录失败</string>
+    <string name="api_error_plans">获取套餐列表失败</string>
+    <string name="api_error_notices">获取公告失败</string>
+    <string name="api_error_subscription">获取订阅状态失败</string>
+
+    <!-- Sponsor Errors -->
+    <string name="sponsor_error_not_logged_in">未登录</string>
+    <string name="sponsor_error_select_plan">请选择套餐</string>
+    <string name="sponsor_error_create_checkout">创建结算页面失败</string>
+
+    <!-- Sponsor Screen -->
+    <string name="sponsor_top_title">订阅与赞助</string>
+    <string name="sponsor_member_title">会员订阅</string>
+    <string name="sponsor_select_hint">选择套餐以解锁全部功能</string>
+    <string name="sponsor_subscribed_text">已订阅</string>
+    <string name="sponsor_thanks">感谢您的支持！</string>
+    <string name="sponsor_billing_once">一次性</string>
+    <string name="sponsor_billing_month">/月</string>
+    <string name="sponsor_billing_year">/年</string>
+    <string name="sponsor_login_first">请先登录后再订阅</string>
+    <string name="sponsor_credit_card">信用卡/银行卡</string>
+    <string name="sponsor_wechat_pay">微信支付</string>
+    <string name="sponsor_support_title">赞助支持</string>
+    <string name="sponsor_tron_hint">您也可以直接通过 TRON USDT 赞助：</string>
+    <string name="sponsor_copy_tron_address">复制 TRON 地址</string>
+
+    <!-- Login Screen -->
+    <string name="login_hint_text">仅支持 QQ 邮箱与谷歌邮箱，输入验证码即可登录或自动注册</string>
+    <string name="login_register_btn">登录 / 注册</string>
+
+    <!-- Profile -->
+    <string name="profile_member_status">会员状态</string>
+    <string name="profile_not_subscribed">未订阅</string>
+    <string name="profile_subscribe_now">订阅会员</string>
+
+    <!-- Cell Simulation Screen -->
+    <string name="cell_sim_empty_text">暂无模拟基站</string>
+    <string name="cell_sim_scan_hint">点击下方按钮扫描或添加基站</string>
+    <string name="cell_sim_deselect_all">取消全选</string>
+    <string name="cell_sim_select_all">全选</string>
+    <string name="cell_sim_running_title">基站模拟运行中</string>
+    <string name="cell_sim_title_short">基站模拟</string>
+    <string name="cell_sim_more_fmt">+ %d 更多...</string>
+    <string name="cell_sim_start">开始模拟</string>
+    <string name="cell_sim_stop">停止模拟</string>
+    <string name="cell_sim_status_running">运行中</string>
+    <string name="cell_sim_scan_count_fmt">扫描到 %d 个基站</string>
+    <string name="cell_sim_location_fmt">位置: %s</string>
+
+    <!-- WiFi Simulation Screen -->
+    <string name="wifi_sim_empty_text">暂无模拟WiFi</string>
+    <string name="wifi_sim_scan_hint">点击下方按钮扫描附近WiFi</string>
+    <string name="wifi_sim_deselect_all">取消全选</string>
+    <string name="wifi_sim_select_all">全选</string>
+    <string name="wifi_sim_running_title">WiFi模拟运行中</string>
+    <string name="wifi_sim_title_short">WiFi模拟</string>
+    <string name="wifi_sim_start">开始模拟</string>
+    <string name="wifi_sim_stop">停止模拟</string>
+    <string name="wifi_sim_status_running">运行中</string>
+    <string name="wifi_sim_scan_count_fmt">扫描到 %d 个WiFi</string>
+    <string name="wifi_sim_add_label">添加</string>
+
+    <!-- Announcement Dialog -->
+    <string name="announcement_default_title">公告</string>
+    <string name="announcement_previous">上一条</string>
+    <string name="announcement_next">下一条</string>
+    <string name="announcement_got_it">我知道了</string>
+
+    <!-- Independent Simulation -->
+    <string name="ind_sim_running">独立模拟运行中</string>
+    <string name="ind_sim_stopped">独立模拟已停止</string>
+    <string name="ind_sim_description">选择目标应用后开启。开启后，在位置/路线/WiFi/基站/步频页面点"开始模拟"，都只对这里选中的应用生效，其它应用读到真实数据。</string>
+    <string name="ind_sim_stop_btn">停止独立模拟</string>
+    <string name="ind_sim_start_btn">开始独立模拟</string>
+
+    <!-- Checkout WebView -->
+    <string name="checkout_title">结账</string>
+    <string name="checkout_back_desc">返回</string>
+
+    <!-- Location Picker -->
+    <string name="picker_map_init_failed">地图初始化失败: %s</string>
+    <string name="picker_search_no_results">抱歉，未能找到结果</string>
+
+    <!-- Update -->
+    <string name="update_found_title">发现新版本: %s</string>
+
+    <!-- Location Simulation -->
+    <string name="location_rename_title">重命名位置</string>
+
+    <!-- Sandbox Manager/Activity/Screen -->
+    <string name="sandbox_install_success">安装成功</string>
+    <string name="sandbox_install_failed">安装失败: %s</string>
+    <string name="sandbox_uninstall_success">卸载成功</string>
+    <string name="sandbox_uninstall_failed">卸载失败: %s</string>
+    <string name="sandbox_launch_failed">启动失败</string>
+    <string name="sandbox_launch_failed_msg">启动失败: %s</string>
+    <string name="sandbox_clear_success">清除成功</string>
+    <string name="sandbox_clear_failed">清除失败: %s</string>
+    <string name="sandbox_stopped">已停止运行</string>
+    <string name="sandbox_stop_failed">停止失败: %s</string>
+    <string name="sandbox_loading_failed">加载沙盒应用失败: %s</string>
+    <string name="sandbox_system_apps_failed">加载系统应用失败: %s</string>
+    <string name="sandbox_title_fmt">沙盒 - %s</string>
+    <string name="sandbox_creating_shortcut">正在创建快捷方式...</string>
+    <string name="sandbox_shortcut_failed">创建快捷方式失败: %s</string>
+    <string name="sandbox_invalid_shortcut">无效的快捷方式</string>
+    <string name="sandbox_empty">沙盒中暂无应用</string>
+    <string name="sandbox_empty_hint">点击右下角 + 按钮克隆应用</string>
+    <string name="sandbox_launch_app">启动应用</string>
+    <string name="sandbox_clear_data">清除数据</string>
+    <string name="sandbox_stop_running">停止运行</string>
+    <string name="sandbox_uninstall_app">卸载应用</string>
+    <string name="sandbox_create_shortcut">创建快捷方式</string>
+    <string name="sandbox_clear_data_btn">清除数据</string>
+    <string name="sandbox_uninstall_btn">卸载</string>
+    <string name="sandbox_clone_title">克隆应用</string>
+    <string name="sandbox_search_placeholder">搜索应用...</string>
+    <string name="sandbox_load_system_apps">加载系统应用列表</string>
+    <string name="sandbox_settings_title">沙盒设置</string>
+    <string name="sandbox_hide_root">隐藏 Root</string>
+    <string name="sandbox_hide_root_desc">对沙盒应用隐藏 Root 权限</string>
+    <string name="sandbox_restart_to_apply">重启应用生效</string>
+    <string name="sandbox_daemon">守护进程</string>
+    <string name="sandbox_daemon_desc">保持沙盒服务在后台运行</string>
+    <string name="sandbox_vpn">使用 VPN 网络</string>
+    <string name="sandbox_vpn_desc">通过 VPN 路由沙盒应用流量，可能改善网络访问</string>
+    <string name="sandbox_disable_secure">禁用 FLAG_SECURE</string>
+    <string name="sandbox_disable_secure_desc">允许在沙盒应用中截屏和录屏</string>
+    <string name="sandbox_step_sim">步频模拟</string>
+    <string name="sandbox_step_sim_desc">为沙盒应用模拟步频传感器数据</string>
+    <string name="sandbox_step_fmt">步频: %d 步/分钟</string>
+    <string name="sandbox_step_adjust">点击调整步频</string>
+    <string name="sandbox_gms">GMS 管理</string>
+    <string name="sandbox_gms_desc">管理 Google 服务框架</string>
+    <string name="sandbox_gms_coming">功能开发中</string>
+    <string name="sandbox_gms_unsupported">当前设备不支持 GMS</string>
+    <string name="sandbox_send_log">发送日志</string>
+    <string name="sandbox_send_log_desc">上传调试日志到开发者</string>
+    <string name="sandbox_log_sent">日志发送成功</string>
+    <string name="sandbox_log_failed">日志发送失败: %s</string>
+    <string name="sandbox_log_sending">正在发送日志...</string>
+    <string name="sandbox_adjust_cadence">调整步频</string>
+    <string name="sandbox_cadence_fmt">%d 步/分钟</string>
+    <string name="sandbox_cadence_range">步频范围: 30 - 240 步/分钟</string>
+
+    <!-- Settings -->
+    <string name="settings_step_sim">步频模拟</string>
+    <string name="settings_step_sim_enable">启用步频模拟</string>
+    <string name="settings_step_sim_summary">模拟步频数据用于计步类应用</string>
+    <string name="settings_step_type">步频数据类型</string>
+
+    <!-- Cell ViewModel -->
+    <string name="cell_fetch_no_location">无法获取当前位置，请先设置模拟位置或开启GPS</string>
+    <string name="cell_fetch_no_key">请先在设置中配置 OpenCellID API Key</string>
+    <string name="cell_fetch_no_data">未查询到基站数据，该区域可能无覆盖或API限制</string>
+    <string name="cell_fetch_failed">网络请求失败: %s</string>
+
+    <!-- NFC -->
+    <string name="nfc_read_failed">读取失败: %s</string>
+
+    <!-- Xposed Settings -->
+    <string name="xposed_not_set">未设置</string>
+
+    <!-- Welcome -->
+    <string name="welcome_cannot_open_settings">无法打开设置页面，请手动开启</string>
 </resources>
