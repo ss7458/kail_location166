@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.SharedPreferences
 import androidx.lifecycle.AndroidViewModel
 import androidx.preference.PreferenceManager
+import com.kail.location.service.Root.RootDeployer
 import com.kail.location.utils.GoUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -251,6 +252,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
      */
     fun updateBooleanPreference(key: String, value: Boolean) {
         prefs.edit().putBoolean(key, value).apply()
+        if (key == KEY_LOG_ENABLED || key == KEY_DEBUG_LOG_ENABLED) {
+            Thread({ RootDeployer.syncInjectLogMarkers(getApplication()) }, "KailLogMarkerSync").start()
+        }
     }
 
     /**

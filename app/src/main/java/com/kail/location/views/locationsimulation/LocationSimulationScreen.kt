@@ -60,6 +60,7 @@ import com.kail.location.views.common.AppDrawer
 fun LocationSimulationScreen(
     locationInfo: LocationSimulationViewModel.LocationInfo,
     isSimulating: Boolean,
+    isStarting: Boolean,
     isJoystickEnabled: Boolean,
     stepSimulationEnabled: Boolean,
     stepCadenceSpm: Float,
@@ -195,16 +196,29 @@ fun LocationSimulationScreen(
                             ) {
                                 Button(
                                     onClick = onToggleSimulation,
+                                    enabled = !isStarting,
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (isSimulating) Color.Red else MaterialTheme.colorScheme.primary
+                                        containerColor = if (isSimulating) Color.Red else MaterialTheme.colorScheme.primary,
+                                        disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.72f),
+                                        disabledContentColor = Color.White
                                     ),
                                     shape = RoundedCornerShape(24.dp)
                                 ) {
-                                    Text(
-                                        if (isSimulating) stringResource(R.string.loc_sim_stop) else stringResource(
-                                            R.string.loc_sim_start
+                                    if (isStarting) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(18.dp),
+                                            strokeWidth = 2.dp,
+                                            color = Color.White
                                         )
-                                    )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(stringResource(R.string.sim_starting))
+                                    } else {
+                                        Text(
+                                            if (isSimulating) stringResource(R.string.loc_sim_stop) else stringResource(
+                                                R.string.loc_sim_start
+                                            )
+                                        )
+                                    }
                                 }
                                 Spacer(modifier = Modifier.weight(1f))
 

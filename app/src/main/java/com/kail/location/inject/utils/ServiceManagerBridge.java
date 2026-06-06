@@ -8,7 +8,8 @@ public class ServiceManagerBridge {
             ReflectionUtils.invokeMethod(null, ReflectionUtils.loadClass("android.os.ServiceManager", true, classLoader), "addService", new Class[]{String.class, IBinder.class}, new Object[]{serviceName, serviceBinder});
             return true;
         } catch (Throwable th) {
-            th.printStackTrace();
+            Throwable cause = th.getCause() != null ? th.getCause() : th;
+            InjectLog.e("ServiceManagerBridge", "addService failed: " + serviceName + " cause=" + cause);
             return false;
         }
     }

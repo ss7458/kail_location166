@@ -13,8 +13,8 @@ import com.kail.location.auth.UsageManager
  * 让人一眼锁定「为什么模拟没生效」，而不用在几百行散乱日志里大海捞针。
  *
  * 设计要点：
- *  - <b>无视日志开关</b>：通过 [KailLog.persistBlock] 强制落盘。用户从不主动开日志，
- *    但失败时我们必须拿到原因，所以这条通道不依赖 setting_log_enabled。
+ *  - <b>不静默丢失</b>：通过 [KailLog.persistBlock] 始终输出到 Logcat；文件落盘仍
+ *    遵循 setting_log_enabled，避免关闭日志时持续写磁盘。
  *  - <b>分步门控（step）</b>：每一步启动前置条件（root / 注入 / binder / AppOps ...）
  *    都记一条 PASS/FAIL/INFO + 原因，失败步会被高亮成 ❌。
  *  - <b>环境快照</b>：开机时长、运行模式、设备/系统版本、SO 文件是否就位等。
@@ -92,8 +92,8 @@ class SimulationDiagnostics private constructor(
     }
 
     /**
-     * 增量落盘一行（同步、无视开关）。让诊断在 finish() 之前就逐步写入磁盘，
-     * 这样注入崩溃/进程被杀也能保留「走到哪一步」的现场。
+     * 增量输出一行。Logcat 始终输出；文件落盘遵循日志开关。
+     * 这样注入崩溃/进程被杀时，开启日志的设备仍能保留「走到哪一步」的现场。
      */
     private fun flushLine(line: String) {
         runCatching {
@@ -160,7 +160,37 @@ class SimulationDiagnostics private constructor(
         lines.forEach { sb.append("  ").append(it).append('\n') }
     }
 
-    /** 一次性把整块报告落盘（无视日志开关）。可重复调用，仅首次生效。 */
+    /** 折叠 libfakeloc_init.so 的 native loader 阶段日志到诊断块里。 */
+    fun recordLoaderTrace(lines: List<String>) {
+        if (lines.isEmpty()) {
+            info("注入 loader", "无 fakeloc_init 日志（doRun 可能未执行，或注入器只返回了假成功）")
+            return
+        }
+        sb.append("— fakeloc_init loader —\n")
+        lines.forEach { sb.append("  ").append(it).append('\n') }
+    }
+
+    /** 折叠 InjectDex.init 在 system_server 内写出的 Java bootstrap 状态。 */
+    fun recordBootstrapState(lines: List<String>) {
+        if (lines.isEmpty()) {
+            info("InjectDex Java bootstrap", "无 injectdex_state（Java 入口可能未执行，或 system_server 无法写运行时目录）")
+            return
+        }
+        sb.append("— InjectDex Java bootstrap —\n")
+        lines.forEach { sb.append("  ").append(it).append('\n') }
+    }
+
+    /** 折叠 system_server 注入态关键 logcat，覆盖文件日志被 SELinux 拒写的场景。 */
+    fun recordInjectedLogcat(lines: List<String>) {
+        if (lines.isEmpty()) {
+            info("注入态 logcat", "无 InjectDex/RootLocationControl/native loader 日志")
+            return
+        }
+        sb.append("— 注入态 logcat —\n")
+        lines.forEach { sb.append("  ").append(it).append('\n') }
+    }
+
+    /** 一次性输出整块报告；文件落盘遵循日志开关。可重复调用，仅首次生效。 */
     fun finish() {
         if (finished) return
         finished = true

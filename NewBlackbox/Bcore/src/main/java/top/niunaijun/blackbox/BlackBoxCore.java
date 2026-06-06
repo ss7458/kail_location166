@@ -860,7 +860,9 @@ public class BlackBoxCore extends ClientConfiguration {
         String processName = getProcessName(getContext());
         if (processName.equals(BlackBoxCore.getHostPkg())) {
             mProcessType = ProcessType.Main;
-            startLogcat();
+            if (mClientConfiguration.isEnableLogcatCapture()) {
+                startLogcat();
+            }
         } else if (processName.endsWith(getContext().getString(R.string.black_box_service_name))) {
             mProcessType = ProcessType.Server;
         } else {

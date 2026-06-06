@@ -247,6 +247,11 @@ class ServiceGoDeveloper : Service() {
             if (routeArray != null && routeArray.size >= 2) {
                 mRouteEngine.setupFromArray(routeArray, coordType)
                 mRouteEngine.setLoop(intent.getBooleanExtra(EXTRA_ROUTE_LOOP, false))
+                if (mRouteEngine.isActive) {
+                    mCurLng = mRouteEngine.currentLng
+                    mCurLat = mRouteEngine.currentLat
+                    mCurBea = mRouteEngine.currentBea
+                }
             }
 
             KailLog.i(this, "ServiceGoDeveloper", "onStartCommand received lat=$mCurLat, lng=$mCurLng")
@@ -292,12 +297,12 @@ class ServiceGoDeveloper : Service() {
             if (this::mLocHandler.isInitialized) mLocHandler.removeCallbacksAndMessages(null)
             if (this::mLocHandlerThread.isInitialized) mLocHandlerThread.quitSafely()
             if (this::mJoystickManager.isInitialized) mJoystickManager.destroy()
-
             mMockLocationProvider.cleanup()
             mNotificationHelper.stopForeground()
         } catch (e: Exception) {
             KailLog.e(this, "ServiceGoDeveloper", "Error in onDestroy: ${e.message}")
         }
+
         super.onDestroy()
         KailLog.i(this, "ServiceGoDeveloper", "onDestroy finished")
     }

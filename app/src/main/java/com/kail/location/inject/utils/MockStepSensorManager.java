@@ -12,6 +12,8 @@ public class MockStepSensorManager {
     private static float stepSpeed = 1.0f;
     private static boolean mocking = false;
     private static boolean monitorStarted = false;
+    private static int lastStepCounterHandle = -1;
+    private static int lastStepDetectorHandle = -1;
     private static long mockStartTimeMillis = 0;
     private static long lastStepUpdateTimeMillis = 0;
     private static boolean dataInjectionHookEnabled = false;
@@ -63,7 +65,7 @@ public class MockStepSensorManager {
             int stepCounterHandle = -1;
             int stepDetectorHandle = -1;
             try {
-                int[] handles = resolveStepSensorHandles();
+                int[] handles = MockStepSensorManager.resolveStepSensorHandles();
                 stepCounterHandle = handles[0];
                 stepDetectorHandle = handles[1];
             } catch (Throwable t) {
@@ -145,35 +147,11 @@ public class MockStepSensorManager {
          * either may be -1 if unavailable.
          */
         private int[] resolveStepSensorHandles() {
-            int counter = -1;
-            int detector = -1;
-            try {
-                android.content.Context ctx =
-                        com.kail.location.inject.fakelocation.InjectDex.getApplicationContext();
-                if (ctx == null) return new int[]{counter, detector};
-                android.hardware.SensorManager sm =
-                        (android.hardware.SensorManager) ctx.getSystemService(android.content.Context.SENSOR_SERVICE);
-                if (sm == null) return new int[]{counter, detector};
-                Sensor sc = sm.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-                Sensor sd = sm.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
-                if (sc != null) counter = sensorHandle(sc);
-                if (sd != null) detector = sensorHandle(sd);
-            } catch (Throwable t) {
-                InjectLog.w("MockStepSensor", "resolveStepSensorHandles: " + t.getMessage());
-            }
-            return new int[]{counter, detector};
+            return MockStepSensorManager.resolveStepSensorHandles();
         }
 
         private int sensorHandle(Sensor sensor) {
-            try {
-                java.lang.reflect.Method m = Sensor.class.getDeclaredMethod("getHandle");
-                m.setAccessible(true);
-                Object h = m.invoke(sensor);
-                if (h instanceof Integer) return (Integer) h;
-            } catch (Throwable t) {
-                InjectLog.w("MockStepSensor", "sensorHandle: " + t.getMessage());
-            }
-            return -1;
+            return MockStepSensorManager.sensorHandle(sensor);
         }
     }
 
@@ -224,6 +202,59 @@ public class MockStepSensorManager {
         monitorStarted = true;
     }
 
+    private static android.hardware.SensorManager sensorManager() {
+        try {
+            android.content.Context ctx =
+                    com.kail.location.inject.fakelocation.InjectDex.getApplicationContext();
+            if (ctx == null) return null;
+            return (android.hardware.SensorManager)
+                    ctx.getSystemService(android.content.Context.SENSOR_SERVICE);
+        } catch (Throwable t) {
+            InjectLog.w("MockStepSensor", "sensorManager: " + t.getMessage());
+            return null;
+        }
+    }
+
+    private static int[] resolveStepSensorHandles() {
+        int counter = -1;
+        int detector = -1;
+        try {
+            android.hardware.SensorManager sm = sensorManager();
+            if (sm == null) return new int[]{counter, detector};
+            Sensor sc = sm.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+            Sensor sd = sm.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+            if (sc != null) counter = sensorHandle(sc);
+            if (sd != null) detector = sensorHandle(sd);
+        } catch (Throwable t) {
+            InjectLog.w("MockStepSensor", "resolveStepSensorHandles: " + t.getMessage());
+        }
+        lastStepCounterHandle = counter;
+        lastStepDetectorHandle = detector;
+        InjectLog.i("MockStepSensor", "resolved step handles counter=" + counter
+                + " detector=" + detector);
+        return new int[]{counter, detector};
+    }
+
+    private static int sensorHandle(Sensor sensor) {
+        try {
+            java.lang.reflect.Method m = Sensor.class.getDeclaredMethod("getHandle");
+            m.setAccessible(true);
+            Object h = m.invoke(sensor);
+            if (h instanceof Integer) return (Integer) h;
+        } catch (Throwable t) {
+            InjectLog.w("MockStepSensor", "sensorHandle: " + t.getMessage());
+        }
+        return -1;
+    }
+
+    public static int getStepCounterHandle() {
+        return lastStepCounterHandle;
+    }
+
+    public static int getStepDetectorHandle() {
+        return lastStepDetectorHandle;
+    }
+
     public static boolean isSensorFeatureEnabled() {
         return sensorFeatureEnabled;
     }
@@ -262,6 +293,10 @@ public class MockStepSensorManager {
     }
 
     public static void startStepSensorMock() {
+        startStepSensorMock(0, 0);
+    }
+
+    public static void startStepSensorMock(int mode, int scheme) {
         // NOTE: Root-mode step spoofing via libkail_native_hook.so installs a
         // Dobby inline hook on libsensorservice.so::convertToSensorEvent /
         // libsensor.so::send_objects INSIDE system_server. On ROMs where the
@@ -276,7 +311,7 @@ public class MockStepSensorManager {
         // never unconditionally.
         mockStartTimeMillis = System.currentTimeMillis();
         mocking = true;
-        maybeInstallNativeStepHook();
+        maybeInstallNativeStepHook(mode, scheme);
     }
 
     /**
@@ -294,15 +329,19 @@ public class MockStepSensorManager {
      * <p>The offsets file, when present, is still passed in as a fallback for
      * the rare case where the symbol is absent from .dynsym.
      */
-    private static void maybeInstallNativeStepHook() {
+    private static void maybeInstallNativeStepHook(int mode, int scheme) {
         try {
             long[] off = readSensorOffsets(); // optional fallback only
+            int[] handles = resolveStepSensorHandles();
             float spm = stepSpeed > 0 ? stepSpeed * 60f : 120f; // stepSpeed is steps/sec
             // off[0]/off[1] may be 0; the native installer self-resolves via
             // dynsym and only uses these as a fallback.
             NativeStepHook.install(off[0], off[1], spm);
-            NativeStepHook.start(spm, 0, 0);
+            NativeStepHook.configureStepSensorHandles(handles[0], handles[1]);
+            NativeStepHook.start(spm, mode, scheme);
             Log.i("MSU", "native step hook install requested (spm=" + spm
+                    + ", mode=" + mode + ", scheme=" + scheme
+                    + ", counterHandle=" + handles[0] + ", detectorHandle=" + handles[1]
                     + ", fallback write=" + off[0] + " convert=" + off[1] + ")");
         } catch (Throwable th) {
             th.printStackTrace();

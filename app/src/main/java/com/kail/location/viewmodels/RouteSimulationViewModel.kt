@@ -19,6 +19,8 @@ import com.kail.location.utils.KailLog
 import com.kail.location.utils.SimulationDiagnostics
 import android.content.Context
 import android.content.Intent
+import android.content.BroadcastReceiver
+import android.content.IntentFilter
 import android.Manifest
 import android.content.pm.PackageManager
 import android.widget.Toast
@@ -34,6 +36,8 @@ import com.kail.location.R
 import com.kail.location.service.Root.ServiceGoRoot
 import com.kail.location.service.Developer.ServiceGoDeveloper
 import com.kail.location.service.Xposed.ServiceGoXposed
+import com.kail.location.utils.service.ServiceConstants
+import kotlinx.coroutines.delay
 
 import com.baidu.mapapi.search.sug.SuggestionSearch
 import com.baidu.mapapi.search.sug.SuggestionSearchOption
@@ -68,6 +72,8 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
 
     private val _isSimulating = MutableStateFlow(false)
     val isSimulating: StateFlow<Boolean> = _isSimulating.asStateFlow()
+    private val _isStarting = MutableStateFlow(false)
+    val isStarting: StateFlow<Boolean> = _isStarting.asStateFlow()
     private val _isPaused = MutableStateFlow(false)
     val isPaused: StateFlow<Boolean> = _isPaused.asStateFlow()
     private val _selectedRouteId = MutableStateFlow<String?>(null)
@@ -82,6 +88,28 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
 
     private val _toastMessage = MutableStateFlow<String?>(null)
     val toastMessage: StateFlow<String?> = _toastMessage.asStateFlow()
+    private var startTimeoutJob: kotlinx.coroutines.Job? = null
+
+    private val statusReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action != ServiceConstants.ACTION_STATUS_CHANGED) return
+            val isSim = intent.getBooleanExtra(ServiceConstants.EXTRA_IS_SIMULATING, false)
+            val isPau = intent.getBooleanExtra(ServiceConstants.EXTRA_IS_PAUSED, false)
+            if (_isStarting.value && !isSim) {
+                return
+            }
+            if (isSim) {
+                startTimeoutJob?.cancel()
+                _isStarting.value = false
+            }
+            _isSimulating.value = isSim
+            _isPaused.value = isPau
+            sharedPreferences.edit()
+                .putBoolean("route_sim_is_simulating", isSim)
+                .putBoolean("route_sim_is_paused", isPau)
+                .apply()
+        }
+    }
 
     // Search
     private val _searchResults = MutableStateFlow<List<Map<String, Any>>>(emptyList())
@@ -120,6 +148,12 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
         _runMode.value = sharedPreferences.getString("setting_run_mode", "developer") ?: "developer"
         loadSettings()
         loadRoutes()
+        ContextCompat.registerReceiver(
+            application,
+            statusReceiver,
+            IntentFilter(ServiceConstants.ACTION_STATUS_CHANGED),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
 
         suggestionSearch.setOnGetSuggestionResultListener(object : OnGetSuggestionResultListener {
             override fun onGetSuggestionResult(res: SuggestionResult?) {
@@ -143,6 +177,10 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
 
     override fun onCleared() {
         super.onCleared()
+        startTimeoutJob?.cancel()
+        try {
+            getApplication<Application>().unregisterReceiver(statusReceiver)
+        } catch (_: Exception) {}
         suggestionSearch.destroy()
     }
 
@@ -271,10 +309,13 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
     }
 
     fun setSimulating(value: Boolean) {
+        _isStarting.value = false
         _isSimulating.value = value
+        sharedPreferences.edit().putBoolean("route_sim_is_simulating", value).apply()
     }
 
     fun startSimulation() {
+        if (_isStarting.value || _isSimulating.value) return
         viewModelScope.launch {
             val app = getApplication<Application>()
             if (!UsageManager.canStartSimulation(app)) {
@@ -349,15 +390,15 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
                 intent.putExtra("EXTRA_IS_ROUTE_SIMULATION", true)
             }
             if (ContextCompat.checkSelfPermission(app, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                _isStarting.value = true
+                scheduleStartTimeout()
                 ContextCompat.startForegroundService(app, intent)
             } else {
                 GoUtils.DisplayToast(app, app.getString(R.string.vm_need_location_permission))
                 return@launch
             }
-            _isSimulating.value = true
             _isPaused.value = false
             sharedPreferences.edit()
-                .putBoolean("route_sim_is_simulating", true)
                 .putBoolean("route_sim_is_paused", false)
                 .apply()
         }
@@ -367,12 +408,27 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
         val app = getApplication<Application>()
         val serviceClass = getServiceClass(_runMode.value)
         app.stopService(Intent(app, serviceClass))
+        startTimeoutJob?.cancel()
+        _isStarting.value = false
         _isSimulating.value = false
         _isPaused.value = false
         sharedPreferences.edit()
             .putBoolean("route_sim_is_simulating", false)
             .putBoolean("route_sim_is_paused", false)
             .apply()
+    }
+
+    private fun scheduleStartTimeout() {
+        startTimeoutJob?.cancel()
+        val app = getApplication<Application>()
+        startTimeoutJob = viewModelScope.launch {
+            delay(30_000)
+            if (_isStarting.value) {
+                _isStarting.value = false
+                KailLog.persist(app, SimulationDiagnostics.TAG,
+                    "路线模拟启动等待服务状态超时：未收到 STATUS_CHANGED=true", 'w')
+            }
+        }
     }
 
     fun pauseSimulation() {

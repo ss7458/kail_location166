@@ -44,6 +44,9 @@ static uint32_t gRemoteDlerror = 0;               // dword_4EEC
 static uint32_t gRemoteCalloc  = 0;               // dword_4EF0
 static uint32_t gRemoteFree    = 0;               // dword_4EF4
 
+static constexpr uint32_t kDoRunSuccess = 0x4b4c1000;
+static constexpr uint32_t kDoRunAlreadyLoaded = 0x4b4c1001;
+
 static void (*gRemoteStopCallback)() = nullptr;   // off_4EF8
 
 #define LOGV(...) \
@@ -223,7 +226,9 @@ static uint32_t findLibraryBaseAddress(const char *libraryPath, int pid) {
 // ---------------------------------------------------------------------------
 static uint32_t resolveRemoteSymbolAddress(const char *libraryPath, uint32_t localAddr) {
   uint32_t localBase  = findLibraryBaseAddress(libraryPath, getpid());
-  uint32_t remoteBase = findLibraryBaseAddress(libraryPath, -1);
+  uint32_t remoteBase = findLibraryBaseAddress(libraryPath, gTargetPid);
+  if (!localAddr || !localBase || !remoteBase)
+    return 0;
   return remoteBase + localAddr - localBase;
 }
 
@@ -418,9 +423,12 @@ static int injectLibraryIntoProcess(int pid, const char *libraryPath, const char
        (void *)(uintptr_t)gRemoteCalloc, (void *)(uintptr_t)gRemoteFree,
        (void *)(uintptr_t)gRemoteDlopen, (void *)(uintptr_t)gRemoteDlerror,
        (void *)(uintptr_t)javaVm);
+  printf("inject diag: calloc=0x%x free=0x%x dlopen=0x%x dlerror=0x%x javavm=0x%x\n",
+         gRemoteCalloc, gRemoteFree, gRemoteDlopen, gRemoteDlerror, javaVm);
 
   uint32_t remotePath   = writeRemoteString(libraryPath);
   uint32_t remoteHandle = callRemoteFunction(gRemoteDlopen, 2, remotePath, (uint32_t)RTLD_NOW);
+  printf("inject diag: remotePath=0x%x remoteHandle=0x%x\n", remotePath, remoteHandle);
   callRemoteFunction(gRemoteFree, 1, remotePath);
 
   int result;
@@ -428,17 +436,28 @@ static int injectLibraryIntoProcess(int pid, const char *libraryPath, const char
     void *handle = dlopen(libraryPath, RTLD_NOW);
     void *doRunLocal = dlsym(handle, "doRun");
     uint32_t doRunRemote = resolveRemoteSymbolAddress(libraryPath, (uint32_t)(uintptr_t)doRunLocal);
-    LOGV("doRun:%p", (void *)(uintptr_t)doRunRemote);
+    KLOGI(kInjectorLogTag, "doRun local=%p remote=0x%x", doRunLocal, doRunRemote);
+    printf("inject diag: doRunLocal=%p doRunRemote=0x%x\n", doRunLocal, doRunRemote);
 
     result = 1;
     if (doRunLocal && doRunRemote) {
       uint32_t remoteArg = writeRemoteString(entryArg);
       // doRun does the InjectDex JNI bring-up — see inject64.cpp comment.
       gCallTimeoutMs = 120000;
-      callRemoteFunction(doRunRemote, 2, javaVm, remoteArg);
+      uint32_t doRunResult = callRemoteFunction(doRunRemote, 2, javaVm, remoteArg);
       gCallTimeoutMs = 5000;
       callRemoteFunction(gRemoteFree, 1, remoteArg);
-      result = 0;
+      KLOGI(kInjectorLogTag, "doRun call returned 0x%x", doRunResult);
+      printf("inject diag: doRunResult=0x%x\n", doRunResult);
+      if (doRunResult == kDoRunSuccess || doRunResult == kDoRunAlreadyLoaded) {
+        result = 0;
+      } else {
+        KLOGE(kInjectorLogTag, "doRun returned failure stage 0x%x", doRunResult);
+        printf("inject diag: doRun failed stage=0x%x\n", doRunResult);
+      }
+    } else {
+      KLOGE(kInjectorLogTag, "doRun resolve failed: local=%p remote=0x%x", doRunLocal, doRunRemote);
+      printf("inject diag: doRun resolve failed\n");
     }
   } else {
     char errbuf[1024] = {0};
@@ -451,6 +470,7 @@ static int injectLibraryIntoProcess(int pid, const char *libraryPath, const char
       *(uint32_t *)&errbuf[off] = (uint32_t)word;
     }
     LOGV("dlopen failed: %s", errbuf);
+    printf("inject diag: dlopen failed: %s\n", errbuf);
     result = 1;
   }
 
@@ -468,16 +488,20 @@ static int injectMain(int argc, char **argv) {
   char *processName  = nullptr;
   char *libraryPath  = nullptr;
   char *packageName  = nullptr;
+  char *entryArg     = nullptr;
 
   int opt;
   bool ok = true;
-  while ((opt = getopt(argc, argv, "p:P:l:n:h")) != -1) {
+  while ((opt = getopt(argc, argv, "p:P:l:n:a:h")) != -1) {
     switch (opt) {
       case 'l':
         libraryPath = optarg;
         break;
       case 'n':
         packageName = optarg;
+        break;
+      case 'a':
+        entryArg = optarg;
         break;
       case 'p':
         pid = atoi(optarg);
@@ -515,7 +539,8 @@ static int injectMain(int argc, char **argv) {
     exit(-1);
   }
 
-  int rc = injectLibraryIntoProcess(pid, libraryPath, "Kail.");
+  int rc = injectLibraryIntoProcess(pid, libraryPath,
+                                    (entryArg && *entryArg) ? entryArg : packageName);
   if (rc) {
     printf("Inject fail %d.\n", rc);
     KLOGE("LINJECT", "Inject fail %d.\n", rc);

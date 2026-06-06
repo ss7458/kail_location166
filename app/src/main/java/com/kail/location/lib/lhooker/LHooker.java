@@ -1,6 +1,9 @@
 package com.kail.location.lib.lhooker;
 
 import android.os.Build;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
@@ -12,6 +15,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LHooker {
+    private static final String SESSION_LIBRARY_PATH_FILE = "/data/kail-loc/lhooker_path.txt";
+    private static volatile String sessionLibraryPath;
     public static boolean initialized;
     private static boolean isHooking;
     static Map<Method, HookRecord> hookRecords = new ConcurrentHashMap();
@@ -338,12 +343,20 @@ public class LHooker {
 
     public static synchronized void loadHookLibrary(String libraryPath) {
         if (initialized) {
+            com.kail.location.inject.utils.InjectLog.persist("LHooker", "loadHookLibrary skipped: already initialized path=", libraryPath);
             return;
         }
+        String resolvedPath = resolveHookLibraryPath(libraryPath);
+        if (!resolvedPath.equals(libraryPath)) {
+            com.kail.location.inject.utils.InjectLog.persist("LHooker", "using session library path=", resolvedPath, " default=", libraryPath);
+        }
         try {
-            System.load(libraryPath);
+            com.kail.location.inject.utils.InjectLog.persist("LHooker", "System.load start path=", resolvedPath);
+            System.load(resolvedPath);
+            com.kail.location.inject.utils.InjectLog.persist("LHooker", "System.load ok path=", resolvedPath);
         } catch (Throwable th) {
-            th.printStackTrace();
+            com.kail.location.inject.utils.InjectLog.e("LHooker", "System.load failed path=" + resolvedPath + " default=" + libraryPath, th);
+            return;
         }
         try {
             int sdkInt = Build.VERSION.SDK_INT;
@@ -355,11 +368,85 @@ public class LHooker {
                 } catch (Throwable unused) {
                 }
             }
-            initialized = init(sdkInt) == 0;
+            int rc = init(sdkInt);
+            initialized = rc == 0;
+            com.kail.location.inject.utils.InjectLog.persist("LHooker", "init rc=", rc, " initialized=", initialized);
             persistInitLog();
         } catch (Throwable th2) {
-            th2.printStackTrace();
+            com.kail.location.inject.utils.InjectLog.e("LHooker", "init failed path=" + resolvedPath, th2);
         }
+    }
+
+    public static void setSessionLibraryPath(String libraryPath) {
+        if (libraryPath == null) {
+            sessionLibraryPath = null;
+            return;
+        }
+        String trimmed = libraryPath.trim();
+        sessionLibraryPath = trimmed.isEmpty() ? null : trimmed;
+        com.kail.location.inject.utils.InjectLog.persist("LHooker", "session library override=", sessionLibraryPath);
+    }
+
+    private static String resolveHookLibraryPath(String defaultPath) {
+        String configuredPath = sessionLibraryPath;
+        if (configuredPath == null) {
+            configuredPath = readSessionLibraryPath();
+        }
+        if (configuredPath == null) {
+            return defaultPath;
+        }
+        if (!matchesLibraryName(configuredPath, defaultPath)) {
+            com.kail.location.inject.utils.InjectLog.persist("LHooker", "ignoring session library path=", configuredPath, " default=", defaultPath);
+            return defaultPath;
+        }
+        return configuredPath;
+    }
+
+    private static String readSessionLibraryPath() {
+        BufferedReader reader = null;
+        try {
+            File pathFile = new File(SESSION_LIBRARY_PATH_FILE);
+            if (!pathFile.exists() || pathFile.length() <= 0) {
+                return null;
+            }
+            reader = new BufferedReader(new FileReader(pathFile));
+            String line = reader.readLine();
+            if (line == null) {
+                return null;
+            }
+            line = line.trim();
+            if (line.isEmpty()) {
+                return null;
+            }
+            File library = new File(line);
+            if (library.exists() && library.length() > 0) {
+                return line;
+            }
+            com.kail.location.inject.utils.InjectLog.persist("LHooker", "session library path missing=", line);
+        } catch (Throwable t) {
+            com.kail.location.inject.utils.InjectLog.e("LHooker", "read session library path failed", t);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        return null;
+    }
+
+    private static boolean matchesLibraryName(String configuredPath, String defaultPath) {
+        String defaultName = new File(defaultPath).getName();
+        String configuredName = new File(configuredPath).getName();
+        if (configuredName.equals(defaultName)) {
+            return true;
+        }
+        if (!defaultName.endsWith(".so")) {
+            return false;
+        }
+        String prefix = defaultName.substring(0, defaultName.length() - 3);
+        return configuredName.startsWith(prefix + "_") && configuredName.endsWith(".so");
     }
 
     /**

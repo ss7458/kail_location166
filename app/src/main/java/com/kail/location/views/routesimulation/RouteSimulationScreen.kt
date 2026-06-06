@@ -75,6 +75,7 @@ fun RouteSimulationScreen(
     val currentRoute = historyRoutes.firstOrNull { it.id == selectedId } ?: historyRoutes.firstOrNull() ?: RouteInfo("-", noName, noName, "")
     val updateInfo by viewModel.updateInfo.collectAsState()
     val isSimulating by viewModel.isSimulating.collectAsState()
+    val isStarting by viewModel.isStarting.collectAsState()
     val isPaused by viewModel.isPaused.collectAsState()
     val runMode by viewModel.runMode.collectAsState()
 
@@ -176,6 +177,7 @@ fun RouteSimulationScreen(
                             onLoopToggle = { viewModel.updateLoop(it) },
                             onStartSimulation = onStartSimulation,
                             isSimulating = isSimulating,
+                            isStarting = isStarting,
                             onStopSimulation = onStopSimulation,
                             isPaused = isPaused,
                             onPauseResume = { if (isPaused) viewModel.resumeSimulation() else viewModel.pauseSimulation() }
@@ -294,6 +296,7 @@ fun RouteCard(
     onLoopToggle: ((Boolean) -> Unit)? = null,
     onStartSimulation: ((SimulationSettings) -> Unit)? = null,
     isSimulating: Boolean = false,
+    isStarting: Boolean = false,
     onStopSimulation: (() -> Unit)? = null,
     isPaused: Boolean = false,
     onPauseResume: (() -> Unit)? = null
@@ -368,7 +371,26 @@ fun RouteCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    if (!isSimulating) {
+                    if (isStarting) {
+                        Button(
+                            onClick = {},
+                            enabled = false,
+                            colors = ButtonDefaults.buttonColors(
+                                disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.72f),
+                                disabledContentColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(20.dp),
+                            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp)
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp,
+                                color = Color.White
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(stringResource(R.string.sim_starting), fontSize = 14.sp)
+                        }
+                    } else if (!isSimulating) {
                         Button(
                             onClick = { onStartSimulation?.invoke(settings!!) },
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),

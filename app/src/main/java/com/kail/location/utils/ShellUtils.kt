@@ -2,6 +2,7 @@ package com.kail.location.utils
 
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.util.concurrent.TimeUnit
 
 object ShellUtils {
     private const val TAG = "ShellUtils"
@@ -28,7 +29,7 @@ object ShellUtils {
         }
     }
 
-    fun executeCommand(command: String): String {
+    fun executeCommand(command: String, timeoutMs: Long = 120_000L): String {
         var process: Process? = null
         try {
             process = Runtime.getRuntime().exec("su")
@@ -37,9 +38,19 @@ object ShellUtils {
             process.outputStream.flush()
             process.outputStream.close()
 
+            val finished = if (timeoutMs > 0) {
+                process.waitFor(timeoutMs, TimeUnit.MILLISECONDS)
+            } else {
+                process.waitFor()
+                true
+            }
+            if (!finished) {
+                process.destroyForcibly()
+                KailLog.w(null, TAG, "executeCommand timeout ${timeoutMs}ms [`$command`]")
+                return ""
+            }
             val stdout = BufferedReader(InputStreamReader(process.inputStream)).use { it.readText() }
             val stderr = BufferedReader(InputStreamReader(process.errorStream)).use { it.readText() }
-            process.waitFor()
             if (stderr.isNotBlank()) {
                 KailLog.w(null, TAG, "executeCommand stderr [`$command`]: ${stderr.trim()}")
             } else {

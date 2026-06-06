@@ -3,6 +3,10 @@ package com.kail.location.service.Root
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Binder
@@ -20,6 +24,7 @@ import androidx.preference.PreferenceManager
 import com.kail.location.R
 import com.kail.location.geo.GeoPredict
 import com.kail.location.inject.fakelocation.aidl.IMockLocationManager
+import com.kail.location.inject.utils.RootControlPaths
 import com.kail.location.inject.utils.ServiceManagerBridge
 import com.kail.location.root.NativeSensorHook
 import com.kail.location.service.Developer.MockLocationProvider
@@ -35,6 +40,10 @@ import com.kail.location.utils.service.ServiceNotificationHelper
 import com.kail.location.viewmodels.JoystickViewModel
 import com.kail.location.views.joystick.JoystickWindowManager
 import com.kail.location.views.locationpicker.LocationPickerActivity
+import java.io.BufferedWriter
+import java.io.InputStream
+import java.io.OutputStreamWriter
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Foreground service for the "root" run mode.
@@ -44,7 +53,7 @@ import com.kail.location.views.locationpicker.LocationPickerActivity
  *   1. [RootDeployer.ensureBaseline] stages every FakeLocation loader/hook
  *      .so (libfakeloc_init.so / libfakeloc_initzygote.so /
  *      libfakeloc_apphook.so / liblhooker.so / libStepSensor.so /
- *      libantidetect.so) into /data/kail-loc/, drops the kail_inject ptrace
+ *      hook/runtime support libraries into /data/kail-loc/, drops the kail_inject ptrace
  *      injector + libkail_native_hook.so into /data/local/kail-lib/, and
  *      copies the host APK to /data/kail-loc/libfakeloc.so as the dex
  *      payload. The full FakeLocation toolchain is therefore present on the
@@ -99,15 +108,32 @@ class ServiceGoRoot : Service() {
         )
     }
 
-    private var locationLoopStarted: Boolean = false
+    @Volatile private var locationLoopStarted: Boolean = false
     private var speedFluctuation: Boolean = false
     private var stepEnabled: Boolean = false
     private var stepCadence: Float = 120f
     private var stepMode: Int = 0
     private var stepScheme: Int = 0
 
-    private var nativeHookReady: Boolean = false
-    private var nativeHookAttempted: Boolean = false
+    @Volatile private var nativeHookReady: Boolean = false
+    @Volatile private var nativeHookAttempted: Boolean = false
+    @Volatile private var rootControlActive: Boolean = false
+    @Volatile private var rootControlPrepared: Boolean = false
+    @Volatile private var rootControlLatestWrite: RootControlWrite? = null
+    @Volatile private var rootControlWriterScheduled: Boolean = false
+    @Volatile private var lastRootControlAsyncWriteMs: Long = 0L
+    @Volatile private var startGeneration: Int = 0
+    @Volatile private var activeRootControlSession: Long = 0L
+    private var lastRouteTickElapsedMs: Long = 0L
+    private var rootControlFastProcess: java.lang.Process? = null
+    private var rootControlFastWriter: BufferedWriter? = null
+    private lateinit var mRootControlWriterThread: HandlerThread
+    private lateinit var mRootControlWriterHandler: Handler
+    private var stepCarrierSensorManager: SensorManager? = null
+    private var stepCarrierListener: SensorEventListener? = null
+    @Volatile private var stepCarrierActive: Boolean = false
+    @Volatile private var stepCarrierEvents: Long = 0L
+    @Volatile private var lastStepAckLogMs: Long = 0L
 
     /** Drives Android's standard test-provider mechanism. Same code Developer mode uses. */
     private val mMockLocationProvider by lazy { MockLocationProvider(this, mLocManager) }
@@ -167,6 +193,9 @@ class ServiceGoRoot : Service() {
     /** Cached binder into the FakeLocation hide-root layer (oem_integrity). */
     private var hideRootService: com.kail.location.inject.fakelocation.aidl.IHideRootManager? = null
 
+    /** Cached binder into the FakeLocation anti-detection layer (oem_security). */
+    private var antiDetectionService: com.kail.location.inject.fakelocation.aidl.IMockAntiDetectionManager? = null
+
     /**
      * WiFi / cell networks selected in the UI for spoofing. Populated from the
      * start intent's [EXTRA_WIFI_LIST] / [EXTRA_CELL_LIST] parcelable extras.
@@ -187,6 +216,8 @@ class ServiceGoRoot : Service() {
         private const val DEFAULT_LOCATION_UPDATE_INTERVAL_MS = 200L
         private const val SERVICE_GO_HANDLER_NAME = "ServiceGoRootLocation"
         private const val SERVICE_GO_NOTE_ID = 3
+        private const val ROOT_RUNTIME_DIR = "/data/system/kail-loc"
+        private const val ROOT_INJECTDEX_STATE = "$ROOT_RUNTIME_DIR/injectdex_state.txt"
 
         const val SERVICE_GO_NOTE_ACTION_JOYSTICK_SHOW = ServiceNotificationHelper.ACTION_JOYSTICK_SHOW
         const val SERVICE_GO_NOTE_ACTION_JOYSTICK_HIDE = ServiceNotificationHelper.ACTION_JOYSTICK_HIDE
@@ -250,6 +281,9 @@ class ServiceGoRoot : Service() {
         private const val TXN_START_MOCK_WIFI = 2
         private const val TXN_STOP_MOCK_WIFI = 3
         private const val TXN_SET_MOCK_WIFI_NETWORKS = 9
+        private val ROOT_CONTROL_SESSION_SEQ = AtomicLong(0L)
+        private val ROOT_CONTROL_ACTIVE_SESSION = AtomicLong(0L)
+        private val ROOT_CONTROL_LOCK = Any()
     }
 
     override fun onBind(intent: Intent): IBinder = mBinder
@@ -264,6 +298,8 @@ class ServiceGoRoot : Service() {
             .onFailure { KailLog.e(this, TAG, "LocationManager init: ${it.message}") }
         runCatching { initGoLocation() }
             .onFailure { KailLog.e(this, TAG, "initGoLocation: ${it.message}") }
+        runCatching { initRootControlWriter() }
+            .onFailure { KailLog.e(this, TAG, "initRootControlWriter: ${it.message}") }
         runCatching {
             val prefs = PreferenceManager.getDefaultSharedPreferences(this)
             val joystickEnabledPref = prefs.getBoolean("setting_joystick_enabled", false)
@@ -354,6 +390,11 @@ class ServiceGoRoot : Service() {
             if (routeArray != null && routeArray.size >= 2) {
                 mRouteEngine.setupFromArray(routeArray, coordType)
                 mRouteEngine.setLoop(intent.getBooleanExtra(EXTRA_ROUTE_LOOP, false))
+                if (mRouteEngine.isActive) {
+                    mCurLng = mRouteEngine.currentLng
+                    mCurLat = mRouteEngine.currentLat
+                    mCurBea = mRouteEngine.currentBea
+                }
             }
 
             stepEnabled = intent.getBooleanExtra(EXTRA_STEP_ENABLED, stepEnabled)
@@ -363,22 +404,35 @@ class ServiceGoRoot : Service() {
 
             KailLog.i(this, TAG, "onStartCommand lat=$mCurLat lng=$mCurLng wifiOnly=$modeWifiOnly cellOnly=$modeCellOnly step=$stepEnabled spm=$stepCadence")
 
-            // Bring up the in-app sensor hook + the FakeLocation injection
-            // chain. The injection step shells out to su + kail_inject, which
-            // can take a couple of seconds, so run it off the main thread.
-            ensureNativeHookOnce()
+            val generation = ++startGeneration
+            val rootControlSession = ROOT_CONTROL_SESSION_SEQ.incrementAndGet()
+            activeRootControlSession = rootControlSession
+            ROOT_CONTROL_ACTIVE_SESSION.set(rootControlSession)
+            rootControlActive = false
+            rootControlLatestWrite = null
+            rootControlWriterScheduled = false
+            if (this::mRootControlWriterHandler.isInitialized) {
+                mRootControlWriterHandler.removeCallbacksAndMessages(null)
+            }
             Thread({
-                startMockLocationOnInjection()
+                // Shell/native setup can take a second or two on real devices.
+                // Keep it off the main thread so the Compose loading indicator
+                // does not freeze immediately after "Start".
+                ensureNativeHookOnce()
+                if (!isCurrentGeneration(generation)) return@Thread
+                val startupOk = startMockLocationOnInjection(generation)
                 // Step mock goes through the oem_location binder, which
                 // only exists after the inject above completes — so apply it
                 // here on the same bootstrap thread rather than on the main
                 // thread before the binder is online.
-                applyStepSimulation()
+                if (isCurrentGeneration(generation)) {
+                    if (startupOk) {
+                        applyStepSimulation()
+                    } else {
+                        stopStepCarrier("bootstrap failed")
+                    }
+                }
             }, "ServiceGoRootBootstrap").start()
-
-            if (!modeWifiOnly && !modeCellOnly) {
-                startLocationLoop()
-            }
 
             runCatching {
                 mJoystickViewModel.setCurrentPosition(mCurLng, mCurLat, mCurAlt)
@@ -401,29 +455,46 @@ class ServiceGoRoot : Service() {
     override fun onDestroy() {
         KailLog.i(this, TAG, "onDestroy started")
         isRunning = false
+        startGeneration++
+        val stoppingRootControlSession = activeRootControlSession
+        activeRootControlSession = 0L
+        if (stoppingRootControlSession > 0L) {
+            ROOT_CONTROL_ACTIVE_SESSION.compareAndSet(stoppingRootControlSession, 0L)
+        }
         runCatching {
             broadcastStatusStopped()
             isStop = true
             locationLoopStarted = false
+            rootControlActive = false
+            rootControlLatestWrite = null
+            rootControlWriterScheduled = false
             if (this::mLocHandler.isInitialized) mLocHandler.removeCallbacksAndMessages(null)
             if (this::mLocHandlerThread.isInitialized) mLocHandlerThread.quitSafely()
+            if (this::mRootControlWriterHandler.isInitialized) mRootControlWriterHandler.removeCallbacksAndMessages(null)
+            stopStepCarrier("service destroying")
+            closeRootControlFastShell("service destroying")
+            if (this::mRootControlWriterThread.isInitialized) mRootControlWriterThread.quitSafely()
             if (this::mJoystickManager.isInitialized) mJoystickManager.destroy()
-
-            // Tell the injected layer to stop, if present.
-            stopMockLocationOnInjection()
-            // Tear down any active hide config.
-            stopHideOnInjection()
-
-            // Tell the in-app native hook to wind down.
-            if (nativeHookReady) {
-                runCatching { NativeSensorHook.nativeSetMocking(0) }
-                runCatching { NativeSensorHook.nativeSetStepSimEnabled(false) }
-                runCatching { NativeSensorHook.nativeSetRouteSimulation(false, 120f, 0) }
-                runCatching { NativeSensorHook.nativeReset() }
-            }
-
             mNotificationHelper.stopForeground()
         }.onFailure { KailLog.e(this, TAG, "onDestroy: ${it.message}") }
+
+        Thread({
+            runCatching {
+                // Slow binder/provider cleanup must not run on the main thread.
+                stopMockLocationOnInjection(retry = false, rootControlSession = stoppingRootControlSession)
+                stopHideOnInjection(retry = false)
+                RootDeployer.revokeMockLocationAppOps(applicationContext)
+                runCatching { ShellUtils.executeCommand("setenforce 1") }
+                recordCleanupState()
+                if (nativeHookReady) {
+                    runCatching { NativeSensorHook.nativeSetMocking(0) }
+                    runCatching { NativeSensorHook.nativeSetStepSimEnabled(false) }
+                    runCatching { NativeSensorHook.nativeSetRouteSimulation(false, 120f, 0) }
+                    runCatching { NativeSensorHook.nativeReset() }
+                }
+            }.onFailure { KailLog.e(applicationContext, TAG, "background cleanup: ${it.message}") }
+        }, "ServiceGoRootCleanup").start()
+
         super.onDestroy()
         KailLog.i(this, TAG, "onDestroy finished")
     }
@@ -443,6 +514,7 @@ class ServiceGoRoot : Service() {
 
             CONTROL_RESUME -> runCatching {
                 isStop = false
+                lastRouteTickElapsedMs = SystemClock.elapsedRealtime()
                 if (this::mJoystickManager.isInitialized) mJoystickManager.setRoutePauseState(false)
                 if (locationLoopStarted && this::mLocHandler.isInitialized && !mLocHandler.hasMessages(HANDLER_MSG_ID)) {
                     mLocHandler.sendEmptyMessage(HANDLER_MSG_ID)
@@ -502,8 +574,8 @@ class ServiceGoRoot : Service() {
             CONTROL_STOP_HIDE -> runCatching {
                 hideRootEnabled = false
                 hideAppListEnabled = false
-                pendingHidePackages = emptyList()
                 stopHideOnInjection()
+                pendingHidePackages = emptyList()
                 KailLog.i(this, TAG, "Hide stopped via control")
                 if (!isAnyMockActive()) stopSelf()
             }.onFailure { KailLog.e(this, TAG, "stop_hide: ${it.message}") }
@@ -531,8 +603,23 @@ class ServiceGoRoot : Service() {
                 stepCadence = intent.getFloatExtra(EXTRA_STEP_FREQ, stepCadence)
                 stepMode = intent.getIntExtra(EXTRA_STEP_MODE, stepMode)
                 stepScheme = intent.getIntExtra(EXTRA_STEP_SCHEME, stepScheme)
-                ensureNativeHookOnce()
-                applyStepSimulation()
+                val generation = startGeneration
+                val rootControlSession = activeRootControlSession
+                Thread({
+                    ensureNativeHookOnce()
+                    applyStepSimulation()
+                    if (locationLoopStarted && !modeWifiOnly && !modeCellOnly) {
+                        runCatching {
+                            writeRootLocationControl(
+                                true,
+                                timeoutMs = 1500L,
+                                generation = generation,
+                                rootControlSession = rootControlSession
+                            )
+                        }
+                            .onFailure { KailLog.e(this, TAG, "set step control-file write: ${it.message}") }
+                    }
+                }, "ServiceGoRootStepControl").start()
             }
         }
     }
@@ -596,31 +683,22 @@ class ServiceGoRoot : Service() {
             KailLog.i(this, TAG, "wrote sensor offsets: write=$writeOffset convert=$convertOffset")
         }.onFailure { KailLog.e(this, TAG, "write sensor offsets: ${it.message}") }
 
-        val ok = runCatching {
-            NativeSensorHook.nativeSetWriteOffset(parseHexOffset(writeOffset))
-            NativeSensorHook.nativeSetConvertOffset(parseHexOffset(convertOffset))
-            NativeSensorHook.nativeInitHook()
-            true
-        }.getOrElse {
-            KailLog.e(this, TAG, "NativeSensorHook init: ${it.message}")
-            false
-        }
-
-        nativeHookReady = ok
-        if (ok) {
-            KailLog.i(
-                this,
-                TAG,
-                "NativeSensorHook JNI initialized in app process; sensor hook on system_server " +
-                    "is NOT installed from here — needs Xposed/Zygisk loader. offsets=$writeOffset/$convertOffset"
-            )
-        } else {
-            KailLog.w(this, TAG, "NativeSensorHook JNI init failed; offsets=$writeOffset/$convertOffset")
-        }
-        return ok
+        nativeHookReady = false
+        KailLog.i(
+            this,
+            TAG,
+            "NativeSensorHook staged for injected system_server only; app-process native hook disabled. offsets=$writeOffset/$convertOffset"
+        )
+        return false
     }
 
     private fun applyStepSimulation() {
+        if (stepEnabled && !rootControlActive && !modeWifiOnly && !modeCellOnly) {
+            KailLog.w(this, TAG, "step mock deferred: root location control is not active")
+            stopStepCarrier("root control inactive")
+            return
+        }
+
         // Primary path — the FakeLocation step sensor mock via the
         // oem_location binder (runs inside system_server, hooks
         // libsensorservice's global sensor stream). setStepSpeed takes
@@ -639,22 +717,88 @@ class ServiceGoRoot : Service() {
             }
         }.onFailure { KailLog.e(this, TAG, "applyStepSimulation (binder): ${it.message}") }
 
+        if (stepEnabled) {
+            startStepCarrierIfNeeded()
+        } else {
+            stopStepCarrier("step disabled")
+        }
+
         // Secondary best-effort path — the in-app NativeSensorHook. Only does
         // anything when the SO is loaded into the consuming process (Xposed/
         // Zygisk); a no-op from the controller process. Kept for parity with
         // ServiceGoXposed.
         if (!nativeHookReady) return
         runCatching {
-            NativeSensorHook.nativeSetGaitParams(stepCadence, stepMode, stepScheme, stepEnabled)
-            NativeSensorHook.nativeSetStepSimEnabled(stepEnabled)
             if (stepEnabled) {
                 NativeSensorHook.nativeSetRouteSimulation(true, stepCadence, stepMode)
+                NativeSensorHook.nativeSetGaitParams(stepCadence, stepMode, stepScheme, true)
+                NativeSensorHook.nativeSetStepSimEnabled(true)
                 NativeSensorHook.nativeSetMocking(1)
             } else {
-                NativeSensorHook.nativeSetRouteSimulation(false, stepCadence, stepMode)
+                NativeSensorHook.nativeSetStepSimEnabled(false)
                 NativeSensorHook.nativeSetMocking(0)
+                NativeSensorHook.nativeSetRouteSimulation(false, stepCadence, stepMode)
+                NativeSensorHook.nativeSetGaitParams(stepCadence, stepMode, stepScheme, false)
+                NativeSensorHook.nativeReset()
             }
         }.onFailure { KailLog.e(this, TAG, "applyStepSimulation (native): ${it.message}") }
+    }
+
+    private fun startStepCarrierIfNeeded() {
+        if (stepCarrierActive) return
+        val sensorManager = stepCarrierSensorManager
+            ?: (getSystemService(Context.SENSOR_SERVICE) as? SensorManager)?.also {
+                stepCarrierSensorManager = it
+            }
+            ?: run {
+                KailLog.w(this, TAG, "step carrier unavailable: SensorManager missing")
+                return
+            }
+        val sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+            ?: sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
+            ?: sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+            ?: run {
+                KailLog.w(this, TAG, "step carrier unavailable: no accel/linear/gyro sensor")
+                return
+            }
+        val listener = object : SensorEventListener {
+            override fun onSensorChanged(event: SensorEvent) {
+                stepCarrierEvents++
+            }
+
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
+        }
+        val ok = runCatching {
+            sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_UI)
+        }.getOrElse {
+            KailLog.w(this, TAG, "step carrier register failed: ${it.message}")
+            false
+        }
+        if (ok) {
+            stepCarrierListener = listener
+            stepCarrierActive = true
+            stepCarrierEvents = 0L
+            KailLog.i(this, TAG, "step carrier started type=${sensor.type} name=${sensor.name}")
+        } else {
+            KailLog.w(this, TAG, "step carrier register returned false type=${sensor.type} name=${sensor.name}")
+        }
+    }
+
+    private fun stopStepCarrier(reason: String) {
+        val listener = stepCarrierListener ?: run {
+            stepCarrierActive = false
+            return
+        }
+        runCatching {
+            stepCarrierSensorManager?.unregisterListener(listener)
+        }.onFailure {
+            KailLog.w(this, TAG, "step carrier unregister: ${it.message}")
+        }
+        stepCarrierListener = null
+        val events = stepCarrierEvents
+        stepCarrierEvents = 0L
+        stepCarrierActive = false
+        KailLog.i(this, TAG, "step carrier stopped: $reason events=$events")
     }
 
     // ------------------------------------------------------------------
@@ -683,11 +827,22 @@ class ServiceGoRoot : Service() {
 
     /** Like [resolveMockLocService] but retries while the inject finishes registering. */
     private fun resolveMockLocServiceWithRetry(): IMockLocationManager? {
-        repeat(10) {
+        repeat(10) { index ->
             resolveMockLocService()?.let { return it }
-            runCatching { Thread.sleep(300) }
+            if (index < 9) runCatching { Thread.sleep(300) }
         }
         return null
+    }
+
+    private fun isCurrentGeneration(generation: Int): Boolean {
+        return isRunning && generation == startGeneration
+    }
+
+    private fun shouldAbortBootstrap(generation: Int, diag: SimulationDiagnostics? = null): Boolean {
+        if (isCurrentGeneration(generation)) return false
+        diag?.warn("启动已取消", "服务已停止或已有新的启动请求，停止旧后台初始化")
+        KailLog.i(this, TAG, "bootstrap cancelled: generation=$generation current=$startGeneration running=$isRunning")
+        return true
     }
 
     /**
@@ -758,9 +913,10 @@ class ServiceGoRoot : Service() {
     // we inject every selected package once the config is pushed.
     // ------------------------------------------------------------------
 
-    private fun resolveHideRootService(): com.kail.location.inject.fakelocation.aidl.IHideRootManager? {
+    private fun resolveHideRootService(retry: Boolean = true): com.kail.location.inject.fakelocation.aidl.IHideRootManager? {
         hideRootService?.let { return it }
-        repeat(10) {
+        val attempts = if (retry) 10 else 1
+        repeat(attempts) { index ->
             val binder = runCatching {
                 ServiceManagerBridge.getService(ClassLoader.getSystemClassLoader(), "oem_integrity")
             }.getOrNull()
@@ -772,7 +928,27 @@ class ServiceGoRoot : Service() {
                     KailLog.i(this, TAG, "FakeLocation hide-root binder online")
                 }
             }
-            runCatching { Thread.sleep(300) }
+            if (retry && index < attempts - 1) runCatching { Thread.sleep(300) }
+        }
+        return null
+    }
+
+    private fun resolveAntiDetectionService(retry: Boolean = true): com.kail.location.inject.fakelocation.aidl.IMockAntiDetectionManager? {
+        antiDetectionService?.let { return it }
+        val attempts = if (retry) 10 else 1
+        repeat(attempts) { index ->
+            val binder = runCatching {
+                ServiceManagerBridge.getService(ClassLoader.getSystemClassLoader(), "oem_security")
+            }.getOrNull()
+            if (binder != null) {
+                return runCatching {
+                    com.kail.location.inject.fakelocation.aidl.IMockAntiDetectionManager.Stub.asInterface(binder)
+                }.getOrNull()?.also {
+                    antiDetectionService = it
+                    KailLog.i(this, TAG, "FakeLocation anti-detection binder online")
+                }
+            }
+            if (retry && index < attempts - 1) runCatching { Thread.sleep(300) }
         }
         return null
     }
@@ -802,6 +978,7 @@ class ServiceGoRoot : Service() {
                 svc.disableHideRoot()
                 svc.setHideAppListEnabled(false)
                 svc.setHiddenPackages(null)
+                svc.setHiddenProcesses(null)
             }
             KailLog.i(
                 this, TAG,
@@ -818,19 +995,43 @@ class ServiceGoRoot : Service() {
         }
     }
 
-    private fun stopHideOnInjection() {
+    private fun stopHideOnInjection(retry: Boolean = true) {
+        val svc = resolveHideRootService(retry)
+        val pkgsToRestart = pendingHidePackages.ifEmpty {
+            runCatching { svc?.hiddenPackages ?: emptyList() }.getOrDefault(emptyList())
+        }.toList()
         runCatching {
-            resolveHideRootService()?.let {
+            svc?.let {
                 it.disableHideRoot()
                 it.setHideAppListEnabled(false)
                 it.setHiddenPackages(null)
+                it.setHiddenProcesses(null)
             }
         }.onFailure { KailLog.e(this, TAG, "stopHideOnInjection: ${it.message}") }
+        runCatching {
+            resolveAntiDetectionService(retry)?.let {
+                it.disablePackageManagerHook()
+                it.setPackageFilterEnabled(false)
+                it.setPackageVisibilityFilterEnabled(false)
+                it.setTargetPackages(null)
+                it.setDetectedPackages(null)
+                it.setScopedPackageRules(null)
+            }
+        }.onFailure { KailLog.e(this, TAG, "stopAntiDetectionOnInjection: ${it.message}") }
+        if (pkgsToRestart.isNotEmpty()) {
+            pkgsToRestart.forEach { pkg ->
+                if (pkg.matches(Regex("[A-Za-z0-9_.]+"))) {
+                    runCatching { ShellUtils.executeCommand("am force-stop $pkg") }
+                        .onFailure { KailLog.w(this, TAG, "force-stop $pkg: ${it.message}") }
+                }
+            }
+            KailLog.i(this, TAG, "hide target processes force-stopped for clean property state: ${pkgsToRestart.joinToString()}")
+        }
     }
 
-    private fun startMockLocationOnInjection() {
-        // 模拟启动诊断：把每一步前置条件 + 最终判定写成一整块报告，
-        // 无视日志开关强制落盘，方便用户失败后导出日志一眼定位原因。
+    private fun startMockLocationOnInjection(generation: Int): Boolean {
+        // 模拟启动诊断：把每一步前置条件 + 最终判定写成一整块报告。
+        // Logcat 始终输出；文件导出仍遵循日志开关，避免关闭日志时持续写盘。
         val scenario = when {
             modeWifiOnly -> "wifi"
             modeCellOnly -> "cell"
@@ -838,6 +1039,10 @@ class ServiceGoRoot : Service() {
             else -> "location"
         }
         val diag = SimulationDiagnostics.begin(this, mode = "root", scenario = scenario)
+        if (shouldAbortBootstrap(generation, diag)) {
+            diag.finish()
+            return false
+        }
 
         // Sample system_server PID BEFORE injection so we can detect a
         // watchdog-induced restart (a crashed inject changes the PID).
@@ -859,18 +1064,28 @@ class ServiceGoRoot : Service() {
                 diag.error("注入引导", it)
                 false
             }
+        if (shouldAbortBootstrap(generation, diag)) {
+            diag.finish()
+            return false
+        }
 
         // Fold the native LHooker ArtMethod probe results into THIS diagnostic
         // block (instead of scattering them via separate log lines), and detect
         // whether the inject restarted system_server.
-        val probeLines = mirrorLHookerInitLog()
-        diag.recordNativeProbe(probeLines)
+        diag.recordLoaderTrace(mirrorFakelocInitLog())
+        diag.recordBootstrapState(mirrorInjectDexState())
+        diag.recordNativeProbe(mirrorLHookerInitLog())
         val ssPidAfter = diag.sampleSystemServerPid("注入后")
+        diag.recordInjectedLogcat(mirrorInjectedLogcat(ssPidAfter))
         diag.checkSystemServerStable(ssPidBefore, ssPidAfter)
 
         // 走到这里说明 app 进程没被注入崩溃带走（system_server 至少还能响应 pgrep）。
         // 撤防哨兵：本次注入没有立即把整机搞崩。
         InjectionCrashSentinel.disarm()
+        if (shouldAbortBootstrap(generation, diag)) {
+            diag.finish()
+            return false
+        }
 
         // WiFi-only / cell-only modes must NOT turn on GNSS satellite
         // mocking, and WiFi-only must not start location mocking at all.
@@ -898,9 +1113,10 @@ class ServiceGoRoot : Service() {
             diag.step("下发 WiFi 模拟", wifiPushed)
             applyAllowPackages(independentAllowPackages)
             KailLog.i(this, TAG, "wifiOnly: inject staged, WiFi networks pushed, location+GNSS skipped")
-            diag.verdict(wifiPushed && wsvc != null, "仅 WiFi 模拟")
+            val ok = wifiPushed && wsvc != null
+            diag.verdict(ok, "仅 WiFi 模拟")
             diag.finish()
-            return
+            return ok
         }
 
         if (modeCellOnly) {
@@ -916,71 +1132,72 @@ class ServiceGoRoot : Service() {
             diag.step("下发基站模拟", cellPushed)
             applyAllowPackages(independentAllowPackages)
             KailLog.i(this, TAG, "cellOnly: inject staged, cell towers pushed, GNSS skipped")
-            diag.verdict(cellPushed && csvc != null, "仅基站模拟")
+            val ok = cellPushed && csvc != null
+            diag.verdict(ok, "仅基站模拟")
             diag.finish()
-            return
+            return ok
         }
 
-        // Prefer the FakeLocation binder if the inject brought it up. Use the
-        // retry resolver so a binder that registers slightly after inject
-        // returns isn't misdiagnosed as "not registered".
-        // Temporarily switch SELinux to permissive so untrusted_app can
-        // find the oem_location binder in ServiceManager; restore
-        // enforcing once the binder is cached and the initial mock setup is done.
-        ShellUtils.executeCommand("setenforce 0")
-        val svc = resolveMockLocServiceWithRetry()
-        diag.step(
-            "oem_location binder",
-            svc != null,
-            if (svc != null) "已注册，走 FakeLocation 注入层（强）"
-            else "未注册——注入未生效，将回退到测试Provider（弱，易被检测）"
-        )
-        if (svc != null) {
-            val started = runCatching {
-                // Clear any scoped block-list a previous cell-only session may
-                // have installed, otherwise normal location mocking would be
-                // silently blocked by the "abhf|*" rule.
-                svc.setSafeApps(null)
-                svc.startMockLocation()
-                svc.setIntervalTimeout(currentLocationUpdateIntervalMs())
-                pushLocationToInjection()
-                applyAllowPackages(independentAllowPackages)
-                KailLog.i(this, TAG, "FakeLocation mock-location active lat=$mCurLat lng=$mCurLng")
-                true
-            }.getOrElse { KailLog.e(this, TAG, "startMockLocation (binder): ${it.message}"); diag.error("启动 FakeLocation 模拟", it); false }
-            ShellUtils.executeCommand("setenforce 1")
-            diag.step("启动 FakeLocation 模拟", started, "lat=$mCurLat lng=$mCurLng")
-            diag.verdict(started, "FakeLocation 注入层模拟生效")
-            diag.finish()
-            return
+        // On Android 16 / OnePlus, system_server is allowed to run our injected
+        // code but SELinux denies dynamic ServiceManager.addService(), so the
+        // oem_location binder never appears. Use the control file as the primary
+        // root-mode location path and keep the binder path only as an optional
+        // compatibility bridge for WiFi/cell/older ROMs.
+        val controlAck = if (injected) runCatching {
+            clearRootLocationAck()
+            writeRootLocationControl(true, generation = generation)
+            waitForRootLocationAck()
+        }.getOrElse {
+            KailLog.e(this, TAG, "control-file mock: ${it.message}")
+            diag.error("启动控制文件模拟", it)
+            null
+        } else null
+        val controlOk = controlAck?.isAppliedFor(mCurLat, mCurLng) == true
+        rootControlActive = controlOk && isCurrentGeneration(generation)
+        val controlDetail = when {
+            !injected -> "注入未成功，无法走控制文件"
+            controlOk -> "system_server 已应用控制文件：${controlAck?.summary()}"
+            controlAck != null -> "system_server 控制线程返回异常：${controlAck.summary()}"
+            else -> "未收到 system_server 控制线程 ack（控制线程可能未启动或 Hook 初始化失败）"
         }
-        ShellUtils.executeCommand("setenforce 1")
-
-        // Fallback: register GPS + NETWORK test providers and push an initial fix.
-        val fallbackOk = runCatching {
-            mMockLocationProvider.ensureProviders()
-            pushLocationToInjection()
-            KailLog.i(this, TAG, "Test-provider mock-location active lat=$mCurLat lng=$mCurLng")
-            true
-        }.getOrElse { KailLog.e(this, TAG, "ensureProviders: ${it.message}"); diag.error("注册测试Provider", it); false }
-        diag.step("回退：注册测试Provider", fallbackOk)
-        // 即便回退路径本身成功，对 root 模式而言这仍是「未达预期」——注入没生效。
-        diag.verdict(false,
-            if (injected) "注入声称成功但 binder 未注册，已回退测试Provider"
-            else "ROOT 注入未生效，已回退测试Provider（表现等同开发者模式，易被检测）")
-        diag.finish()
-
-        // 让用户当场知道为什么「像开发者模式」：root 注入没生效已回退。
-        // 否则用户只会困惑「root 模式怎么变成测试 Provider 了」。
-        runCatching {
-            val msg = if (injected)
-                getString(R.string.service_root_fallback_binder)
-            else
-                getString(R.string.service_root_fallback_noroot)
-            android.os.Handler(mainLooper).post {
-                GoUtils.DisplayToast(applicationContext, msg)
+        if (controlOk) {
+            KailLog.i(this, TAG, "control-file mock-location active lat=$mCurLat lng=$mCurLng ack=${controlAck?.summary()}")
+        }
+        diag.step("控制文件模拟", controlOk, controlDetail)
+        val stepControlOk = !stepEnabled || (controlAck?.stepMocking == true && controlAck.stepHookInstalled == true)
+        if (stepEnabled) {
+            val stepDetail = when {
+                !controlOk -> "位置控制未生效，步频未下发"
+                controlAck?.stepMocking == true && controlAck.stepHookInstalled == true ->
+                    "system_server 已启动步频模拟：spm=${controlAck.stepSpm ?: stepCadence} status=${controlAck.stepStatus ?: "running"} synth=${controlAck.stepSynthEvents ?: 0}"
+                else ->
+                    "未完全生效：status=${controlAck.stepStatus ?: "?"} mocking=${controlAck.stepMocking ?: false} " +
+                        "hook=${controlAck.stepHookInstalled ?: false} synth=${controlAck.stepSynthEvents ?: 0}${controlAck.stepError?.let { " error=$it" } ?: ""}"
             }
+            diag.step("步频模拟", stepControlOk, stepDetail)
         }
+        val svc = resolveMockLocService()
+        diag.info("oem_location binder", if (svc != null) "已注册（兼容路径可用）" else "未注册（使用控制文件路径）")
+        val startupOk = controlOk && stepControlOk
+        diag.verdict(startupOk,
+            when {
+                !controlOk -> "ROOT 注入未生效，未启用测试Provider，避免真实定位拉回/被检测"
+                stepEnabled && !stepControlOk -> "位置模拟生效，但步频 hook 未启动"
+                stepEnabled -> "FakeLocation 控制文件路径模拟生效，步频模拟已启动"
+                else -> "FakeLocation 控制文件路径模拟生效"
+            })
+        diag.finish()
+        if (controlOk && isCurrentGeneration(generation) && !modeWifiOnly && !modeCellOnly) {
+            startLocationLoop()
+        }
+
+        if (!controlOk) runCatching {
+            if (isCurrentGeneration(generation) && !modeWifiOnly && !modeCellOnly) {
+                broadcastStatusStopped()
+            }
+            android.os.Handler(mainLooper).post { GoUtils.DisplayToast(applicationContext, getString(R.string.service_root_fallback_noroot)) }
+        }
+        return startupOk
     }
 
     /**
@@ -996,23 +1213,13 @@ class ServiceGoRoot : Service() {
      */
     private fun mirrorLHookerInitLog(): List<String> {
         return runCatching {
-            val candidates = listOf(
-                java.io.File("/data/kail-loc/lhooker_init.log"),
-                java.io.File("/data/local/kail-lib/lhooker_init.log"),
+            // Always use su here. /data/system may be non-traversable to the
+            // app UID even when the log file itself has permissive bits.
+            val text = ShellUtils.executeCommand(
+                "cat $ROOT_RUNTIME_DIR/lhooker_init.log 2>/dev/null || " +
+                    "cat /data/kail-loc/lhooker_init.log 2>/dev/null || " +
+                    "cat /data/local/kail-lib/lhooker_init.log 2>/dev/null"
             )
-            val file = candidates.firstOrNull { it.exists() && it.length() > 0 }
-            val text = when {
-                file != null -> file.readText()
-                else -> {
-                    // Files are 0666 but the dir may be traversable only via su
-                    // on some ROMs; fall back to a root read.
-                    val out = ShellUtils.executeCommand(
-                        "cat /data/kail-loc/lhooker_init.log 2>/dev/null || " +
-                            "cat /data/local/kail-lib/lhooker_init.log 2>/dev/null"
-                    )
-                    out
-                }
-            }
             if (text.isNullOrBlank()) {
                 KailLog.i(this, TAG, "LHooker init log not found yet")
                 return@runCatching emptyList<String>()
@@ -1034,7 +1241,79 @@ class ServiceGoRoot : Service() {
         }
     }
 
-    private fun stopMockLocationOnInjection() {
+    /** Read libfakeloc_init.so's native loader trace from system_server. */
+    private fun mirrorFakelocInitLog(): List<String> {
+        return runCatching {
+            val out = ShellUtils.executeCommand(
+                "cat $ROOT_RUNTIME_DIR/fakeloc_init.log 2>/dev/null || " +
+                    "cat /data/kail-loc/fakeloc_init.log 2>/dev/null"
+            ).trim()
+            if (out.isBlank()) {
+                KailLog.w(this, TAG, "fakeloc init log not found yet")
+                return@runCatching emptyList<String>()
+            }
+            out.lineSequence()
+                .map { it.trimEnd() }
+                .filter { it.isNotBlank() }
+                .toList()
+                .also { lines -> lines.forEach { KailLog.i(this, TAG, "[fakeloc-init] $it") } }
+        }.getOrElse {
+            KailLog.w(this, TAG, "mirrorFakelocInitLog: ${it.message}")
+            emptyList()
+        }
+    }
+
+    /** Read InjectDex.init state that Java writes from inside system_server. */
+    private fun mirrorInjectDexState(): List<String> {
+        return runCatching {
+            val out = ShellUtils.executeCommand("cat $ROOT_INJECTDEX_STATE 2>/dev/null").trim()
+            if (out.isBlank()) {
+                KailLog.w(this, TAG, "InjectDex state not found yet")
+                return@runCatching emptyList<String>()
+            }
+            out.lineSequence()
+                .map { it.trimEnd() }
+                .filter { it.isNotBlank() }
+                .toList()
+                .takeLast(80)
+                .also { lines -> lines.forEach { KailLog.i(this, TAG, "[injectdex-state] $it") } }
+        }.getOrElse {
+            KailLog.w(this, TAG, "mirrorInjectDexState: ${it.message}")
+            emptyList()
+        }
+    }
+
+    /** Mirror system_server-side injected Java/native logcat lines into the diagnostic block. */
+    private fun mirrorInjectedLogcat(systemServerPid: String): List<String> {
+        return runCatching {
+            val pidArg = systemServerPid.lineSequence().firstOrNull { it.isNotBlank() }?.trim().orEmpty()
+            val pidFilter = if (pidArg.matches(Regex("\\d+"))) "--pid=$pidArg" else ""
+            val out = ShellUtils.executeCommand(
+                "logcat -d -v threadtime -t 300 $pidFilter " +
+                    "KailLog/InjectDex:I KailLog/RootLocationControl:I KailLog/ServiceManagerBridge:E " +
+                    "KailLog/NativeStepHook:I KailLog/MockStepSensor:I KailLog/LHooker:I " +
+                    "NativeSensorHook.native:I MSU:I LINJECT.native:I LINJECT/Injector:I LHooker.Native:I *:S 2>/dev/null"
+            ).trim()
+            if (out.isBlank()) {
+                KailLog.i(this, TAG, "injected logcat not found yet")
+                return@runCatching emptyList<String>()
+            }
+            val lines = out.lineSequence()
+                .map { it.trimEnd() }
+                .filter { it.isNotBlank() }
+                .toList()
+                .takeLast(80)
+            lines.forEach { KailLog.i(this, TAG, "[inject-logcat] $it") }
+            lines
+        }.getOrElse {
+            KailLog.w(this, TAG, "mirrorInjectedLogcat: ${it.message}")
+            emptyList()
+        }
+    }
+
+    private fun stopMockLocationOnInjection(retry: Boolean = true, rootControlSession: Long = activeRootControlSession) {
+        rootControlActive = false
+        runCatching { writeRootLocationControl(false, rootControlSession = rootControlSession) }
         runCatching { mockLocService?.stopMockLocation() }
         runCatching { mockLocService?.setMockGpsStatus(false) }
         runCatching { mockLocService?.setMockCells(null) }
@@ -1045,7 +1324,7 @@ class ServiceGoRoot : Service() {
         // Clear the independent-mode allow-list so a later "mock all apps"
         // session isn't accidentally restricted to stale target packages.
         runCatching { mockLocService?.setAllowMockPackages(null) }
-        runCatching { stopWifiMockOnInjection() }
+        runCatching { stopWifiMockOnInjection(retry) }
         fakelocStartCalled = false
         runCatching { mMockLocationProvider.cleanup() }
             .onFailure { KailLog.e(this, TAG, "cleanup providers: ${it.message}") }
@@ -1076,13 +1355,14 @@ class ServiceGoRoot : Service() {
         return false
     }
 
-    private fun resolveMockWifiBinder(): IBinder? {
-        repeat(10) {
+    private fun resolveMockWifiBinder(retry: Boolean = true): IBinder? {
+        val attempts = if (retry) 10 else 1
+        repeat(attempts) { index ->
             val binder = runCatching {
                 ServiceManagerBridge.getService(ClassLoader.getSystemClassLoader(), "oem_wifi")
             }.getOrNull()
             if (binder != null) return binder
-            runCatching { Thread.sleep(300) }
+            if (retry && index < attempts - 1) runCatching { Thread.sleep(300) }
         }
         return null
     }
@@ -1151,8 +1431,8 @@ class ServiceGoRoot : Service() {
         KailLog.i(this, TAG, "WiFi mock active: ${pendingWifiList.size} networks")
     }
 
-    private fun stopWifiMockOnInjection() {
-        val binder = resolveMockWifiBinder() ?: return
+    private fun stopWifiMockOnInjection(retry: Boolean = true) {
+        val binder = resolveMockWifiBinder(retry) ?: return
         runCatching {
             val data = Parcel.obtain()
             val reply = Parcel.obtain()
@@ -1266,6 +1546,360 @@ class ServiceGoRoot : Service() {
 
     private var fakelocStartCalled: Boolean = false
 
+    private data class RootLocationAck(
+        val status: String,
+        val enabled: Boolean?,
+        val lat: Double?,
+        val lng: Double?,
+        val pid: String?,
+        val count: Long?,
+        val hookReady: Boolean?,
+        val stepEnabled: Boolean?,
+        val stepSpm: Float?,
+        val stepMocking: Boolean?,
+        val stepHookInstalled: Boolean?,
+        val stepSynthEvents: Long?,
+        val stepStatus: String?,
+        val stepError: String?,
+        val raw: String
+    ) {
+        fun isAppliedFor(expectedLat: Double, expectedLng: Double): Boolean {
+            if (status != "applied" || enabled != true) return false
+            val ackLat = lat ?: return false
+            val ackLng = lng ?: return false
+            return kotlin.math.abs(ackLat - expectedLat) < 0.000001 &&
+                kotlin.math.abs(ackLng - expectedLng) < 0.000001
+        }
+
+        fun summary(): String {
+            val step = if (stepEnabled == true) {
+                " step=${stepStatus ?: "?"}/mocking=${stepMocking ?: false}/hook=${stepHookInstalled ?: false}/synth=${stepSynthEvents ?: 0}"
+            } else {
+                ""
+            }
+            return "status=$status pid=${pid ?: "?"} count=${count ?: -1} hookReady=${hookReady ?: false} lat=${lat ?: "?"} lng=${lng ?: "?"}$step"
+        }
+    }
+
+    private data class RootControlWrite(
+        val content: String,
+        val generation: Int,
+        val session: Long
+    )
+
+    private fun buildRootLocationControlContent(enabled: Boolean): String {
+        return if (enabled) {
+            "enabled=1\n" +
+                "lat=$mCurLat\n" +
+                "lng=$mCurLng\n" +
+                "alt=$mCurAlt\n" +
+                "bearing=$mCurBea\n" +
+                "speed=$mSpeed\n" +
+                "interval=${currentLocationUpdateIntervalMs()}\n" +
+                "step_enabled=${if (stepEnabled) 1 else 0}\n" +
+                "step_spm=$stepCadence\n" +
+                "step_mode=$stepMode\n" +
+                "step_scheme=$stepScheme\n"
+        } else {
+            "enabled=0\n"
+        }
+    }
+
+    private fun writeRootLocationControl(
+        enabled: Boolean,
+        timeoutMs: Long = 120_000L,
+        generation: Int = startGeneration,
+        rootControlSession: Long = activeRootControlSession,
+        requireLocationLoop: Boolean = false
+    ) {
+        if (!enabled) {
+            rootControlLatestWrite = null
+        }
+        writeRootLocationControlGuarded(
+            content = buildRootLocationControlContent(enabled),
+            enabled = enabled,
+            timeoutMs = timeoutMs,
+            generation = generation,
+            rootControlSession = rootControlSession,
+            requireLocationLoop = requireLocationLoop
+        )
+    }
+
+    private fun isRootControlEnabledWriteCurrent(
+        generation: Int,
+        rootControlSession: Long,
+        requireLocationLoop: Boolean
+    ): Boolean {
+        return rootControlSession > 0L &&
+            generation == startGeneration &&
+            rootControlSession == activeRootControlSession &&
+            rootControlSession == ROOT_CONTROL_ACTIVE_SESSION.get() &&
+            isRunning &&
+            (!requireLocationLoop || locationLoopStarted)
+    }
+
+    private fun isRootControlDisableAllowed(rootControlSession: Long): Boolean {
+        val active = ROOT_CONTROL_ACTIVE_SESSION.get()
+        return rootControlSession <= 0L || active == 0L || active == rootControlSession
+    }
+
+    private fun writeRootLocationControlGuarded(
+        content: String,
+        enabled: Boolean,
+        timeoutMs: Long = 120_000L,
+        generation: Int = startGeneration,
+        rootControlSession: Long = activeRootControlSession,
+        requireLocationLoop: Boolean = false,
+        preferFastShell: Boolean = false
+    ) {
+        synchronized(ROOT_CONTROL_LOCK) {
+            if (enabled && !isRootControlEnabledWriteCurrent(generation, rootControlSession, requireLocationLoop)) {
+                KailLog.w(this, TAG, "skip stale enable control-file write: generation=$generation current=$startGeneration session=$rootControlSession active=$activeRootControlSession global=${ROOT_CONTROL_ACTIVE_SESSION.get()} running=$isRunning loop=$locationLoopStarted")
+                return
+            }
+            if (!enabled && !isRootControlDisableAllowed(rootControlSession)) {
+                KailLog.w(this, TAG, "skip stale disable control-file write: session=$rootControlSession global=${ROOT_CONTROL_ACTIVE_SESSION.get()}")
+                return
+            }
+            if (preferFastShell && writeRootLocationControlFastLocked(content)) {
+                return
+            }
+            writeRootLocationControlContent(content, timeoutMs)
+        }
+    }
+
+    private fun writeRootLocationControlContent(content: String, timeoutMs: Long = 120_000L) {
+        val controlPath = RootControlPaths.controlPath(applicationContext)
+        val cmd = if (rootControlPrepared) {
+            "printf '%s' ${shellSingleQuote(content)} > $controlPath"
+        } else {
+            "mkdir -p $ROOT_RUNTIME_DIR && chmod 777 $ROOT_RUNTIME_DIR && " +
+                "printf '%s' ${shellSingleQuote(content)} > $controlPath && chmod 666 $controlPath && " +
+                "chcon u:object_r:system_data_file:s0 $controlPath 2>/dev/null || true"
+        }
+        ShellUtils.executeCommand(cmd, timeoutMs)
+        rootControlPrepared = true
+    }
+
+    private fun shellSingleQuote(value: String): String {
+        return "'" + value.replace("'", "'\\''") + "'"
+    }
+
+    private fun isRootControlFastShellAlive(process: java.lang.Process): Boolean {
+        return runCatching {
+            process.exitValue()
+            false
+        }.getOrDefault(true)
+    }
+
+    private fun drainRootControlStream(stream: InputStream, name: String) {
+        Thread({
+            runCatching {
+                stream.bufferedReader().use { reader ->
+                    while (reader.readLine() != null) {
+                        // Drain only. The fast shell is intentionally fire-and-forget.
+                    }
+                }
+            }
+        }, name).apply {
+            isDaemon = true
+            start()
+        }
+    }
+
+    private fun ensureRootControlFastShellLocked(): BufferedWriter? {
+        val process = rootControlFastProcess
+        val writer = rootControlFastWriter
+        if (process != null && writer != null && isRootControlFastShellAlive(process)) {
+            return writer
+        }
+        closeRootControlFastShellLocked(null)
+
+        return runCatching {
+            val newProcess = Runtime.getRuntime().exec("su")
+            drainRootControlStream(newProcess.inputStream, "ServiceGoRootControlFastOut")
+            drainRootControlStream(newProcess.errorStream, "ServiceGoRootControlFastErr")
+            val newWriter = BufferedWriter(OutputStreamWriter(newProcess.outputStream))
+            rootControlFastProcess = newProcess
+            rootControlFastWriter = newWriter
+
+            val controlPath = RootControlPaths.controlPath(applicationContext)
+            newWriter.write("mkdir -p $ROOT_RUNTIME_DIR\n")
+            newWriter.write("chmod 777 $ROOT_RUNTIME_DIR\n")
+            newWriter.write("touch $controlPath\n")
+            newWriter.write("chmod 666 $controlPath 2>/dev/null || true\n")
+            newWriter.write("chcon u:object_r:system_data_file:s0 $controlPath 2>/dev/null || true\n")
+            newWriter.flush()
+            rootControlPrepared = true
+            KailLog.i(this, TAG, "fast root control shell started path=$controlPath")
+            newWriter
+        }.getOrElse {
+            KailLog.e(this, TAG, "fast root control shell start: ${it.message}")
+            closeRootControlFastShellLocked(null)
+            null
+        }
+    }
+
+    private fun writeRootLocationControlFastLocked(content: String): Boolean {
+        val writer = ensureRootControlFastShellLocked() ?: return false
+        val controlPath = RootControlPaths.controlPath(applicationContext)
+        return runCatching {
+            writer.write("printf '%s' ${shellSingleQuote(content)} > $controlPath\n")
+            writer.flush()
+            true
+        }.getOrElse {
+            KailLog.w(this, TAG, "fast control-file write failed, falling back: ${it.message}")
+            closeRootControlFastShellLocked(null)
+            false
+        }
+    }
+
+    private fun closeRootControlFastShell(reason: String? = null) {
+        synchronized(ROOT_CONTROL_LOCK) {
+            closeRootControlFastShellLocked(reason)
+        }
+    }
+
+    private fun closeRootControlFastShellLocked(reason: String?) {
+        val writer = rootControlFastWriter
+        val process = rootControlFastProcess
+        rootControlFastWriter = null
+        rootControlFastProcess = null
+        runCatching {
+            writer?.write("exit\n")
+            writer?.flush()
+        }
+        runCatching { writer?.close() }
+        runCatching { process?.destroy() }
+        if (reason != null && (writer != null || process != null)) {
+            KailLog.i(this, TAG, "fast root control shell closed: $reason")
+        }
+    }
+
+    private fun initRootControlWriter() {
+        mRootControlWriterThread = HandlerThread("ServiceGoRootControlWriter", Process.THREAD_PRIORITY_BACKGROUND)
+        mRootControlWriterThread.start()
+        mRootControlWriterHandler = Handler(mRootControlWriterThread.looper)
+    }
+
+    private fun rootControlAsyncMinIntervalMs(): Long {
+        return currentLocationUpdateIntervalMs().coerceAtLeast(200L)
+    }
+
+    private fun pushRootLocationControlAsync() {
+        val generation = startGeneration
+        val rootControlSession = activeRootControlSession
+        if (!isRootControlEnabledWriteCurrent(generation, rootControlSession, requireLocationLoop = true)) return
+        val content = buildRootLocationControlContent(true)
+        rootControlLatestWrite = RootControlWrite(content, generation, rootControlSession)
+        if (!this::mRootControlWriterHandler.isInitialized) {
+            writeRootLocationControlGuarded(
+                content = content,
+                enabled = true,
+                timeoutMs = 1500L,
+                generation = generation,
+                rootControlSession = rootControlSession,
+                requireLocationLoop = true
+            )
+            return
+        }
+        val now = SystemClock.elapsedRealtime()
+        val delay = (rootControlAsyncMinIntervalMs() - (now - lastRootControlAsyncWriteMs)).coerceAtLeast(0L)
+        scheduleRootControlWriter(delay)
+    }
+
+    private fun scheduleRootControlWriter(delayMs: Long) {
+        if (rootControlWriterScheduled || !this::mRootControlWriterHandler.isInitialized) return
+        rootControlWriterScheduled = true
+        mRootControlWriterHandler.postDelayed({
+            rootControlWriterScheduled = false
+            val write = rootControlLatestWrite ?: return@postDelayed
+            rootControlLatestWrite = null
+            if (!isRootControlEnabledWriteCurrent(write.generation, write.session, requireLocationLoop = true)) return@postDelayed
+            runCatching {
+                writeRootLocationControlGuarded(
+                    content = write.content,
+                    enabled = true,
+                    timeoutMs = 1500L,
+                    generation = write.generation,
+                    rootControlSession = write.session,
+                    requireLocationLoop = true,
+                    preferFastShell = true
+                )
+            }.onFailure {
+                KailLog.e(this, TAG, "async control-file write: ${it.message}")
+            }
+            lastRootControlAsyncWriteMs = SystemClock.elapsedRealtime()
+            val next = rootControlLatestWrite
+            if (next != null && isRootControlEnabledWriteCurrent(next.generation, next.session, requireLocationLoop = true)) {
+                scheduleRootControlWriter(rootControlAsyncMinIntervalMs())
+            }
+        }, delayMs)
+    }
+
+    private fun clearRootLocationAck() {
+        ShellUtils.executeCommand("rm -f ${RootControlPaths.ackPath(applicationContext)}")
+    }
+
+    private fun waitForRootLocationAck(timeoutMs: Long = 4000L): RootLocationAck? {
+        val ackPath = RootControlPaths.ackPath(applicationContext)
+        val deadline = SystemClock.elapsedRealtime() + timeoutMs
+        while (SystemClock.elapsedRealtime() < deadline) {
+            val raw = ShellUtils.executeCommand("cat $ackPath 2>/dev/null").trim()
+            if (raw.isNotBlank()) {
+                val ack = parseRootLocationAck(raw)
+                if (ack.status != "started") return ack
+            }
+            Thread.sleep(250L)
+        }
+        return null
+    }
+
+    private fun parseRootLocationAck(raw: String): RootLocationAck {
+        val values = raw.lineSequence().mapNotNull { line ->
+            val index = line.indexOf('=')
+            if (index <= 0) null else line.substring(0, index) to line.substring(index + 1)
+        }.toMap()
+        return RootLocationAck(
+            status = values["status"] ?: "unknown",
+            enabled = values["enabled"]?.let { it == "1" || it.equals("true", ignoreCase = true) },
+            lat = values["lat"]?.toDoubleOrNull(),
+            lng = values["lng"]?.toDoubleOrNull(),
+            pid = values["pid"],
+            count = values["count"]?.toLongOrNull(),
+            hookReady = values["mock_initialized"]?.toBooleanStrictOrNull(),
+            stepEnabled = values["step_enabled"]?.let { it == "1" || it.equals("true", ignoreCase = true) },
+            stepSpm = values["step_spm"]?.toFloatOrNull(),
+            stepMocking = values["step_mocking"]?.let { it == "1" || it.equals("true", ignoreCase = true) },
+            stepHookInstalled = values["step_hook_installed"]?.let { it == "1" || it.equals("true", ignoreCase = true) },
+            stepSynthEvents = values["step_synth_events"]?.toLongOrNull(),
+            stepStatus = values["step_status"],
+            stepError = values["step_error"],
+            raw = raw
+        )
+    }
+
+    private fun logStepAckIfDue(nowMs: Long) {
+        if (!stepEnabled || nowMs - lastStepAckLogMs < 5000L) return
+        lastStepAckLogMs = nowMs
+        runCatching {
+            val raw = ShellUtils.executeCommand(
+                "cat ${RootControlPaths.ackPath(applicationContext)} 2>/dev/null",
+                timeoutMs = 1500L
+            ).trim()
+            if (raw.isNotBlank()) {
+                val ack = parseRootLocationAck(raw)
+                KailLog.i(
+                    this,
+                    TAG,
+                    "step ack ${ack.summary()} carrierActive=$stepCarrierActive carrierEvents=$stepCarrierEvents"
+                )
+            }
+        }.onFailure {
+            KailLog.w(this, TAG, "step ack read: ${it.message}")
+        }
+    }
+
 
     private fun pushLocationToInjection() {
         // Never push location / enable GNSS mock in WiFi-only or cell-only
@@ -1310,10 +1944,21 @@ class ServiceGoRoot : Service() {
             return
         }
 
-        // Path 2: test-provider fallback.
+        // Path 2: system_server control file. On some Android 16 ROMs the
+        // injected binder is hidden from untrusted_app while SELinux is
+        // enforcing; avoid setenforce 0 and let the injected system_server
+        // thread consume location updates directly.
         runCatching {
-            mMockLocationProvider.setLocation(mCurLat, mCurLng, mCurAlt, mCurBea, mSpeed, isStop)
-        }.onFailure { KailLog.e(this, TAG, "setLocation (provider): ${it.message}") }
+            pushRootLocationControlAsync()
+        }.onFailure { KailLog.e(this, TAG, "setLocation (control-file): ${it.message}") }
+    }
+
+    private fun recordCleanupState() {
+        runCatching {
+            val enforce = ShellUtils.executeCommand("getenforce").trim()
+            val appOps = ShellUtils.executeCommand("appops get $packageName android:mock_location 2>/dev/null || true").trim()
+            KailLog.i(this, TAG, "cleanup state: getenforce=$enforce mock_location=${appOps.ifBlank { "<none>" }}")
+        }.onFailure { KailLog.w(this, TAG, "recordCleanupState: ${it.message}") }
     }
 
     // ------------------------------------------------------------------
@@ -1344,6 +1989,14 @@ class ServiceGoRoot : Service() {
         mLocHandler = object : Handler(mLocHandlerThread.looper) {
             override fun handleMessage(msg: Message) {
                 try {
+                    if (!isRunning || !locationLoopStarted) return
+                    val now = SystemClock.elapsedRealtime()
+                    val elapsedMs = if (lastRouteTickElapsedMs > 0L) {
+                        (now - lastRouteTickElapsedMs).coerceIn(0L, 5000L)
+                    } else {
+                        currentLocationUpdateIntervalMs()
+                    }
+                    lastRouteTickElapsedMs = now
                     if (!isStop) {
                         if (mRouteEngine.isActive) {
                             val speedForStep = if (speedFluctuation) {
@@ -1351,8 +2004,7 @@ class ServiceGoRoot : Service() {
                             } else {
                                 mSpeed
                             }
-                            val intervalMs = currentLocationUpdateIntervalMs()
-                            mRouteEngine.advance(speedForStep * (intervalMs / 1000.0))
+                            mRouteEngine.advance(speedForStep * (elapsedMs / 1000.0))
                             mCurLng = mRouteEngine.currentLng
                             mCurLat = mRouteEngine.currentLat
                             mCurBea = mRouteEngine.currentBea
@@ -1363,13 +2015,18 @@ class ServiceGoRoot : Service() {
                     // mock location stays at the last simulated spot instead of
                     // snapping back to the real GPS position.
                     pushLocationToInjection()
-                    sendEmptyMessageDelayed(HANDLER_MSG_ID, currentLocationUpdateIntervalMs())
+                    logStepAckIfDue(now)
+                    if (isRunning && locationLoopStarted) {
+                        sendEmptyMessageDelayed(HANDLER_MSG_ID, currentLocationUpdateIntervalMs())
+                    }
                 } catch (e: InterruptedException) {
                     KailLog.e(this@ServiceGoRoot, TAG, "loop interrupted: ${e.message}")
                     Thread.currentThread().interrupt()
                 } catch (e: Exception) {
                     KailLog.e(this@ServiceGoRoot, TAG, "loop: ${e.message}")
-                    sendEmptyMessageDelayed(HANDLER_MSG_ID, currentLocationUpdateIntervalMs())
+                    if (isRunning && locationLoopStarted) {
+                        sendEmptyMessageDelayed(HANDLER_MSG_ID, currentLocationUpdateIntervalMs())
+                    }
                 }
             }
         }
@@ -1386,6 +2043,7 @@ class ServiceGoRoot : Service() {
         isStop = false
         if (locationLoopStarted) return
         locationLoopStarted = true
+        lastRouteTickElapsedMs = SystemClock.elapsedRealtime()
         mLocHandler.sendEmptyMessage(HANDLER_MSG_ID)
         broadcastStatus()
     }

@@ -39,6 +39,7 @@ public final class InjectLog {
 
     private static final String TAG_PREFIX = "KailLog/";
     private static final String LOG_DIR = "/sdcard/Documents/KailLocation/logs";
+    private static final String FILE_MARKER = ".kail_log_file";
     private static final long MARKER_TTL_MS = 5000L;
     private static final long HIGH_FREQ_INTERVAL_MS = 1000L;
     private static final int MAX_THROTTLE_KEYS = 512;
@@ -108,11 +109,11 @@ public final class InjectLog {
     }
 
     /**
-     * 重要的一次性诊断日志：无论开关如何，<b>始终</b>输出到 Logcat 并落盘。
+     * 重要的一次性诊断日志：无论开关如何，<b>始终</b>输出到 Logcat。
      *
      * <p>用于低频、高价值、需要事后排查的关键状态（如 ArtMethod 布局自动探测结果、
      * 注入初始化结论）。这类信息在我们手头没有的设备上排查问题时尤为重要，因此不能
-     * 依赖标记文件（{@code .kail_debug}/{@code .kail_log_file}）是否存在。
+     * 文件落盘仍依赖 {@code .kail_log_file}，避免关闭日志后继续写外部目录。
      */
     public static void persist(String tag, Object... parts) {
         emitAlways(tag, 'i', parts);
@@ -170,8 +171,8 @@ public final class InjectLog {
             default:  Log.d(logcatTag, logcatMessage); break;
         }
 
-        // 文件落盘：W/E 始终（便于事后定位），其余需 fileEnabled；高频已被上面限流。
-        if (warnOrError || fileEnabled) {
+        // 文件落盘严格跟随宿主日志开关；关闭日志时不再写外部 logs 目录。
+        if (fileEnabled) {
             String fileMessage = Character.toUpperCase(level) + " [" + processName() + "/" + thread + "] "
                     + tag + " " + caller + " | " + body + suffix;
             writeFile(fileMessage);
@@ -179,10 +180,12 @@ public final class InjectLog {
     }
 
     /**
-     * 与 {@link #emit} 类似，但<b>无视所有开关</b>：始终输出到 Logcat（及 Xposed）并落盘。
-     * 仅供 {@link #persist} 使用，承载低频高价值的一次性诊断信息。
+     * 与 {@link #emit} 类似，但<b>无视输出开关</b>：始终输出到 Logcat（及 Xposed）。
+     * 仅供 {@link #persist} 使用，承载低频高价值的一次性诊断信息；文件落盘仍受开关控制。
      */
     private static void emitAlways(String tag, char level, Object... parts) {
+        refreshFlags();
+
         String caller = callerInfo();
         String body = join(parts);
         String thread = Thread.currentThread().getName();
@@ -203,9 +206,11 @@ public final class InjectLog {
             default:  Log.i(logcatTag, logcatMessage); break;
         }
 
-        String fileMessage = Character.toUpperCase(level) + " [" + processName() + "/" + thread + "] "
-                + tag + " " + caller + " | " + body;
-        writeFile(fileMessage);
+        if (fileEnabled) {
+            String fileMessage = Character.toUpperCase(level) + " [" + processName() + "/" + thread + "] "
+                    + tag + " " + caller + " | " + body;
+            writeFile(fileMessage);
+        }
     }
 
     private static String join(Object... parts) {
@@ -280,7 +285,7 @@ public final class InjectLog {
         try {
             File dir = new File(LOG_DIR);
             enabled = new File(dir, ".kail_debug").exists();
-            fileEnabled = new File(dir, ".kail_log_file").exists();
+            fileEnabled = new File(dir, FILE_MARKER).exists();
             verbose = new File(dir, ".kail_verbose").exists();
         } catch (Throwable ignored) {
         }
@@ -342,6 +347,9 @@ public final class InjectLog {
     private static void writeFile(final String message) {
         final long ts = System.currentTimeMillis();
         IO.execute(() -> {
+            if (!new File(LOG_DIR, FILE_MARKER).exists()) {
+                return;
+            }
             String fileName = "kail_log_" + (ts / 86_400_000L) + ".txt";
             String entry = formatTime(ts) + " " + message + "\n";
             try {

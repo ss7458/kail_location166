@@ -121,13 +121,7 @@ object KailLog {
     fun w(context: Context?, tag: String, message: String, isHighFrequency: Boolean = false) = log(context, tag, message, isHighFrequency, 'w')
     fun e(context: Context?, tag: String, message: String, isHighFrequency: Boolean = false) = log(context, tag, message, isHighFrequency, 'e')
 
-    /**
-     * 始终落盘的诊断日志：无视日志开关，强制写入文件（同时输出到 Logcat）。
-     *
-     * 用于「模拟启动诊断」这类低频、高价值、用户排障必需的信息。用户通常不会主动
-     * 打开日志开关，但模拟失败时我们仍需要在导出的日志里看到失败原因，因此这条
-     * 通道不依赖 [fileLogEnabled]/[detailedLogEnabled]。
-     */
+    /** 关键诊断日志：始终输出到 Logcat，文件落盘仍遵循日志开关。 */
     fun persist(context: Context?, tag: String, message: String, level: Char = 'i') {
         val resolvedContext = context ?: resolveContext()
         val normalizedLevel = level.lowercaseChar()
@@ -145,24 +139,23 @@ object KailLog {
             else -> Log.i(logcatTag, logcatMessage)
         }
 
-        if (resolvedContext != null) {
+        if (resolvedContext != null && shouldWriteFile(resolvedContext)) {
             val levelChar = normalizedLevel.uppercaseChar()
             val fileMessage = "$levelChar [${processName()}/$thread] $tag $caller | $message"
             saveLogToPrivateFile(resolvedContext, fileMessage)
         }
     }
 
-    /**
-     * 始终落盘一整块多行诊断报告（如「模拟启动诊断」）。整块一次性写入，避免被
-     * 其它日志打散，便于用户一眼定位失败原因。无视日志开关。
-     */
+    /** 整块诊断报告：始终输出到 Logcat，文件落盘仍遵循日志开关。 */
     fun persistBlock(context: Context?, tag: String, block: String) {
         val resolvedContext = context ?: resolveContext() ?: return
         // Logcat 按行输出，文件按整块写入。
         block.lineSequence().forEach { line ->
             kotlin.runCatching { Log.i("$TAG_PREFIX$tag", line) }
         }
-        saveLogBlockToPrivateFile(resolvedContext, tag, block)
+        if (shouldWriteFile(resolvedContext)) {
+            saveLogBlockToPrivateFile(resolvedContext, tag, block)
+        }
     }
 
     /** 记录异常并附带完整堆栈，便于定位。 */
@@ -205,6 +198,11 @@ object KailLog {
                 detailedLogEnabled = prefs.getBoolean(SettingsViewModel.KEY_DEBUG_LOG_ENABLED, false)
             }
         }
+    }
+
+    private fun shouldWriteFile(context: Context?): Boolean {
+        updateFlagsFromContext(context)
+        return fileLogEnabled
     }
 
     /**

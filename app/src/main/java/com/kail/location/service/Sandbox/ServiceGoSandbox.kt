@@ -235,6 +235,11 @@ class ServiceGoSandbox : Service() {
             if (routeArray != null && routeArray.size >= 2) {
                 mRouteEngine.setupFromArray(routeArray, coordType)
                 mRouteEngine.setLoop(intent.getBooleanExtra(EXTRA_ROUTE_LOOP, false))
+                if (mRouteEngine.isActive) {
+                    mCurLng = mRouteEngine.currentLng
+                    mCurLat = mRouteEngine.currentLat
+                    mCurBea = mRouteEngine.currentBea
+                }
             }
 
             KailLog.i(this, "ServiceGoSandbox", "onStartCommand received lat=$mCurLat, lng=$mCurLng")

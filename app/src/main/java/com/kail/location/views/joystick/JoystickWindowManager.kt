@@ -149,16 +149,27 @@ class JoystickWindowManager(
     }
 
     fun destroy() {
-        lifecycleOwner.onDestroy()
-        timer.cancel()
-        hide()
-        mapView?.map?.isMyLocationEnabled = false
-        routeMapView?.map?.isMyLocationEnabled = false
-        mapView?.onDestroy()
-        routeMapView?.onDestroy()
-        rootComposeView.disposeComposition()
+        val mapToDestroy = mapView
+        val routeMapToDestroy = routeMapView
         mapView = null
         routeMapView = null
+
+        runCatching { timer.cancel() }
+        runCatching { hide() }
+        runCatching { rootComposeView.disposeComposition() }
+        runCatching { lifecycleOwner.onDestroy() }
+
+        destroyMapViewsAsync(mapToDestroy, routeMapToDestroy)
+    }
+
+    private fun destroyMapViewsAsync(vararg views: MapView?) {
+        Thread({
+            views.filterNotNull().forEach { view ->
+                runCatching { view.map.isMyLocationEnabled = false }
+                runCatching { view.onDestroy() }
+                    .onFailure { KailLog.w(context, "JoystickWindowManager", "MapView destroy: ${it.message}") }
+            }
+        }, "KailJoystickMapDestroy").start()
     }
 
     fun updateRouteStatus(progress: Float, distance: String, currentLatLng: LatLng?) {

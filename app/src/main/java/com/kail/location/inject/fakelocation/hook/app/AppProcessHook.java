@@ -39,6 +39,7 @@ public class AppProcessHook {
         List<String> listM114;
         List<String> listM137;
         try {
+            currentPackageName = str;
             if (str.equals("com.android.phone") && MockLocationServiceManager.getInstance().isMocking()) {
                 PhoneInterfaceManagerHook.hook(obj.getClass().getClassLoader());
             }
@@ -70,9 +71,6 @@ public class AppProcessHook {
             if (z2 || z3) {
                 RootHideHook.hook(obj.getClass().getClassLoader());
             }
-            if (z3 || z2) {
-                RuntimeAntiDetectionHook.hookSystemProperties(obj.getClass().getClassLoader());
-            }
             if (z) {
                 LAntiDetect.loadAndInitialize(str, null, null);
                 ArrayList arrayList = new ArrayList();
@@ -90,6 +88,7 @@ public class AppProcessHook {
 
     public static void callApplicationOnCreate(Object obj, Application application) {
         log("callApplicationOnCreate, app:" + application);
+        currentPackageName = application.getPackageName();
         applyHookToApp(application, application.getPackageName());
         try {
             callApplicationOnCreate_bak(obj, application);

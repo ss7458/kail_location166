@@ -101,8 +101,6 @@ public class RootHideHook {
             put("ls", "ps");
             put("l1", "ps");
             put("find", "ps");
-            put("ro.debuggable", "_ro.debuggable");
-            put("getprop", "ps");
             put("99SuperSUDaemon", "fs");
             put("daemonsu", "fs");
         }

@@ -1,5 +1,9 @@
 package com.kail.location.inject.utils;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+
 /**
  * Inject-side bridge to {@code libkail_native_hook.so} (native_hook/hook.cpp),
  * used for ROOT-mode step/gait simulation.
@@ -18,10 +22,15 @@ package com.kail.location.inject.utils;
 public final class NativeStepHook {
 
     private static final String TAG = "NativeStepHook";
-    private static final String SO_PATH = "/data/kail-loc/libkail_native_hook.so";
+    private static final String SO_PATH_FILE = "/data/kail-loc/native_hook_path.txt";
+    private static final String LEGACY_SO_PATH = "/data/kail-loc/libkail_native_hook.so";
 
     private static volatile boolean loaded = false;
     private static volatile boolean hookInstalled = false;
+    private static volatile boolean routeChannelArmed = false;
+    private static volatile float lastSpm = 120.0f;
+    private static volatile int lastMode = 0;
+    private static volatile int lastScheme = 0;
 
     private NativeStepHook() {}
 
@@ -29,22 +38,52 @@ public final class NativeStepHook {
     public static native void nativeSetConvertOffset(long offset);
     public static native void nativeSetRouteSimulation(boolean active, float spm, int mode);
     public static native void nativeSetGaitParams(float spm, int mode, int scheme, boolean enable);
+    public static native void nativeSetStepSensorHandles(int counterHandle, int detectorHandle);
     public static native void nativeSetMocking(int mocking);
     public static native void nativeSetStepSimEnabled(boolean enabled);
+    public static native long nativeGetStepSynthEvents();
     public static native void nativeReset();
     public static native boolean nativeInitHook();
 
     /** Load the SO once. Safe to call repeatedly. */
     public static synchronized boolean ensureLoaded() {
         if (loaded) return true;
+        String soPath = resolveSoPath();
         try {
-            System.load(SO_PATH);
+            System.load(soPath);
             loaded = true;
-            InjectLog.i(TAG, "loaded " + SO_PATH);
+            InjectLog.i(TAG, "loaded " + soPath);
         } catch (Throwable t) {
-            InjectLog.e(TAG, "load failed: " + SO_PATH, t);
+            InjectLog.e(TAG, "load failed: " + soPath, t);
         }
         return loaded;
+    }
+
+    private static String resolveSoPath() {
+        BufferedReader reader = null;
+        try {
+            File file = new File(SO_PATH_FILE);
+            if (file.exists() && file.length() > 0) {
+                reader = new BufferedReader(new FileReader(file));
+                String path = reader.readLine();
+                if (path != null) {
+                    path = path.trim();
+                    if (path.length() > 0 && new File(path).exists()) {
+                        return path;
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            InjectLog.w(TAG, "resolve so path failed: " + t.getMessage());
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        return LEGACY_SO_PATH;
     }
 
     /**
@@ -58,6 +97,7 @@ public final class NativeStepHook {
      */
     public static synchronized boolean install(long writeOffset, long convertOffset, float spm) {
         if (!ensureLoaded()) return false;
+        if (hookInstalled) return true;
         try {
             if (writeOffset != 0) nativeSetWriteOffset(writeOffset);
             if (convertOffset != 0) nativeSetConvertOffset(convertOffset);
@@ -75,9 +115,13 @@ public final class NativeStepHook {
     public static synchronized void start(float spm, int mode, int scheme) {
         if (!loaded) return;
         try {
+            lastSpm = spm;
+            lastMode = mode;
+            lastScheme = scheme;
+            nativeSetRouteSimulation(true, spm, mode);
             nativeSetGaitParams(spm, mode, scheme, true);
             nativeSetStepSimEnabled(true);
-            nativeSetRouteSimulation(true, spm, mode);
+            routeChannelArmed = true;
             nativeSetMocking(1);
             InjectLog.i(TAG, "step sim started spm=" + spm + " mode=" + mode + " scheme=" + scheme);
         } catch (Throwable t) {
@@ -85,12 +129,37 @@ public final class NativeStepHook {
         }
     }
 
+    public static synchronized void configureStepSensorHandles(int counterHandle, int detectorHandle) {
+        if (!loaded) return;
+        try {
+            nativeSetStepSensorHandles(counterHandle, detectorHandle);
+            InjectLog.i(TAG, "step handles configured counter=" + counterHandle
+                    + " detector=" + detectorHandle);
+        } catch (Throwable t) {
+            InjectLog.e(TAG, "configureStepSensorHandles failed", t);
+        }
+    }
+
+    public static long getStepSynthEvents() {
+        if (!loaded) return 0L;
+        try {
+            return nativeGetStepSynthEvents();
+        } catch (Throwable t) {
+            InjectLog.e(TAG, "getStepSynthEvents failed", t);
+            return 0L;
+        }
+    }
+
     public static synchronized void stop() {
         if (!loaded) return;
         try {
             nativeSetStepSimEnabled(false);
-            nativeSetRouteSimulation(false, 120f, 0);
             nativeSetMocking(0);
+            if (routeChannelArmed) {
+                nativeSetRouteSimulation(false, lastSpm, lastMode);
+            }
+            nativeReset();
+            routeChannelArmed = false;
             InjectLog.i(TAG, "step sim stopped");
         } catch (Throwable t) {
             InjectLog.e(TAG, "stop failed", t);

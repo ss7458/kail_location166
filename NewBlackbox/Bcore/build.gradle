@@ -48,6 +48,23 @@ android {
         options.compilerArgs << "-Xlint:-deprecation" << "-Xlint:-unchecked" << "-Xlint:-rawtypes"
         options.fork = true
         options.forkOptions.jvmArgs << "-Xmx2048m"
+        doFirst {
+            def aidlDir = file("$buildDir/generated/aidl_source_output_dir")
+            if (aidlDir.exists()) {
+                aidlDir.eachFileRecurse { generatedFile ->
+                    if (generatedFile.name.endsWith(".java")) {
+                        def originalText = generatedFile.getText("UTF-8")
+                        def sanitizedText = originalText.replaceAll(
+                                '(?m)^ \\* Using: .*$',
+                                ' * Using: sanitized by build script to avoid Windows path unicode escapes'
+                        )
+                        if (sanitizedText != originalText) {
+                            generatedFile.write(sanitizedText, "UTF-8")
+                        }
+                    }
+                }
+            }
+        }
     }
     testOptions {
         unitTests.returnDefaultValues = true

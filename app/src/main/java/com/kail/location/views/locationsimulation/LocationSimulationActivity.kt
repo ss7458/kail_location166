@@ -47,6 +47,7 @@ class LocationSimulationActivity : BaseActivity() {
             locationTheme {
                 val locationInfo by viewModel.locationInfo.collectAsState()
                 val isSimulating by viewModel.isSimulating.collectAsState()
+                val isStarting by viewModel.isStarting.collectAsState()
                 val isJoystickEnabled by viewModel.isJoystickEnabled.collectAsState()
                 val stepSimulationEnabled by viewModel.stepSimulationEnabled.collectAsState()
                 val stepCadenceSpm by viewModel.stepCadenceSpm.collectAsState()
@@ -64,6 +65,7 @@ class LocationSimulationActivity : BaseActivity() {
                 LocationSimulationScreen(
                     locationInfo = locationInfo,
                     isSimulating = isSimulating,
+                    isStarting = isStarting,
                     isJoystickEnabled = isJoystickEnabled,
                     stepSimulationEnabled = stepSimulationEnabled,
                     stepCadenceSpm = stepCadenceSpm,

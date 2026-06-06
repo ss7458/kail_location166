@@ -3,6 +3,7 @@ package com.kail.location.inject.fakelocation.hook.app;
 import android.os.Build;
 import com.kail.location.inject.utils.ReflectionUtils;
 import com.kail.location.inject.utils.AntiDetectionServiceManager;
+import com.kail.location.inject.utils.HideRootServiceManager;
 import com.kail.location.inject.utils.LAntiDetect;
 import com.kail.location.lib.lhooker.LHooker;
 import java.io.File;
@@ -53,6 +54,31 @@ public class RuntimeAntiDetectionHook {
             put("ro.build.selinux", "0");
             put("ro.build.system_root_image", "false");
         }
+    }
+
+    private static boolean isCurrentPackageIn(List<String> packages) {
+        String packageName = AppProcessHook.currentPackageName;
+        return packageName != null && packages != null && !packages.isEmpty() && packages.contains(packageName);
+    }
+
+    private static boolean shouldSpoofSystemProperties() {
+        try {
+            HideRootServiceManager hide = HideRootServiceManager.getInstance();
+            if (hide.isHideRootEnabled() && isCurrentPackageIn(hide.getHiddenPackages())) {
+                return true;
+            }
+        } catch (Throwable ignored) {
+        }
+        try {
+            AntiDetectionServiceManager anti = AntiDetectionServiceManager.getInstance();
+            if (anti.isAntiDetectionEnabled()
+                    && anti.isHookRulesEnabled()
+                    && isCurrentPackageIn(anti.getHookTargetPackages())) {
+                return true;
+            }
+        } catch (Throwable ignored) {
+        }
+        return false;
     }
 
     public static String StackTraceElement_getClassName(Object obj) {
@@ -277,7 +303,7 @@ public class RuntimeAntiDetectionHook {
 
     public static String get(String str) {
         log("get", str);
-        if (safeSystemProperties.containsKey(str)) {
+        if (shouldSpoofSystemProperties() && safeSystemProperties.containsKey(str)) {
             return safeSystemProperties.get(str);
         }
         try {
@@ -339,7 +365,7 @@ public class RuntimeAntiDetectionHook {
 
     public static String get2(String str, String str2) {
         log("get2", str);
-        if (safeSystemProperties.containsKey(str)) {
+        if (shouldSpoofSystemProperties() && safeSystemProperties.containsKey(str)) {
             return safeSystemProperties.get(str);
         }
         try {
@@ -458,7 +484,7 @@ public class RuntimeAntiDetectionHook {
     public static boolean getBoolean(String str, boolean z) {
         log("getBoolean", str);
         try {
-            return safeSystemProperties.containsKey(str) ? Boolean.parseBoolean(safeSystemProperties.get(str)) : getBoolean_bak(str, z);
+            return shouldSpoofSystemProperties() && safeSystemProperties.containsKey(str) ? Boolean.parseBoolean(safeSystemProperties.get(str)) : getBoolean_bak(str, z);
         } catch (Exception e) {
             e.printStackTrace();
             try {
@@ -557,7 +583,7 @@ public class RuntimeAntiDetectionHook {
     public static int getInt(String str, int i) {
         log("getInt", str);
         try {
-            return safeSystemProperties.containsKey(str) ? Integer.parseInt(safeSystemProperties.get(str)) : getInt_bak(str, i);
+            return shouldSpoofSystemProperties() && safeSystemProperties.containsKey(str) ? Integer.parseInt(safeSystemProperties.get(str)) : getInt_bak(str, i);
         } catch (Exception e) {
             e.printStackTrace();
             try {
@@ -723,11 +749,6 @@ public class RuntimeAntiDetectionHook {
 
     public static void hookSystemProperties(ClassLoader classLoader) {
         try {
-            ReflectionUtils.setFieldValue(null, ReflectionUtils.forName("miui.os.Build"), "IS_DEBUGGABLE", Boolean.FALSE);
-        } catch (Throwable th) {
-            th.printStackTrace();
-        }
-        try {
             LHooker.hookMethodWithBackup(ReflectionUtils.forName("android.os.SystemProperties"), "get", String.class, new Class[]{String.class}, RuntimeAntiDetectionHook.class, "get", "get_bak");
             LHooker.hookMethodWithBackup(ReflectionUtils.forName("android.os.SystemProperties"), "get", String.class, new Class[]{String.class, String.class}, RuntimeAntiDetectionHook.class, "get2", "get2_bak");
             Class clsM105 = ReflectionUtils.forName("android.os.SystemProperties");
@@ -739,17 +760,6 @@ public class RuntimeAntiDetectionHook {
         } catch (Throwable th2) {
             th2.printStackTrace();
             log(th2.getMessage());
-        }
-        try {
-            if (!Build.TAGS.equals("release-keys")) {
-                ReflectionUtils.setFinalFieldValue(null, Build.class, "TAGS", "release-keys");
-            }
-            if (Build.TYPE.equals("user")) {
-                return;
-            }
-            ReflectionUtils.setFinalFieldValue(null, Build.class, "TYPE", "user");
-        } catch (Throwable th3) {
-            th3.printStackTrace();
         }
     }
 

@@ -112,6 +112,7 @@ static void writeInitLogToFile() {
     return;
   // Try the root deploy dir first (always 0777), fall back to the lib dir.
   const char *paths[] = {
+      "/data/system/kail-loc/lhooker_init.log",
       "/data/kail-loc/lhooker_init.log",
       "/data/local/kail-lib/lhooker_init.log",
   };

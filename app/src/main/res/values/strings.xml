@@ -117,6 +117,7 @@
     <string name="loc_sim_none">NONE</string>
     <string name="loc_sim_lat_lng">经纬度: %1$s,%2$s</string>
     <string name="loc_sim_start">启动模拟</string>
+    <string name="sim_starting">启动中</string>
     <string name="loc_sim_stop">停止模拟</string>
     <string name="loc_sim_base_station">基站</string>
     <string name="loc_sim_joystick">摇杆</string>

@@ -11,9 +11,14 @@ import com.kail.location.inject.fakelocation.service.MockWifiManagerService;
 import com.kail.location.inject.fakelocation.service.NativeCatchManagerService;
 import com.kail.location.inject.utils.HiddenApiBypass;
 import com.kail.location.inject.utils.PackageSignatureVerifier;
+import com.kail.location.inject.utils.RootLocationControl;
 import com.kail.location.inject.utils.ServiceManagerBridge;
 import com.kail.location.lib.lhooker.LHooker;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -23,6 +28,8 @@ import com.kail.location.inject.fakelocation.hook.app.AppProcessHook;
 
 public class InjectDex {
 
+    private static final String BOOTSTRAP_STATE_PATH = "/data/system/kail-loc/injectdex_state.txt";
+
     public static List<?> activeHooks = Collections.synchronizedList(new ArrayList());
 
     static List<InitializationCallback> initializationCallbacks = Collections.synchronizedList(new ArrayList());
@@ -30,6 +37,11 @@ public class InjectDex {
     private static Handler mainHandler;
 
     private static Context applicationContext;
+
+    public static void setHookLibraryPath(String libraryPath) {
+        LHooker.setSessionLibraryPath(libraryPath);
+        com.kail.location.inject.utils.InjectLog.persist("InjectDex", "hook library path=", libraryPath);
+    }
 
     public interface InitializationCallback {
         void onInitialized();
@@ -90,31 +102,55 @@ public class InjectDex {
     }
 
     public static Object[] init(Object contextObject) {
-        applicationContext = (Context) contextObject;
-        com.kail.location.inject.utils.InjectLog.i("InjectDex", "init: " + contextObject);
+        Context context = (Context) contextObject;
+        applicationContext = context;
+        writeBootstrapState("entered context=" + contextObject, null);
+        com.kail.location.inject.utils.InjectLog.persist("InjectDex", "init: ", contextObject);
         try {
-            initializeMainThread((Context) contextObject);
+            initializeMainThread(context);
+            writeBootstrapState("main_thread_ready", null);
             HiddenApiBypass.bypassHiddenApiRestrictions();
+            writeBootstrapState("hidden_api_bypassed", null);
             LHooker.loadHookLibrary(LHooker.isDeviceX86_64() ? "/data/kail-loc/liblhookerx64.so" : LHooker.isDeviceX86() ? "/data/kail-loc/liblhookerx.so" : LHooker.isDeviceArm64() ? "/data/kail-loc/liblhooker64.so" : "/data/kail-loc/liblhooker.so");
-            PackageSignatureVerifier.verifyPackageSignature((Context) contextObject, "com.kail.location", "oem_manager");
-            ServiceManagerBridge.addService(((Context) contextObject).getClassLoader(), "oem_location", new MockLocationManagerService());
-            ServiceManagerBridge.addService(((Context) contextObject).getClassLoader(), "oem_wifi", new MockWifiManagerService());
-            ServiceManagerBridge.addService(((Context) contextObject).getClassLoader(), "oem_security", new AntiDetectionManagerService());
-            ServiceManagerBridge.addService(((Context) contextObject).getClassLoader(), "oem_integrity", new HideRootManagerService());
-            ServiceManagerBridge.addService(((Context) contextObject).getClassLoader(), "oem_native", new NativeCatchManagerService());
-            PackageSignatureVerifier.verifyPackageSignature((Context) contextObject, "com.kail.location", "oem_bluetooth");
+            com.kail.location.inject.utils.InjectLog.persist("InjectDex", "LHooker loaded initialized=", LHooker.initialized);
+            writeBootstrapState("lhooker_loaded initialized=" + LHooker.initialized, null);
+            RootLocationControl.start(context);
+            writeBootstrapState("root_location_control_start_called", null);
+            PackageSignatureVerifier.verifyPackageSignature(context, "com.kail.location", "oem_manager");
+            boolean locOk = ServiceManagerBridge.addService(context.getClassLoader(), "oem_location", new MockLocationManagerService());
+            boolean wifiOk = ServiceManagerBridge.addService(context.getClassLoader(), "oem_wifi", new MockWifiManagerService());
+            boolean secOk = ServiceManagerBridge.addService(context.getClassLoader(), "oem_security", new AntiDetectionManagerService());
+            boolean integrityOk = ServiceManagerBridge.addService(context.getClassLoader(), "oem_integrity", new HideRootManagerService());
+            boolean nativeOk = ServiceManagerBridge.addService(context.getClassLoader(), "oem_native", new NativeCatchManagerService());
+            com.kail.location.inject.utils.InjectLog.persist("InjectDex",
+                    "addService result oem_location=", locOk,
+                    " oem_wifi=", wifiOk,
+                    " oem_security=", secOk,
+                    " oem_integrity=", integrityOk,
+                    " oem_native=", nativeOk);
+            writeBootstrapState("add_service oem_location=" + locOk
+                    + " oem_wifi=" + wifiOk
+                    + " oem_security=" + secOk
+                    + " oem_integrity=" + integrityOk
+                    + " oem_native=" + nativeOk, null);
+            PackageSignatureVerifier.verifyPackageSignature(context, "com.kail.location", "oem_bluetooth");
             if (!LHooker.initialized) {
                 com.kail.location.inject.utils.InjectLog.e("InjectDex", "init aborted: LHooker not initialized");
+                writeBootstrapState("aborted_lhooker_not_initialized", null);
                 return null;
             }
             LHooker.suspendAll();
-            com.kail.location.inject.utils.InjectLog.i("InjectDex", "init finished, all services registered");
+            com.kail.location.inject.utils.InjectLog.persist("InjectDex", "init finished, all services registered");
+            writeBootstrapState("finished", null);
             return null;
-        } catch (RuntimeException unused) {
+        } catch (RuntimeException th) {
+            com.kail.location.inject.utils.InjectLog.e("InjectDex", "init runtime error", th);
+            writeBootstrapState("runtime_error", th);
             return null;
         } catch (Throwable th) {
             th.printStackTrace();
             com.kail.location.inject.utils.InjectLog.e("InjectDex", "init error", th);
+            writeBootstrapState("error", th);
             return null;
         }
     }
@@ -161,6 +197,38 @@ public class InjectDex {
             } catch (Throwable th) {
                 th.printStackTrace();
             }
+        }
+    }
+
+    private static void writeBootstrapState(String event, Throwable t) {
+        try {
+            File file = new File(BOOTSTRAP_STATE_PATH);
+            File parent = file.getParentFile();
+            if (parent != null && !parent.exists()) {
+                parent.mkdirs();
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append("event=").append(event).append('\n');
+            sb.append("pid=").append(Process.myPid()).append('\n');
+            sb.append("time_ms=").append(System.currentTimeMillis()).append('\n');
+            sb.append("thread=").append(Thread.currentThread().getName()).append('\n');
+            sb.append("lhooker_initialized=").append(LHooker.initialized).append('\n');
+            if (t != null) {
+                sb.append("throwable=").append(t).append('\n');
+                StringWriter writer = new StringWriter();
+                t.printStackTrace(new PrintWriter(writer));
+                sb.append("stack=").append(writer.toString().replace('\n', '|')).append('\n');
+            }
+            sb.append("---\n");
+            FileOutputStream out = new FileOutputStream(file, true);
+            try {
+                out.write(sb.toString().getBytes(StandardCharsets.UTF_8));
+            } finally {
+                out.close();
+            }
+            file.setReadable(true, false);
+            file.setWritable(true, false);
+        } catch (Throwable ignored) {
         }
     }
 }

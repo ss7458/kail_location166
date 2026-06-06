@@ -5,9 +5,7 @@ import android.content.Context;
 /**
  * Rebrand of the original FakeLocation signature gate.
  *
- * Reduced to a no-op for the kail rebrand. The native loader's
- * {@code fakeloc_common.h::verifyReleaseSignature} already covers signature
- * gating before the dex even loads. Calling this from inside system_server
+ * Reduced to a no-op for the kail rebrand. Calling this from inside system_server
  * is brittle because {@code context.getPackageName()} returns
  * {@code "android"} there, never the host package name, so any meaningful
  * comparison would always fail.

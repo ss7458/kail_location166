@@ -15,8 +15,10 @@ android {
         applicationId = "com.kail.location"
         minSdk = 27
         targetSdk = 36
-        versionCode = 35
-        versionName = "1.6.2"
+        // Keep versionCode stable for patch builds; bump it only on 0.1
+        // versionName releases (for example 1.6.x -> 1.7.0).
+        versionCode = 36
+        versionName = "1.6.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
@@ -159,11 +161,11 @@ tasks.whenTaskAdded {
             if (mergedDir.exists() && strippedDir.exists()) {
                 listOf("arm64-v8a", "armeabi-v7a").forEach { abi ->
                     val src = file("${mergedDir.absolutePath}/$abi/libkail_inject.so")
-                    val dst = file("${strippedDir.absolutePath}/$abi/libkail_inject.so")
-                    if (src.exists() && !dst.exists()) {
+                    if (src.exists()) {
                         copy {
                             from(src)
                             into("${strippedDir.absolutePath}/$abi/")
+                            rename { "libkail_inject.so" }
                         }
                     }
                 }
@@ -177,11 +179,11 @@ tasks.whenTaskAdded {
             if (mergedDir.exists() && strippedDir.exists()) {
                 listOf("arm64-v8a", "armeabi-v7a").forEach { abi ->
                     val src = file("${mergedDir.absolutePath}/$abi/libkail_inject.so")
-                    val dst = file("${strippedDir.absolutePath}/$abi/libkail_inject.so")
-                    if (src.exists() && !dst.exists()) {
+                    if (src.exists()) {
                         copy {
                             from(src)
                             into("${strippedDir.absolutePath}/$abi/")
+                            rename { "libkail_inject.so" }
                         }
                     }
                 }
@@ -346,6 +348,17 @@ androidComponents {
                     // oat (so no SELinux-denied write inside system_server).
                     produced.copyTo(dst, overwrite = true)
                     produced.delete()
+                    val sourceAssets = file("src/main/assets")
+                    sourceAssets.mkdirs()
+                    dst.copyTo(file("${sourceAssets.absolutePath}/inject.dex"), overwrite = true)
+                    val mergedAssets = file("${buildDir}/intermediates/assets/${variant.name}/merge${variantNameCap}Assets")
+                    if (mergedAssets.exists()) {
+                        dst.copyTo(file("${mergedAssets.absolutePath}/inject.dex"), overwrite = true)
+                    }
+                    val mergedAssetsAlt = file("${buildDir}/intermediates/merged_assets/${variant.name}/merge${variantNameCap}Assets/out")
+                    if (mergedAssetsAlt.exists()) {
+                        dst.copyTo(file("${mergedAssetsAlt.absolutePath}/inject.dex"), overwrite = true)
+                    }
                     logger.lifecycle("kail: slim inject dex (bare) ready: ${dst.absolutePath} (${dst.length()} bytes, was ${copied} classes)")
                 } else {
                     logger.warn("kail: D8 ran but classes.dex not produced; output was:\n$out")

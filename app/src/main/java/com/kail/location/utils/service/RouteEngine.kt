@@ -69,6 +69,17 @@ class RouteEngine {
         segmentProgressMeters = 0.0
         routeFinished = false
         calculateRouteDistances()
+        if (routePoints.isNotEmpty()) {
+            val first = routePoints.first()
+            currentLng = first.first
+            currentLat = first.second
+            currentBea = if (routePoints.size >= 2) {
+                val second = routePoints[1]
+                GeoMath.bearingDegrees(first.first, first.second, second.first, second.second)
+            } else {
+                0.0f
+            }
+        }
         KailLog.i(null, TAG, "setupFromArray: ${routePoints.size} points, coordType=$coordType, totalDistance=${"%.1f".format(totalDistance)}m")
     }
 

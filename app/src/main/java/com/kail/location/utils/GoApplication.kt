@@ -14,6 +14,7 @@ import com.kail.location.auth.AuthManager
 import com.kail.location.auth.UsageManager
 import com.kail.location.sandbox.SandboxManager
 import com.kail.location.sandbox.SandboxSettingsManager
+import com.kail.location.service.Root.RootDeployer
 import java.io.File
 import top.niunaijun.blackbox.BlackBoxCore
 import top.niunaijun.blackbox.app.configuration.ClientConfiguration
@@ -116,6 +117,7 @@ class GoApplication : Application(), Application.ActivityLifecycleCallbacks {
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         val logEnabled = prefs.getBoolean("setting_log_enabled", false)
+        Thread({ RootDeployer.syncInjectLogMarkers(this) }, "KailLogMarkerSync").start()
         KailLog.i(this, APP_NAME, "App startup (main process), fileLog=$logEnabled")
 
         mDefaultHandler = Thread.getDefaultUncaughtExceptionHandler()
@@ -126,8 +128,8 @@ class GoApplication : Application(), Application.ActivityLifecycleCallbacks {
         }
 
         // 跨重启取证：上一次「开始模拟」若把 system_server 注入崩溃导致整机重启，
-        // 当时的诊断报告来不及落盘。这里在启动时检查注入哨兵，若发现上次注入后
-        // 设备重启过，就强制落盘一条「上次开始模拟疑似导致崩溃重启」+ 崩溃日志。
+        // 当时的诊断报告可能来不及输出。这里在启动时检查注入哨兵，若发现上次注入后
+        // 设备重启过，就输出一条「上次开始模拟疑似导致崩溃重启」诊断。
         runCatching {
             Thread({ InjectionCrashSentinel.checkAndReport(this) }, "KailInjectCrashCheck").start()
         }

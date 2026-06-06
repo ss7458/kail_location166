@@ -2,6 +2,7 @@ package com.kail.location.service.Root
 
 import android.content.Context
 import androidx.preference.PreferenceManager
+import com.kail.location.inject.utils.RootControlPaths
 import com.kail.location.utils.KailLog
 import com.kail.location.utils.ShellUtils
 import com.kail.location.utils.SimulationDiagnostics
@@ -39,8 +40,15 @@ object RootDeployer {
 
     const val STAGING_DIR = "/data/local/kail-lib"
     const val FAKELOC_DIR = "/data/kail-loc"
+    const val RUNTIME_DIR = "/data/system/kail-loc"
     const val NATIVE_HOOK_SO = "libkail_native_hook.so"
     const val INJECTOR_BIN = "kail_inject"
+    private const val LHOOKER_PATH_FILE = "/data/kail-loc/lhooker_path.txt"
+    private const val NATIVE_HOOK_PATH_FILE = "/data/kail-loc/native_hook_path.txt"
+    private const val INJECTION_STATE_FILE = "$RUNTIME_DIR/injection_state.txt"
+    private const val BOOTSTRAP_STATE_FILE = "$RUNTIME_DIR/injectdex_state.txt"
+    private const val RUNTIME_FAKELOC_INIT_LOG = "$RUNTIME_DIR/fakeloc_init.log"
+    private const val RUNTIME_LHOOKER_INIT_LOG = "$RUNTIME_DIR/lhooker_init.log"
 
     /** FakeLocation loader/hook libraries packaged in the APK under lib/<abi>/. */
     private val FAKELOC_LIBS = listOf(
@@ -48,15 +56,13 @@ object RootDeployer {
         "libfakeloc_initzygote.so",
         "libfakeloc_apphook.so",
         "liblhooker.so",
-        "libStepSensor.so",
-        "libantidetect.so"
+        "libStepSensor.so"
     )
 
     /**
      * Idempotent setup that the service runs at every start.
      *
-     * Stages the FakeLocation toolchain on disk, grants the AppOps mock
-     * location permission, and runs `kail_inject` against system_server to
+     * Stages the FakeLocation toolchain on disk, and runs `kail_inject` against system_server to
      * register the service_mock_* binders (matching the original FakeLocation
      * behaviour). The injector now has a 5-second watchdog (see
      * cpp/root/inject{,64}.cpp) so a hung remote dlopen detaches the tracee
@@ -67,18 +73,22 @@ object RootDeployer {
             KailLog.w(null, TAG, "ensureBaseline: no root; skipping")
             return false
         }
+        if (isSystemServerInjectionCurrent(context)) {
+            KailLog.i(null, TAG, "ensureBaseline: system_server already injected for this boot/app; skip deploy and ptrace")
+            return true
+        }
         prepareDirs()
         syncInjectLogMarkers(context)
         deployNativeHookLib(context)
         deployInjectorBin(context)
         deployFakelocLibs(context)
         deployDexPayload(context)
-        grantMockLocationAppOps(context)
         // Best-effort inject. If the watchdog trips we'll just log the
         // injector's "Inject fail" message; the service still functions
         // through the test-provider path.
-        runCatching { bootstrapInjection() }
-            .onFailure { KailLog.w(null, TAG, "bootstrapInjection: ${it.message}") }
+        runCatching {
+            if (bootstrapInjection(context)) markSystemServerInjectionCurrent(context)
+        }.onFailure { KailLog.w(null, TAG, "bootstrapInjection: ${it.message}") }
         return true
     }
 
@@ -99,6 +109,11 @@ object RootDeployer {
             return false
         }
 
+        if (isSystemServerInjectionCurrent(context)) {
+            diag.step("ptrace 注入 system_server", true, "同一开机/system_server PID 已注入过，跳过部署和重复 ptrace")
+            return true
+        }
+
         runCatching { prepareDirs() }
             .onSuccess { diag.step("准备目录", true, "$STAGING_DIR / $FAKELOC_DIR (chcon system_file)") }
             .onFailure { diag.error("准备目录", it) }
@@ -117,13 +132,11 @@ object RootDeployer {
         val dexOk = runCatching { deployDexPayload(context) }.getOrDefault(false)
         diag.step("部署 inject.dex", dexOk, "libfakeloc.so (slim dex)")
 
-        val appOpsOk = runCatching { grantMockLocationAppOps(context) }.getOrDefault(false)
-        diag.step("授予 mock_location AppOps", appOpsOk)
-
-        val (injected, injectDetail) = runCatching { bootstrapInjectionVerbose() }.getOrElse {
+        val (injected, injectDetail) = runCatching { bootstrapInjectionVerbose(context) }.getOrElse {
             diag.error("ptrace 注入 system_server", it)
             false to "注入抛异常：${it.message}"
         }
+        if (injected) markSystemServerInjectionCurrent(context)
         diag.step("ptrace 注入 system_server", injected, injectDetail)
         return injected
     }
@@ -147,20 +160,30 @@ object RootDeployer {
             val debugEnabled = prefs.getBoolean(SettingsViewModel.KEY_DEBUG_LOG_ENABLED, false)
             // 详细调试隐含开启基础日志。
             val enabled = logEnabled || debugEnabled
-            ShellUtils.executeCommand("mkdir -p $INJECT_LOG_DIR")
-            toggleMarker("$INJECT_LOG_DIR/.kail_debug", enabled)
-            toggleMarker("$INJECT_LOG_DIR/.kail_log_file", logEnabled)
-            toggleMarker("$INJECT_LOG_DIR/.kail_verbose", debugEnabled)
+            val clearPublicLogs = "rm -f $INJECT_LOG_DIR/kail_log_* $INJECT_LOG_DIR/*.log"
+            val clearDownloadLogcat =
+                "rm -f /sdcard/Download/logs/${context.packageName}_logcat*.txt " +
+                    "/sdcard/Downloads/logs/${context.packageName}_logcat*.txt"
+            val cmd = if (enabled) {
+                listOf(
+                    clearDownloadLogcat,
+                    "mkdir -p $INJECT_LOG_DIR",
+                    "chmod 777 $INJECT_LOG_DIR",
+                    if (logEnabled) ":" else clearPublicLogs,
+                    markerCommand("$INJECT_LOG_DIR/.kail_debug", true),
+                    markerCommand("$INJECT_LOG_DIR/.kail_log_file", logEnabled),
+                    markerCommand("$INJECT_LOG_DIR/.kail_verbose", debugEnabled)
+                ).joinToString(" && ")
+            } else {
+                "$clearDownloadLogcat && rm -f $INJECT_LOG_DIR/.kail_debug $INJECT_LOG_DIR/.kail_log_file $INJECT_LOG_DIR/.kail_verbose $INJECT_LOG_DIR/kail_log_* $INJECT_LOG_DIR/*.log"
+            }
+            ShellUtils.executeCommand(cmd)
             KailLog.i(context, TAG, "syncInjectLogMarkers: enabled=$enabled file=$logEnabled verbose=$debugEnabled")
         }.onFailure { KailLog.w(context, TAG, "syncInjectLogMarkers: ${it.message}") }
     }
 
-    private fun toggleMarker(path: String, on: Boolean) {
-        if (on) {
-            ShellUtils.executeCommand("touch $path && chmod 666 $path")
-        } else {
-            ShellUtils.executeCommand("rm -f $path")
-        }
+    private fun markerCommand(path: String, on: Boolean): String {
+        return if (on) "touch $path && chmod 666 $path" else "rm -f $path"
     }
 
     /**
@@ -174,7 +197,11 @@ object RootDeployer {
      * permafrozen, at the cost of an "Inject fail" return.
      */
     fun bootstrapInjection(): Boolean {
-        return bootstrapInjectionVerbose().first
+        return bootstrapInjectionVerbose(null).first
+    }
+
+    fun bootstrapInjection(context: Context): Boolean {
+        return bootstrapInjectionVerbose(context).first
     }
 
     /**
@@ -184,34 +211,118 @@ object RootDeployer {
      * guess. Returns (success, humanReadableDetail).
      */
     fun bootstrapInjectionVerbose(): Pair<Boolean, String> {
-        if (!ShellUtils.hasRoot()) return false to "su 不可用（未授权 ROOT）"
-        val injector = File(STAGING_DIR, INJECTOR_BIN)
-        val initLoader = File(FAKELOC_DIR, "libfakeloc_init.so")
-        if (!injector.exists()) {
-            val msg = "注入器缺失：${injector.absolutePath}（部署失败？）"
-            KailLog.e(null, TAG, "bootstrapInjection: $msg")
-            return false to msg
+        return bootstrapInjectionVerbose(null)
+    }
+
+    fun bootstrapInjectionVerbose(context: Context?): Pair<Boolean, String> {
+        return try {
+            if (!ShellUtils.hasRoot()) return false to "su 不可用（未授权 ROOT）"
+            val injector = File(STAGING_DIR, INJECTOR_BIN)
+            val initLoader = File(FAKELOC_DIR, "libfakeloc_init.so")
+            if (!injector.exists()) {
+                val msg = "注入器缺失：${injector.absolutePath}（部署失败？）"
+                KailLog.e(null, TAG, "bootstrapInjection: $msg")
+                return false to msg
+            }
+            if (!initLoader.exists()) {
+                val msg = "加载器缺失：${initLoader.absolutePath}（部署失败？）"
+                KailLog.e(null, TAG, "bootstrapInjection: $msg")
+                return false to msg
+            }
+            val sessionId = System.currentTimeMillis()
+            val sessionLoader = File(FAKELOC_DIR, "libfakeloc_init_${sessionId}.so")
+            ShellUtils.executeCommand("cp -f ${initLoader.absolutePath} ${sessionLoader.absolutePath}")
+            ShellUtils.executeCommand("chmod 644 ${sessionLoader.absolutePath}")
+            ShellUtils.executeCommand("chcon u:object_r:system_file:s0 ${sessionLoader.absolutePath}")
+            ShellUtils.executeCommand("rm -f $LHOOKER_PATH_FILE")
+            val sessionLHooker = prepareSessionLHooker(sessionId)
+            disableStaleRootControls()
+            clearInjectionRuntimeFiles(context)
+            val sessionArg = if (sessionLHooker.isNullOrBlank()) "" else " -a ${shellQuote(sessionLHooker)}"
+            val cmd = "${injector.absolutePath} -P system_server -l ${sessionLoader.absolutePath} -n com.kail.location$sessionArg"
+            val out = ShellUtils.executeCommand(cmd).trim()
+            KailLog.i(null, TAG, "kail_inject -> $out")
+            val injectorOk = out.contains("Inject ok")
+            val bootstrapSignal = if (injectorOk) waitForJavaBootstrapSignal(context) else null
+            val ok = injectorOk && bootstrapSignal != null
+            val detail = when {
+                ok -> "kail_inject 返回 Inject ok；$bootstrapSignal"
+                injectorOk ->
+                    "kail_inject 返回 Inject ok，但未看到 Java bootstrap/control ack；这次不记录已注入，避免下次跳过 ptrace。原始输出：$out"
+                out.contains("watchdog", ignoreCase = true) ->
+                    "注入超时：远程函数未返回，watchdog 触发（system_server 繁忙/刚开机未就绪）。原始输出：$out"
+                out.contains("fail", ignoreCase = true) ->
+                    "注入器返回失败。原始输出：$out"
+                out.isBlank() ->
+                    "注入器无输出（su 被拒/进程被杀？）"
+                else -> "注入未确认成功。原始输出：$out"
+            }
+            ok to detail
+        } finally {
+            ShellUtils.executeCommand("setenforce 1")
         }
-        if (!initLoader.exists()) {
-            val msg = "加载器缺失：${initLoader.absolutePath}（部署失败？）"
-            KailLog.e(null, TAG, "bootstrapInjection: $msg")
-            return false to msg
+    }
+
+    private fun clearInjectionRuntimeFiles(context: Context?) {
+        val controlFile = context?.let { RootControlPaths.controlPath(it) } ?: RootControlPaths.LEGACY_CONTROL_PATH
+        val ackFile = context?.let { RootControlPaths.ackPath(it) } ?: RootControlPaths.LEGACY_ACK_PATH
+        ShellUtils.executeCommand(
+            "mkdir -p $RUNTIME_DIR && chmod 777 $RUNTIME_DIR && " +
+                "rm -f $RUNTIME_FAKELOC_INIT_LOG $BOOTSTRAP_STATE_FILE " +
+                "$controlFile $ackFile $RUNTIME_LHOOKER_INIT_LOG " +
+                "$INJECTION_STATE_FILE $FAKELOC_DIR/fakeloc_init.log"
+        )
+    }
+
+    private fun disableStaleRootControls() {
+        val payload = "enabled=0\n"
+        ShellUtils.executeCommand(
+            "mkdir -p $RUNTIME_DIR && chmod 777 $RUNTIME_DIR && " +
+                "for f in $RUNTIME_DIR/location_control*.txt; do " +
+                "[ -e \"\$f\" ] || continue; " +
+                "case \"\$f\" in *location_control_ack*) continue;; esac; " +
+                "printf '%s' ${shellQuote(payload)} > \"\$f\"; " +
+                "chmod 666 \"\$f\"; " +
+                "chcon u:object_r:system_data_file:s0 \"\$f\" 2>/dev/null || true; " +
+                "done",
+            timeoutMs = 1500L
+        )
+    }
+
+    private fun waitForJavaBootstrapSignal(context: Context?, timeoutMs: Long = 4000L): String? {
+        val ackFile = context?.let { RootControlPaths.ackPath(it) } ?: RootControlPaths.LEGACY_ACK_PATH
+        val deadline = System.currentTimeMillis() + timeoutMs
+        while (System.currentTimeMillis() < deadline) {
+            val ack = ShellUtils.executeCommand("cat $ackFile 2>/dev/null").trim()
+            if (ack.isNotBlank()) {
+                val status = parseKeyValue(ack)["status"] ?: "unknown"
+                return "控制线程 ack=$status"
+            }
+
+            val state = ShellUtils.executeCommand("cat $BOOTSTRAP_STATE_FILE 2>/dev/null").trim()
+            if (state.isNotBlank()) {
+                val events = state.lineSequence()
+                    .mapNotNull { line -> line.removePrefix("event=").takeIf { it != line } }
+                    .toList()
+                val lastEvent = events.lastOrNull().orEmpty()
+                if (events.any { it.contains("root_location_control_start_called") || it.startsWith("add_service") || it == "finished" }) {
+                    return "Java bootstrap 已到达 $lastEvent"
+                }
+                if (lastEvent.contains("error", ignoreCase = true) || lastEvent.contains("aborted", ignoreCase = true)) {
+                    KailLog.w(null, TAG, "Java bootstrap reported failure: $lastEvent")
+                    return null
+                }
+            }
+            Thread.sleep(250L)
         }
-        val cmd = "${injector.absolutePath} -P system_server -l ${initLoader.absolutePath} -n com.kail.location"
-        val out = ShellUtils.executeCommand(cmd).trim()
-        KailLog.i(null, TAG, "kail_inject -> $out")
-        val ok = out.contains("Inject ok")
-        val detail = when {
-            ok -> "kail_inject 返回 Inject ok"
-            out.contains("watchdog", ignoreCase = true) ->
-                "注入超时：远程函数未返回，watchdog 触发（system_server 繁忙/刚开机未就绪）。原始输出：$out"
-            out.contains("fail", ignoreCase = true) ->
-                "注入器返回失败。原始输出：$out"
-            out.isBlank() ->
-                "注入器无输出（su 被拒/进程被杀？）"
-            else -> "注入未确认成功。原始输出：$out"
-        }
-        return ok to detail
+        return null
+    }
+
+    private fun parseKeyValue(raw: String): Map<String, String> {
+        return raw.lineSequence().mapNotNull { line ->
+            val index = line.indexOf('=')
+            if (index <= 0) null else line.substring(0, index) to line.substring(index + 1)
+        }.toMap()
     }
 
     /**
@@ -254,6 +365,12 @@ object RootDeployer {
         return true
     }
 
+    private data class InjectionState(
+        val bootTimeSec: Long,
+        val systemServerPid: String,
+        val appVersionName: String
+    )
+
     // ------------------------------------------------------------------
     // Building blocks
     // ------------------------------------------------------------------
@@ -262,14 +379,25 @@ object RootDeployer {
         val src = File(context.applicationInfo.nativeLibraryDir, NATIVE_HOOK_SO)
         val dst = File(STAGING_DIR, NATIVE_HOOK_SO)
         val ok = copyAndChmod(context, src, "lib/${preferredAbi()}/$NATIVE_HOOK_SO", dst)
-        // Also stage it under FAKELOC_DIR with the system_file SELinux label so
-        // it can be System.load()ed from inside system_server by the inject
-        // (NativeStepHook for root-mode step/gait simulation).
+        // Also stage a version-scoped copy under FAKELOC_DIR so it can be
+        // System.load()ed from inside system_server by the inject. Never
+        // overwrite an existing copy for the same version: system_server may
+        // already have it mapped and executing in SensorService, and truncating
+        // that file is enough to crash the process on the next page fault.
         runCatching {
-            val fakelocDst = File(FAKELOC_DIR, NATIVE_HOOK_SO)
-            ShellUtils.executeCommand("cp -f ${dst.absolutePath} ${fakelocDst.absolutePath}")
-            ShellUtils.executeCommand("chmod 644 ${fakelocDst.absolutePath}")
-            ShellUtils.executeCommand("chcon u:object_r:system_file:s0 ${fakelocDst.absolutePath}")
+            val fakelocDst = File(FAKELOC_DIR, nativeHookSoName(context))
+            if (!fakelocDst.exists() || fakelocDst.length() <= 0L) {
+                ShellUtils.executeCommand("cp -f ${dst.absolutePath} ${fakelocDst.absolutePath}")
+                ShellUtils.executeCommand("chmod 644 ${fakelocDst.absolutePath}")
+                ShellUtils.executeCommand("chcon u:object_r:system_file:s0 ${fakelocDst.absolutePath}")
+            } else {
+                KailLog.i(null, TAG, "deployNativeHookLib: keep existing mapped-safe copy ${fakelocDst.absolutePath}")
+            }
+            ShellUtils.executeCommand(
+                "printf '%s' ${shellQuote(fakelocDst.absolutePath)} > $NATIVE_HOOK_PATH_FILE && " +
+                    "chmod 666 $NATIVE_HOOK_PATH_FILE && " +
+                    "chcon u:object_r:system_file:s0 $NATIVE_HOOK_PATH_FILE 2>/dev/null || true"
+            )
         }.onFailure { KailLog.w(null, TAG, "stage native hook into FAKELOC_DIR: ${it.message}") }
         return ok
     }
@@ -365,19 +493,22 @@ object RootDeployer {
     fun revokeMockLocationAppOps(context: Context): Boolean {
         val pkg = context.packageName
         return runCatching {
-            ShellUtils.executeCommand("appops set $pkg android:mock_location ignore")
+            ShellUtils.executeCommand("appops set $pkg android:mock_location default 2>/dev/null || appops set $pkg android:mock_location ignore")
+            ShellUtils.executeCommand("appops set $pkg 58 default 2>/dev/null || appops set $pkg 58 ignore")
             true
         }.getOrElse { false }
     }
 
     private fun prepareDirs() {
         runCatching {
-            ShellUtils.executeCommand("setenforce 0")
             for (d in listOf(STAGING_DIR, FAKELOC_DIR)) {
                 ShellUtils.executeCommand("mkdir -p $d")
                 ShellUtils.executeCommand("chmod 777 $d")
                 ShellUtils.executeCommand("chcon u:object_r:system_file:s0 $d")
             }
+            ShellUtils.executeCommand("mkdir -p $RUNTIME_DIR")
+            ShellUtils.executeCommand("chmod 777 $RUNTIME_DIR")
+            ShellUtils.executeCommand("chcon u:object_r:system_data_file:s0 $RUNTIME_DIR 2>/dev/null || restorecon -R $RUNTIME_DIR 2>/dev/null || true")
             // libfakeloc_init.cpp uses /data/kail-loc/system_dex as the
             // DexClassLoader optimization output dir. If it doesn't exist
             // before we inject, ART falls back to compiling the 33MB APK in
@@ -400,6 +531,116 @@ object RootDeployer {
         android.os.Build.SUPPORTED_ABIS.firstOrNull { it == "arm64-v8a" }
             ?: android.os.Build.SUPPORTED_ABIS.firstOrNull()
             ?: "arm64-v8a"
+
+    private fun isSystemServerInjectionCurrent(context: Context): Boolean {
+        val state = readInjectionState() ?: return false
+        val boot = kernelBootTimeSec()
+        val pid = systemServerPid()
+        val appVersionName = currentAppVersionName(context)
+        val current = boot > 0 &&
+            state.bootTimeSec == boot &&
+            pid.isNotBlank() &&
+            state.systemServerPid == pid &&
+            state.appVersionName == appVersionName
+        if (!current) {
+            KailLog.i(null, TAG, "injection state stale: state=$state boot=$boot pid=$pid app=$appVersionName")
+        }
+        return current
+    }
+
+    private fun markSystemServerInjectionCurrent(context: Context) {
+        val boot = kernelBootTimeSec()
+        val pid = systemServerPid()
+        if (boot <= 0 || pid.isBlank()) {
+            KailLog.w(null, TAG, "mark injection skipped: boot=$boot pid=$pid")
+            return
+        }
+        val appVersionName = currentAppVersionName(context)
+        val payload = "kernel_btime_sec=$boot\n" +
+            "system_server_pid=$pid\n" +
+            "app_version_name=$appVersionName\n" +
+            "wallclock_ms=${System.currentTimeMillis()}\n"
+        ShellUtils.executeCommand(
+            "printf '%s' ${shellQuote(payload)} > $INJECTION_STATE_FILE && " +
+                "chmod 666 $INJECTION_STATE_FILE && chcon u:object_r:system_data_file:s0 $INJECTION_STATE_FILE 2>/dev/null || true"
+        )
+        KailLog.i(null, TAG, "system_server injection marked current: boot=$boot pid=$pid app=$appVersionName")
+    }
+
+    private fun readInjectionState(): InjectionState? {
+        val raw = ShellUtils.executeCommand("cat $INJECTION_STATE_FILE 2>/dev/null").trim()
+        if (raw.isBlank()) return null
+        val values = raw.lineSequence().mapNotNull { line ->
+            val index = line.indexOf('=')
+            if (index <= 0) null else line.substring(0, index) to line.substring(index + 1)
+        }.toMap()
+        val boot = values["kernel_btime_sec"]?.toLongOrNull() ?: return null
+        val pid = values["system_server_pid"]?.trim() ?: return null
+        if (pid.isBlank()) return null
+        val appVersionName = values["app_version_name"]?.trim() ?: ""
+        if (appVersionName.isBlank()) return null
+        return InjectionState(boot, pid, appVersionName)
+    }
+
+    private fun currentAppVersionName(context: Context): String {
+        return runCatching {
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: ""
+        }.getOrDefault("")
+    }
+
+    private fun nativeHookSoName(context: Context): String {
+        return "libkail_native_hook_${RootControlPaths.channelForVersion(currentAppVersionName(context))}.so"
+    }
+
+    private fun kernelBootTimeSec(): Long {
+        return ShellUtils.executeCommand("cat /proc/stat 2>/dev/null | grep '^btime'").trim()
+            .split(Regex("\\s+"))
+            .getOrNull(1)
+            ?.toLongOrNull()
+            ?: -1L
+    }
+
+    private fun systemServerPid(): String {
+        return ShellUtils.executeCommand("pgrep -f system_server 2>/dev/null").trim()
+            .lineSequence()
+            .firstOrNull { it.isNotBlank() }
+            ?.trim()
+            ?: ""
+    }
+
+    private fun prepareSessionLHooker(sessionId: Long): String? {
+        return runCatching {
+            val baseName = preferredLHookerName()
+            val base = File(FAKELOC_DIR, baseName)
+            if (!base.exists() || base.length() <= 0) {
+                KailLog.w(null, TAG, "prepareSessionLHooker: missing ${base.absolutePath}")
+                return@runCatching null
+            }
+            val session = File(FAKELOC_DIR, "${baseName.removeSuffix(".so")}_${sessionId}.so")
+            ShellUtils.executeCommand("cp -f ${base.absolutePath} ${session.absolutePath}")
+            ShellUtils.executeCommand("chmod 644 ${session.absolutePath}")
+            ShellUtils.executeCommand("chcon u:object_r:system_file:s0 ${session.absolutePath}")
+            ShellUtils.executeCommand("printf '%s' '${session.absolutePath}' > $LHOOKER_PATH_FILE && chmod 666 $LHOOKER_PATH_FILE && chcon u:object_r:system_file:s0 $LHOOKER_PATH_FILE")
+            KailLog.persist(null, TAG, "prepareSessionLHooker: ${session.absolutePath}")
+            session.absolutePath
+        }.getOrElse {
+            KailLog.w(null, TAG, "prepareSessionLHooker: ${it.message}")
+            null
+        }
+    }
+
+    private fun shellQuote(value: String): String {
+        return "'" + value.replace("'", "'\"'\"'") + "'"
+    }
+
+    private fun preferredLHookerName(): String {
+        return when (preferredAbi()) {
+            "x86_64" -> "liblhookerx64.so"
+            "x86" -> "liblhookerx.so"
+            "arm64-v8a" -> "liblhooker64.so"
+            else -> "liblhooker.so"
+        }
+    }
 
     private fun copyAndChmod(context: Context, src: File, zipEntry: String, dst: File): Boolean {
         return runCatching {

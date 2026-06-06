@@ -305,6 +305,11 @@ class ServiceGoXposed : Service() {
             if (routeArray != null && routeArray.size >= 2) {
                 mRouteEngine.setupFromArray(routeArray, coordType)
                 mRouteEngine.setLoop(intent.getBooleanExtra(EXTRA_ROUTE_LOOP, false))
+                if (mRouteEngine.isActive) {
+                    mCurLng = mRouteEngine.currentLng
+                    mCurLat = mRouteEngine.currentLat
+                    mCurBea = mRouteEngine.currentBea
+                }
             }
 
             // Read step simulation parameters
@@ -622,6 +627,7 @@ class ServiceGoXposed : Service() {
         } catch (e: Exception) {
             KailLog.e(this, "ServiceGoXposed", "Error in onDestroy: ${e.message}")
         }
+
         super.onDestroy()
         KailLog.i(this, "ServiceGoXposed", "onDestroy finished")
     }
