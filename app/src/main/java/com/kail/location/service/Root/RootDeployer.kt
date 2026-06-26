@@ -49,6 +49,9 @@ object RootDeployer {
     private const val BOOTSTRAP_STATE_FILE = "$RUNTIME_DIR/injectdex_state.txt"
     private const val RUNTIME_FAKELOC_INIT_LOG = "$RUNTIME_DIR/fakeloc_init.log"
     private const val RUNTIME_LHOOKER_INIT_LOG = "$RUNTIME_DIR/lhooker_init.log"
+    private const val ROOT_SHORT_TIMEOUT_MS = 15_000L
+    private const val ROOT_COPY_TIMEOUT_MS = 30_000L
+    private const val ROOT_INJECT_TIMEOUT_MS = 135_000L
 
     /** FakeLocation loader/hook libraries packaged in the APK under lib/<abi>/. */
     private val FAKELOC_LIBS = listOf(
@@ -177,13 +180,17 @@ object RootDeployer {
             } else {
                 "$clearDownloadLogcat && rm -f $INJECT_LOG_DIR/.kail_debug $INJECT_LOG_DIR/.kail_log_file $INJECT_LOG_DIR/.kail_verbose $INJECT_LOG_DIR/kail_log_* $INJECT_LOG_DIR/*.log"
             }
-            ShellUtils.executeCommand(cmd)
+            rootCmd(cmd)
             KailLog.i(context, TAG, "syncInjectLogMarkers: enabled=$enabled file=$logEnabled verbose=$debugEnabled")
         }.onFailure { KailLog.w(context, TAG, "syncInjectLogMarkers: ${it.message}") }
     }
 
     private fun markerCommand(path: String, on: Boolean): String {
         return if (on) "touch $path && chmod 666 $path" else "rm -f $path"
+    }
+
+    private fun rootCmd(command: String, timeoutMs: Long = ROOT_SHORT_TIMEOUT_MS): String {
+        return ShellUtils.executeCommand(command, timeoutMs)
     }
 
     /**
@@ -231,16 +238,16 @@ object RootDeployer {
             }
             val sessionId = System.currentTimeMillis()
             val sessionLoader = File(FAKELOC_DIR, "libfakeloc_init_${sessionId}.so")
-            ShellUtils.executeCommand("cp -f ${initLoader.absolutePath} ${sessionLoader.absolutePath}")
-            ShellUtils.executeCommand("chmod 644 ${sessionLoader.absolutePath}")
-            ShellUtils.executeCommand("chcon u:object_r:system_file:s0 ${sessionLoader.absolutePath}")
-            ShellUtils.executeCommand("rm -f $LHOOKER_PATH_FILE")
+            rootCmd("cp -f ${initLoader.absolutePath} ${sessionLoader.absolutePath}", ROOT_COPY_TIMEOUT_MS)
+            rootCmd("chmod 644 ${sessionLoader.absolutePath}")
+            rootCmd("chcon u:object_r:system_file:s0 ${sessionLoader.absolutePath} 2>/dev/null || true")
+            rootCmd("rm -f $LHOOKER_PATH_FILE")
             val sessionLHooker = prepareSessionLHooker(sessionId)
             disableStaleRootControls()
             clearInjectionRuntimeFiles(context)
             val sessionArg = if (sessionLHooker.isNullOrBlank()) "" else " -a ${shellQuote(sessionLHooker)}"
             val cmd = "${injector.absolutePath} -P system_server -l ${sessionLoader.absolutePath} -n com.kail.location$sessionArg"
-            val out = ShellUtils.executeCommand(cmd).trim()
+            val out = rootCmd(cmd, ROOT_INJECT_TIMEOUT_MS).trim()
             KailLog.i(null, TAG, "kail_inject -> $out")
             val injectorOk = out.contains("Inject ok")
             val bootstrapSignal = if (injectorOk) waitForJavaBootstrapSignal(context) else null
@@ -259,14 +266,14 @@ object RootDeployer {
             }
             ok to detail
         } finally {
-            ShellUtils.executeCommand("setenforce 1")
+            rootCmd("setenforce 1")
         }
     }
 
     private fun clearInjectionRuntimeFiles(context: Context?) {
         val controlFile = context?.let { RootControlPaths.controlPath(it) } ?: RootControlPaths.LEGACY_CONTROL_PATH
         val ackFile = context?.let { RootControlPaths.ackPath(it) } ?: RootControlPaths.LEGACY_ACK_PATH
-        ShellUtils.executeCommand(
+        rootCmd(
             "mkdir -p $RUNTIME_DIR && chmod 777 $RUNTIME_DIR && " +
                 "rm -f $RUNTIME_FAKELOC_INIT_LOG $BOOTSTRAP_STATE_FILE " +
                 "$controlFile $ackFile $RUNTIME_LHOOKER_INIT_LOG " +
@@ -276,7 +283,7 @@ object RootDeployer {
 
     private fun disableStaleRootControls() {
         val payload = "enabled=0\n"
-        ShellUtils.executeCommand(
+        rootCmd(
             "mkdir -p $RUNTIME_DIR && chmod 777 $RUNTIME_DIR && " +
                 "for f in $RUNTIME_DIR/location_control*.txt; do " +
                 "[ -e \"\$f\" ] || continue; " +
@@ -293,13 +300,13 @@ object RootDeployer {
         val ackFile = context?.let { RootControlPaths.ackPath(it) } ?: RootControlPaths.LEGACY_ACK_PATH
         val deadline = System.currentTimeMillis() + timeoutMs
         while (System.currentTimeMillis() < deadline) {
-            val ack = ShellUtils.executeCommand("cat $ackFile 2>/dev/null").trim()
+            val ack = rootCmd("cat $ackFile 2>/dev/null", 1500L).trim()
             if (ack.isNotBlank()) {
                 val status = parseKeyValue(ack)["status"] ?: "unknown"
                 return "控制线程 ack=$status"
             }
 
-            val state = ShellUtils.executeCommand("cat $BOOTSTRAP_STATE_FILE 2>/dev/null").trim()
+            val state = rootCmd("cat $BOOTSTRAP_STATE_FILE 2>/dev/null", 1500L).trim()
             if (state.isNotBlank()) {
                 val events = state.lineSequence()
                     .mapNotNull { line -> line.removePrefix("event=").takeIf { it != line } }
@@ -349,7 +356,7 @@ object RootDeployer {
             return false
         }
         val cmd = "${injector.absolutePath} -P $processName -l ${appLoader.absolutePath} -n com.kail.location"
-        val out = ShellUtils.executeCommand(cmd)
+        val out = rootCmd(cmd, ROOT_INJECT_TIMEOUT_MS)
         KailLog.i(null, TAG, "kail_inject ($processName) -> $out")
         return out.contains("Inject ok")
     }
@@ -387,13 +394,13 @@ object RootDeployer {
         runCatching {
             val fakelocDst = File(FAKELOC_DIR, nativeHookSoName(context))
             if (!fakelocDst.exists() || fakelocDst.length() <= 0L) {
-                ShellUtils.executeCommand("cp -f ${dst.absolutePath} ${fakelocDst.absolutePath}")
-                ShellUtils.executeCommand("chmod 644 ${fakelocDst.absolutePath}")
-                ShellUtils.executeCommand("chcon u:object_r:system_file:s0 ${fakelocDst.absolutePath}")
+                rootCmd("cp -f ${dst.absolutePath} ${fakelocDst.absolutePath}", ROOT_COPY_TIMEOUT_MS)
+                rootCmd("chmod 644 ${fakelocDst.absolutePath}")
+                rootCmd("chcon u:object_r:system_file:s0 ${fakelocDst.absolutePath} 2>/dev/null || true")
             } else {
                 KailLog.i(null, TAG, "deployNativeHookLib: keep existing mapped-safe copy ${fakelocDst.absolutePath}")
             }
-            ShellUtils.executeCommand(
+            rootCmd(
                 "printf '%s' ${shellQuote(fakelocDst.absolutePath)} > $NATIVE_HOOK_PATH_FILE && " +
                     "chmod 666 $NATIVE_HOOK_PATH_FILE && " +
                     "chcon u:object_r:system_file:s0 $NATIVE_HOOK_PATH_FILE 2>/dev/null || true"
@@ -407,7 +414,7 @@ object RootDeployer {
         val src = File(context.applicationInfo.nativeLibraryDir, "libkail_inject.so")
         val dst = File(STAGING_DIR, INJECTOR_BIN)
         val ok = copyAndChmod(context, src, "lib/$abi/libkail_inject.so", dst)
-        if (ok) ShellUtils.executeCommand("chmod 755 ${dst.absolutePath}")
+        if (ok) rootCmd("chmod 755 ${dst.absolutePath}")
         return ok
     }
 
@@ -428,9 +435,9 @@ object RootDeployer {
             if (ok && isArm64 && !name.contains("64.so")) {
                 val sixtyFour = name.replace(".so", "64.so")
                 val mirror = File(FAKELOC_DIR, sixtyFour)
-                ShellUtils.executeCommand("cp -f ${dst.absolutePath} ${mirror.absolutePath}")
-                ShellUtils.executeCommand("chmod 777 ${mirror.absolutePath}")
-                ShellUtils.executeCommand("chcon u:object_r:system_file:s0 ${mirror.absolutePath}")
+                rootCmd("cp -f ${dst.absolutePath} ${mirror.absolutePath}", ROOT_COPY_TIMEOUT_MS)
+                rootCmd("chmod 777 ${mirror.absolutePath}")
+                rootCmd("chcon u:object_r:system_file:s0 ${mirror.absolutePath} 2>/dev/null || true")
             }
         }
         return initLoader
@@ -455,15 +462,15 @@ object RootDeployer {
 
         return runCatching {
             if (slim != null && slim.exists() && slim.length() > 0) {
-                ShellUtils.executeCommand("cp -f ${slim.absolutePath} ${dst.absolutePath}")
+                rootCmd("cp -f ${slim.absolutePath} ${dst.absolutePath}", ROOT_COPY_TIMEOUT_MS)
                 KailLog.i(null, TAG, "deployDexPayload: using slim inject.dex (${slim.length()} bytes)")
             } else {
                 val apkPath = context.applicationInfo.sourceDir ?: return@runCatching false
-                ShellUtils.executeCommand("cp -f $apkPath ${dst.absolutePath}")
+                rootCmd("cp -f $apkPath ${dst.absolutePath}", ROOT_COPY_TIMEOUT_MS)
                 KailLog.w(null, TAG, "deployDexPayload: assets/inject.dex missing; falling back to full APK ($apkPath)")
             }
-            ShellUtils.executeCommand("chmod 644 ${dst.absolutePath}")
-            ShellUtils.executeCommand("chcon u:object_r:system_file:s0 ${dst.absolutePath}")
+            rootCmd("chmod 644 ${dst.absolutePath}")
+            rootCmd("chcon u:object_r:system_file:s0 ${dst.absolutePath} 2>/dev/null || true")
             dst.exists() && dst.length() > 0
         }.getOrElse {
             KailLog.e(null, TAG, "deployDexPayload: ${it.message}")
@@ -479,9 +486,9 @@ object RootDeployer {
     fun grantMockLocationAppOps(context: Context): Boolean {
         val pkg = context.packageName
         return runCatching {
-            ShellUtils.executeCommand("appops set $pkg android:mock_location allow")
+            rootCmd("appops set $pkg android:mock_location allow")
             // Some ROMs accept a numeric op id alias; harmless when it does not exist.
-            ShellUtils.executeCommand("appops set $pkg 58 allow")
+            rootCmd("appops set $pkg 58 allow")
             true
         }.getOrElse {
             KailLog.e(null, TAG, "grantMockLocationAppOps: ${it.message}")
@@ -493,8 +500,8 @@ object RootDeployer {
     fun revokeMockLocationAppOps(context: Context): Boolean {
         val pkg = context.packageName
         return runCatching {
-            ShellUtils.executeCommand("appops set $pkg android:mock_location default 2>/dev/null || appops set $pkg android:mock_location ignore")
-            ShellUtils.executeCommand("appops set $pkg 58 default 2>/dev/null || appops set $pkg 58 ignore")
+            rootCmd("appops set $pkg android:mock_location default 2>/dev/null || appops set $pkg android:mock_location ignore")
+            rootCmd("appops set $pkg 58 default 2>/dev/null || appops set $pkg 58 ignore")
             true
         }.getOrElse { false }
     }
@@ -502,13 +509,13 @@ object RootDeployer {
     private fun prepareDirs() {
         runCatching {
             for (d in listOf(STAGING_DIR, FAKELOC_DIR)) {
-                ShellUtils.executeCommand("mkdir -p $d")
-                ShellUtils.executeCommand("chmod 777 $d")
-                ShellUtils.executeCommand("chcon u:object_r:system_file:s0 $d")
+                rootCmd("mkdir -p $d")
+                rootCmd("chmod 777 $d")
+                rootCmd("chcon u:object_r:system_file:s0 $d 2>/dev/null || true")
             }
-            ShellUtils.executeCommand("mkdir -p $RUNTIME_DIR")
-            ShellUtils.executeCommand("chmod 777 $RUNTIME_DIR")
-            ShellUtils.executeCommand("chcon u:object_r:system_data_file:s0 $RUNTIME_DIR 2>/dev/null || restorecon -R $RUNTIME_DIR 2>/dev/null || true")
+            rootCmd("mkdir -p $RUNTIME_DIR")
+            rootCmd("chmod 777 $RUNTIME_DIR")
+            rootCmd("chcon u:object_r:system_data_file:s0 $RUNTIME_DIR 2>/dev/null || restorecon -R $RUNTIME_DIR 2>/dev/null || true")
             // libfakeloc_init.cpp uses /data/kail-loc/system_dex as the
             // DexClassLoader optimization output dir. If it doesn't exist
             // before we inject, ART falls back to compiling the 33MB APK in
@@ -516,9 +523,9 @@ object RootDeployer {
             // sometimes never finishes (system_server gets killed by its
             // own watchdog). Pre-create it with permissive SELinux labels.
             for (d in listOf("$FAKELOC_DIR/system_dex", "$FAKELOC_DIR/oat")) {
-                ShellUtils.executeCommand("mkdir -p $d")
-                ShellUtils.executeCommand("chmod 777 $d")
-                ShellUtils.executeCommand("chcon u:object_r:system_file:s0 $d")
+                rootCmd("mkdir -p $d")
+                rootCmd("chmod 777 $d")
+                rootCmd("chcon u:object_r:system_file:s0 $d 2>/dev/null || true")
             }
         }.onFailure { KailLog.e(null, TAG, "prepareDirs: ${it.message}") }
     }
@@ -560,7 +567,7 @@ object RootDeployer {
             "system_server_pid=$pid\n" +
             "app_version_name=$appVersionName\n" +
             "wallclock_ms=${System.currentTimeMillis()}\n"
-        ShellUtils.executeCommand(
+        rootCmd(
             "printf '%s' ${shellQuote(payload)} > $INJECTION_STATE_FILE && " +
                 "chmod 666 $INJECTION_STATE_FILE && chcon u:object_r:system_data_file:s0 $INJECTION_STATE_FILE 2>/dev/null || true"
         )
@@ -568,7 +575,7 @@ object RootDeployer {
     }
 
     private fun readInjectionState(): InjectionState? {
-        val raw = ShellUtils.executeCommand("cat $INJECTION_STATE_FILE 2>/dev/null").trim()
+        val raw = rootCmd("cat $INJECTION_STATE_FILE 2>/dev/null", 1500L).trim()
         if (raw.isBlank()) return null
         val values = raw.lineSequence().mapNotNull { line ->
             val index = line.indexOf('=')
@@ -593,7 +600,7 @@ object RootDeployer {
     }
 
     private fun kernelBootTimeSec(): Long {
-        return ShellUtils.executeCommand("cat /proc/stat 2>/dev/null | grep '^btime'").trim()
+        return rootCmd("cat /proc/stat 2>/dev/null | grep '^btime'", 1500L).trim()
             .split(Regex("\\s+"))
             .getOrNull(1)
             ?.toLongOrNull()
@@ -601,7 +608,7 @@ object RootDeployer {
     }
 
     private fun systemServerPid(): String {
-        return ShellUtils.executeCommand("pgrep -f system_server 2>/dev/null").trim()
+        return rootCmd("pgrep -f system_server 2>/dev/null", 1500L).trim()
             .lineSequence()
             .firstOrNull { it.isNotBlank() }
             ?.trim()
@@ -617,10 +624,10 @@ object RootDeployer {
                 return@runCatching null
             }
             val session = File(FAKELOC_DIR, "${baseName.removeSuffix(".so")}_${sessionId}.so")
-            ShellUtils.executeCommand("cp -f ${base.absolutePath} ${session.absolutePath}")
-            ShellUtils.executeCommand("chmod 644 ${session.absolutePath}")
-            ShellUtils.executeCommand("chcon u:object_r:system_file:s0 ${session.absolutePath}")
-            ShellUtils.executeCommand("printf '%s' '${session.absolutePath}' > $LHOOKER_PATH_FILE && chmod 666 $LHOOKER_PATH_FILE && chcon u:object_r:system_file:s0 $LHOOKER_PATH_FILE")
+            rootCmd("cp -f ${base.absolutePath} ${session.absolutePath}", ROOT_COPY_TIMEOUT_MS)
+            rootCmd("chmod 644 ${session.absolutePath}")
+            rootCmd("chcon u:object_r:system_file:s0 ${session.absolutePath} 2>/dev/null || true")
+            rootCmd("printf '%s' '${session.absolutePath}' > $LHOOKER_PATH_FILE && chmod 666 $LHOOKER_PATH_FILE && chcon u:object_r:system_file:s0 $LHOOKER_PATH_FILE 2>/dev/null || true")
             KailLog.persist(null, TAG, "prepareSessionLHooker: ${session.absolutePath}")
             session.absolutePath
         }.getOrElse {
@@ -645,12 +652,12 @@ object RootDeployer {
     private fun copyAndChmod(context: Context, src: File, zipEntry: String, dst: File): Boolean {
         return runCatching {
             if (src.exists() && src.length() > 0) {
-                ShellUtils.executeCommand("cp -f ${src.absolutePath} ${dst.absolutePath}")
+                rootCmd("cp -f ${src.absolutePath} ${dst.absolutePath}", ROOT_COPY_TIMEOUT_MS)
             } else {
                 extractFromApk(context, zipEntry, dst)
             }
-            ShellUtils.executeCommand("chmod 777 ${dst.absolutePath}")
-            ShellUtils.executeCommand("chcon u:object_r:system_file:s0 ${dst.absolutePath}")
+            rootCmd("chmod 777 ${dst.absolutePath}")
+            rootCmd("chcon u:object_r:system_file:s0 ${dst.absolutePath} 2>/dev/null || true")
             dst.exists() && dst.length() > 0
         }.getOrElse {
             KailLog.e(null, TAG, "copyAndChmod ${dst.name}: ${it.message}")

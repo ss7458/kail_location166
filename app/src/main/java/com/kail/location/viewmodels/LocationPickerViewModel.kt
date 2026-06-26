@@ -49,7 +49,10 @@ class LocationPickerViewModel(application: Application) : AndroidViewModel(appli
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action != ServiceConstants.ACTION_STATUS_CHANGED) return
             val isSimulating = intent.getBooleanExtra(ServiceConstants.EXTRA_IS_SIMULATING, false)
-            if (_isStarting.value && !isSimulating) return
+            if (_isStarting.value && !isSimulating) {
+                startTimeoutJob?.cancel()
+                _isStarting.value = false
+            }
             if (isSimulating) {
                 startTimeoutJob?.cancel()
                 _isStarting.value = false

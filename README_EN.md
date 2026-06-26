@@ -38,11 +38,9 @@
 
 ## Documentation
 
+
 - [中文说明](README.md)
 - [English README](README_EN.md)
-- [Developer Docs](docs/README.md) — architecture & development guides (Chinese)
-  - [Full Technical Doc](docs/项目技术文档.md) — architecture, run modes, call chains, native injection, Xposed
-  - [Baidu Map API Key](docs/baiduApiKey.md)
 
 ---
 

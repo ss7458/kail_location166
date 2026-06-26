@@ -260,10 +260,14 @@ public class MockStepSensorManager {
     }
 
     public static boolean isStepSensorMocking() {
-        // Root mode uses libkail_native_hook (Dobby) for step spoofing, not the
-        // native libStepSensor service hook, so report the plain Java mocking
-        // flag rather than LStepSensor's native gHooked/gMocking state.
         return mocking;
+    }
+
+    public static long getMockElapsedMillis() {
+        long start = mockStartTimeMillis;
+        if (start <= 0) return 0L;
+        long elapsed = System.currentTimeMillis() - start;
+        return elapsed < 0L ? 0L : elapsed;
     }
 
     static boolean isSameDay(long timestampMillis) {
@@ -297,54 +301,26 @@ public class MockStepSensorManager {
     }
 
     public static void startStepSensorMock(int mode, int scheme) {
-        // NOTE: Root-mode step spoofing via libkail_native_hook.so installs a
-        // Dobby inline hook on libsensorservice.so::convertToSensorEvent /
-        // libsensor.so::send_objects INSIDE system_server. On ROMs where the
-        // probed symbol offsets are even slightly wrong, DobbyHook patches the
-        // wrong address and SensorService segfaults — taking down system_server
-        // and rebooting the device. That must never happen as a side effect of
-        // starting location/route/wifi/cell simulation.
-        //
-        // So we only flip the shared mocking flag here. The native hook is
-        // installed ONLY when step mocking is explicitly enabled AND a
-        // validated offsets file is present (see maybeInstallNativeStepHook),
-        // never unconditionally.
         mockStartTimeMillis = System.currentTimeMillis();
         mocking = true;
+        lastStepUpdateTimeMillis = mockStartTimeMillis;
         maybeInstallNativeStepHook(mode, scheme);
     }
 
-    /**
-     * Install the native gait/step hook when step mocking is enabled.
-     *
-     * <p>Plan B: the native side ({@link NativeStepHook}/hook.cpp) now resolves
-     * the {@code convertToSensorEvent} / {@code sendObjects} addresses at
-     * runtime from the in-memory ELF dynsym of libsensorservice.so /
-     * libsensor.so. That removes the previous reliance on a fragile on-device
-     * readelf pass and a hardcoded 0x5b420 offset, both of which could hook the
-     * wrong address and crash SensorService. Because resolution is now based on
-     * the real symbol table, it is safe to install whenever step mocking is on —
-     * no enable-marker / offsets-file gate is required.
-     *
-     * <p>The offsets file, when present, is still passed in as a fallback for
-     * the rare case where the symbol is absent from .dynsym.
-     */
     private static void maybeInstallNativeStepHook(int mode, int scheme) {
         try {
-            long[] off = readSensorOffsets(); // optional fallback only
+            long[] off = readSensorOffsets();
             int[] handles = resolveStepSensorHandles();
-            float spm = stepSpeed > 0 ? stepSpeed * 60f : 120f; // stepSpeed is steps/sec
-            // off[0]/off[1] may be 0; the native installer self-resolves via
-            // dynsym and only uses these as a fallback.
+            float spm = stepSpeed > 0 ? stepSpeed * 60f : 120f;
             NativeStepHook.install(off[0], off[1], spm);
             NativeStepHook.configureStepSensorHandles(handles[0], handles[1]);
             NativeStepHook.start(spm, mode, scheme);
-            Log.i("MSU", "native step hook install requested (spm=" + spm
+            Log.i("MSU", "global native step hook install requested (spm=" + spm
                     + ", mode=" + mode + ", scheme=" + scheme
                     + ", counterHandle=" + handles[0] + ", detectorHandle=" + handles[1]
                     + ", fallback write=" + off[0] + " convert=" + off[1] + ")");
         } catch (Throwable th) {
-            th.printStackTrace();
+            InjectLog.e("MockStepSensor", "global native step hook install failed", th);
         }
     }
 
@@ -353,18 +329,10 @@ public class MockStepSensorManager {
         try {
             NativeStepHook.stop();
         } catch (Throwable th) {
-            th.printStackTrace();
+            InjectLog.e("MockStepSensor", "global native step hook stop failed", th);
         }
     }
 
-    /**
-     * Read libsensor.so / libsensorservice.so symbol offsets that ServiceGoRoot
-     * probed via readelf and dropped at
-     * {@code /data/local/kail-lib/kail_sensor_offsets.txt}:
-     *   send_objects=0x....
-     *   convert_to_sensor_event=0x....
-     * Returns {writeOffset, convertOffset}; 0 when unknown.
-     */
     private static long[] readSensorOffsets() {
         long write = 0L;
         long convert = 0L;
@@ -409,4 +377,5 @@ public class MockStepSensorManager {
             return bos.toByteArray();
         }
     }
+
 }

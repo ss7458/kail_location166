@@ -6,7 +6,6 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.SystemClock;
 
 
 public class BLocation implements Parcelable {
@@ -94,12 +93,10 @@ public class BLocation implements Parcelable {
         Location location = new Location(LocationManager.GPS_PROVIDER);
         location.setLatitude(mLatitude);
         location.setLongitude(mLongitude);
-        location.setAltitude(mAltitude);
         location.setSpeed(mSpeed);
         location.setBearing(mBearing);
         location.setAccuracy(40f);
         location.setTime(System.currentTimeMillis());
-        location.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
         Bundle extraBundle = new Bundle();
         
         int satelliteCount = 10;

@@ -63,14 +63,14 @@ public class BLocationManagerService extends IBLocationManagerService.Stub imple
 
     public int getPattern(int userId, String pkg) {
         synchronized (mLocationConfigs) {
-            return resolveConfig(userId, pkg).pattern;
+            BLocationConfig config = getOrCreateConfig(userId, pkg);
+            return config.pattern;
         }
     }
 
     @Override
     public void setPattern(int userId, String pkg, int pattern) {
         synchronized (mLocationConfigs) {
-            Slog.d(TAG, "setPattern userId=" + userId + " pkg=" + pkg + " pattern=" + pattern);
             getOrCreateConfig(userId, pkg).pattern = pattern;
             save();
         }
@@ -194,16 +194,13 @@ public class BLocationManagerService extends IBLocationManagerService.Stub imple
     @Override
     public BLocation getLocation(int userId, String pkg) {
         BLocationConfig config = resolveConfig(userId, pkg);
-        Slog.d(TAG, "getLocation userId=" + userId + " pkg=" + pkg + " pattern=" + config.pattern);
         switch (config.pattern) {
             case BLocationManager.OWN_MODE:
                 return config.location;
             case BLocationManager.GLOBAL_MODE:
-                Slog.d(TAG, "getLocation returning global: " + mGlobalConfig.location);
                 return mGlobalConfig.location;
             case BLocationManager.CLOSE_MODE:
             default:
-                Slog.w(TAG, "getLocation: CLOSE_MODE for " + pkg);
                 return null;
         }
     }
@@ -211,7 +208,6 @@ public class BLocationManagerService extends IBLocationManagerService.Stub imple
     @Override
     public void setGlobalLocation(BLocation location) {
         synchronized (mGlobalConfig) {
-            Slog.d(TAG, "setGlobalLocation: " + location);
             mGlobalConfig.location = location;
             save();
         }
@@ -220,9 +216,7 @@ public class BLocationManagerService extends IBLocationManagerService.Stub imple
     @Override
     public BLocation getGlobalLocation() {
         synchronized (mGlobalConfig) {
-            BLocation loc = mGlobalConfig.location;
-            Slog.d(TAG, "getGlobalLocation: " + loc);
-            return loc;
+            return mGlobalConfig.location;
         }
     }
 
@@ -274,20 +268,7 @@ public class BLocationManagerService extends IBLocationManagerService.Stub imple
                 }
                 lastLocation = location;
                 l = System.currentTimeMillis();
-                Slog.d(TAG, "pushing location update to " + locationRecord.packageName + " lat=" + location.getLatitude() + " lng=" + location.getLongitude());
-                final android.location.Location sysLoc = location.convert2SystemLocation();
-                Slog.d(TAG, "converted location: elapsedRealtimeNanos=" + sysLoc.getElapsedRealtimeNanos());
-                BlackBoxCore.get().getHandler().post(() -> {
-                    try {
-                        BRILocationListener.get(iInterface).onLocationChanged(sysLoc);
-                    } catch (Exception e) {
-                        Slog.e(TAG, "onLocationChanged failed: " + e.getMessage());
-                    }
-                });
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException ignored) {
-                }
+                BlackBoxCore.get().getHandler().post(() -> BRILocationListener.get(iInterface).onLocationChanged(location.convert2SystemLocation()));
             }
         });
     }
