@@ -29,6 +29,9 @@ public final class RootLocationControl {
     private static volatile int lastStepScheme = -1;
     private static volatile String lastStepStatus = "disabled";
     private static volatile String lastStepError;
+    private static volatile Control lastControl;
+    private static volatile String lastAckStatus = "started";
+    private static volatile long lastAckRefreshMs;
 
     private RootLocationControl() {
     }
@@ -64,6 +67,7 @@ public final class RootLocationControl {
                     lastLength = length;
                     apply(file);
                 }
+                refreshStepAckIfNeeded();
                 Thread.sleep(250L);
             } catch (Throwable t) {
                 InjectLog.e(TAG, "loop error", t);
@@ -83,6 +87,7 @@ public final class RootLocationControl {
             MockLocationHookManager.stopMockLocation();
             MockLocationHookManager.setMockGpsStatus(false);
             applyStepControl(control);
+            lastControl = control;
             writeAck("disabled", control, null);
             InjectLog.persist(TAG, "disabled by control file");
             return;
@@ -112,6 +117,7 @@ public final class RootLocationControl {
         MockLocationHookManager.setMockLocation(location);
         MockLocationHookManager.callLocationChanged(new Location(location));
         applyStepControl(control);
+        lastControl = control;
         writeAck("applied", control, null);
         InjectLog.persist(TAG, "applied lat=", control.lat, " lng=", control.lng,
                 " interval=", control.intervalMs, " step=", lastStepStatus,
@@ -146,10 +152,7 @@ public final class RootLocationControl {
                 || lastStepMode != control.stepMode
                 || lastStepScheme != control.stepScheme;
         if (!changed) {
-            lastStepStatus = MockStepSensorManager.isStepSensorMocking()
-                    ? (NativeStepHook.isHookInstalled() ? "running" : "mocking_no_hook")
-                    : "stopped";
-            lastStepError = NativeStepHook.isHookInstalled() ? null : "NativeStepHook not installed";
+            updateStepStatus();
             return;
         }
 
@@ -160,10 +163,7 @@ public final class RootLocationControl {
             lastStepSpm = control.stepSpm;
             lastStepMode = control.stepMode;
             lastStepScheme = control.stepScheme;
-            boolean mocking = MockStepSensorManager.isStepSensorMocking();
-            boolean hookInstalled = NativeStepHook.isHookInstalled();
-            lastStepStatus = mocking && hookInstalled ? "running" : mocking ? "mocking_no_hook" : "stopped";
-            lastStepError = hookInstalled ? null : "NativeStepHook not installed";
+            updateStepStatus();
             InjectLog.persist(TAG, "step control applied enabled=", control.stepEnabled,
                     " spm=", control.stepSpm, " mode=", control.stepMode,
                     " scheme=", control.stepScheme, " status=", lastStepStatus);
@@ -174,8 +174,41 @@ public final class RootLocationControl {
         }
     }
 
+    private static void updateStepStatus() {
+        boolean mocking = MockStepSensorManager.isStepSensorMocking();
+        boolean hookInstalled = NativeStepHook.isHookInstalled();
+        long synth = NativeStepHook.getStepSynthEvents();
+        if (!mocking) {
+            lastStepStatus = "stopped";
+            lastStepError = null;
+        } else if (!hookInstalled) {
+            lastStepStatus = "mocking_no_hook";
+            lastStepError = "NativeStepHook not installed";
+        } else if (synth > 0) {
+            lastStepStatus = "running";
+            lastStepError = null;
+        } else if (MockStepSensorManager.getMockElapsedMillis() < 5000L) {
+            lastStepStatus = "waiting_synth";
+            lastStepError = null;
+        } else {
+            lastStepStatus = "no_synth_events";
+            lastStepError = "No synthetic step events emitted";
+        }
+    }
+
+    private static void refreshStepAckIfNeeded() {
+        Control control = lastControl;
+        if (control == null || !control.enabled || !control.stepEnabled) return;
+        long now = System.currentTimeMillis();
+        if (now - lastAckRefreshMs < 1000L) return;
+        lastAckRefreshMs = now;
+        updateStepStatus();
+        writeAck(lastAckStatus, control, null);
+    }
+
     private static void writeAck(String status, Control control, String error) {
         try {
+            lastAckStatus = status;
             applyCount++;
             StringBuilder sb = new StringBuilder();
             sb.append("status=").append(status).append('\n');
@@ -194,6 +227,9 @@ public final class RootLocationControl {
                 sb.append("step_spm=").append(control.stepSpm).append('\n');
                 sb.append("step_mocking=").append(MockStepSensorManager.isStepSensorMocking() ? 1 : 0).append('\n');
                 sb.append("step_hook_installed=").append(NativeStepHook.isHookInstalled() ? 1 : 0).append('\n');
+                sb.append("step_hook_state=").append(NativeStepHook.getHookState()).append('\n');
+                sb.append("step_send_hook=").append(NativeStepHook.isSendObjectsHookInstalled() ? 1 : 0).append('\n');
+                sb.append("step_convert_hook=").append(NativeStepHook.isConvertHookInstalled() ? 1 : 0).append('\n');
                 sb.append("step_counter_handle=").append(MockStepSensorManager.getStepCounterHandle()).append('\n');
                 sb.append("step_detector_handle=").append(MockStepSensorManager.getStepDetectorHandle()).append('\n');
                 sb.append("step_synth_events=").append(NativeStepHook.getStepSynthEvents()).append('\n');

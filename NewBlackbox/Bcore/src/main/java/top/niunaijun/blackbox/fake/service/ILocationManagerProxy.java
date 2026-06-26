@@ -50,11 +50,9 @@ public class ILocationManagerProxy extends BinderInvocationStub {
 
         MethodParameterUtils.replaceFirstAppPkg(args);
         
-        String pkg = BActivityThread.getAppPackageName();
-        int uid = BActivityThread.getUserId();
-        Log.d(TAG, "method=" + method.getName() + " pkg=" + pkg + " userId=" + uid);
         
-        if (pkg != null && pkg.equals("com.google.android.gms")) {
+        String packageName = BActivityThread.getAppPackageName();
+        if (packageName != null && packageName.equals("com.google.android.gms")) {
             
             if (method.getName().equals("getLastLocation") || 
                 method.getName().equals("getLastKnownLocation") ||
@@ -77,55 +75,15 @@ public class ILocationManagerProxy extends BinderInvocationStub {
         }
     }
 
-    @ProxyMethod("addGnssMeasurementsListener")
-    public static class AddGnssMeasurementsListener extends MethodHook {
-
-        @Override
-        protected Object hook(Object who, Method method, Object[] args) throws Throwable {
-            if (BLocationManager.isFakeLocationEnable()) {
-                Log.d(TAG, "Blocking addGnssMeasurementsListener for " + BActivityThread.getAppPackageName());
-                return false;
-            }
-            return method.invoke(who, args);
-        }
-    }
-
-    @ProxyMethod("registerGnssNmeaCallback")
-    public static class RegisterGnssNmeaCallback extends MethodHook {
-
-        @Override
-        protected Object hook(Object who, Method method, Object[] args) throws Throwable {
-            if (BLocationManager.isFakeLocationEnable()) {
-                Log.d(TAG, "Blocking registerGnssNmeaCallback for " + BActivityThread.getAppPackageName());
-                return false;
-            }
-            return method.invoke(who, args);
-        }
-    }
-
-    @ProxyMethod("unregisterLocationListener")
-    public static class UnregisterLocationListener extends MethodHook {
-
-        @Override
-        protected Object hook(Object who, Method method, Object[] args) throws Throwable {
-            IInterface listener = MethodParameterUtils.getFirstParam(args, IInterface.class);
-            if (listener != null) {
-                BLocationManager.get().removeUpdates(listener.asBinder());
-            }
-            return 0;
-        }
-    }
-
     @ProxyMethod("getLastLocation")
     public static class GetLastLocation extends MethodHook {
 
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             if (BLocationManager.isFakeLocationEnable()) {
-                Log.d(TAG, "GetLastLocation returning fake location for " + BActivityThread.getAppPackageName());
                 return BLocationManager.get().getLocation(BActivityThread.getUserId(), BActivityThread.getAppPackageName()).convert2SystemLocation();
             }
-            Log.d(TAG, "GetLastLocation fake disabled, passing through");
+
             
             try {
                 return method.invoke(who, args);
@@ -145,10 +103,8 @@ public class ILocationManagerProxy extends BinderInvocationStub {
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             if (BLocationManager.isFakeLocationEnable()) {
-                Log.d(TAG, "GetLastKnownLocation returning fake location for " + BActivityThread.getAppPackageName());
                 return BLocationManager.get().getLocation(BActivityThread.getUserId(), BActivityThread.getAppPackageName()).convert2SystemLocation();
             }
-            Log.d(TAG, "GetLastKnownLocation fake disabled, passing through");
             
             
             try {
@@ -163,42 +119,17 @@ public class ILocationManagerProxy extends BinderInvocationStub {
         }
     }
 
-    @ProxyMethod("registerLocationListener")
-    public static class RegisterLocationListener extends MethodHook {
-
-        @Override
-        protected Object hook(Object who, Method method, Object[] args) throws Throwable {
-            IInterface listener = MethodParameterUtils.getFirstParam(args, IInterface.class);
-            if (listener != null) {
-                Log.d(TAG, "RegisterLocationListener intercepted for " + BActivityThread.getAppPackageName());
-                BLocationManager.get().requestLocationUpdates(listener.asBinder());
-                return 0;
-            }
-            try {
-                return method.invoke(who, args);
-            } catch (Exception e) {
-                if (e.getCause() instanceof SecurityException) {
-                    Log.w(TAG, "Location permission denied for registerLocationListener");
-                    return 0;
-                }
-                throw e;
-            }
-        }
-    }
-
     @ProxyMethod("requestLocationUpdates")
     public static class RequestLocationUpdates extends MethodHook {
 
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             if (BLocationManager.isFakeLocationEnable()) {
-                IInterface listener = MethodParameterUtils.getFirstParam(args, IInterface.class);
-                if (listener != null) {
-                    Log.d(TAG, "RequestLocationUpdates intercepted for " + BActivityThread.getAppPackageName());
+                if (args[1] instanceof IInterface) {
+                    IInterface listener = (IInterface) args[1];
                     BLocationManager.get().requestLocationUpdates(listener.asBinder());
                     return 0;
                 }
-                Log.w(TAG, "RequestLocationUpdates: no IInterface found in args (API mismatch?)");
             }
             
             
@@ -219,8 +150,8 @@ public class ILocationManagerProxy extends BinderInvocationStub {
 
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
-            IInterface listener = MethodParameterUtils.getFirstParam(args, IInterface.class);
-            if (listener != null) {
+            if (args[0] instanceof IInterface) {
+                IInterface listener = (IInterface) args[0];
                 BLocationManager.get().removeUpdates(listener.asBinder());
                 return 0;
             }

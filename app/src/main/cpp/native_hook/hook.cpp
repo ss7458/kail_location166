@@ -285,9 +285,8 @@ extern "C" void hooked_send_objects(long* param_1, void* param_2, long param_3, 
     char* heap_buffer = new char[buffer_size];
     memcpy(heap_buffer, param_2, buffer_size);
 
-    char* ptr = heap_buffer;
     for (int i = 0; i < count; i++) {
-        void* event = ptr + i * EVENT_SIZE;
+        void* event = heap_buffer + i * EVENT_SIZE;
         uintptr_t addr = (uintptr_t)event;
         if (addr < 0x10000) {
             continue;
@@ -327,6 +326,14 @@ extern "C" void hooked_send_objects(long* param_1, void* param_2, long param_3, 
             *(float*)((char*)event + 0x18) = se.data[0];
             *(float*)((char*)event + 0x1C) = se.data[1];
             *(float*)((char*)event + 0x20) = se.data[2];
+        }
+
+        int outType = *(int*)((char*)event + 0x08);
+        if ((isMocking.load(std::memory_order_acquire) != 0) &&
+            (step_sim_enabled.load(std::memory_order_acquire) != 0) &&
+            isStepCarrierType(outType)) {
+            std::lock_guard<std::mutex> lock(step_state_mutex);
+            synthesizeStepEventFromCarrierLocked(event, outType);
         }
     }
 
@@ -556,6 +563,15 @@ JNIEXPORT jlong JNICALL
 Java_com_kail_location_inject_utils_NativeStepHook_nativeGetStepSynthEvents(
     JNIEnv* env, jclass clazz) {
     return (jlong)step_synth_events.load(std::memory_order_relaxed);
+}
+
+JNIEXPORT jint JNICALL
+Java_com_kail_location_inject_utils_NativeStepHook_nativeGetHookState(
+    JNIEnv* env, jclass clazz) {
+    int state = 0;
+    if (send_objects_hook_installed) state |= 1;
+    if (convert_to_sensor_event_hook_installed) state |= 2;
+    return (jint)state;
 }
 
 JNIEXPORT void JNICALL

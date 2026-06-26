@@ -266,7 +266,6 @@ class LocationPickerActivity : BaseActivity(), SensorEventListener {
                          finish()
                     },
                     onToggleMock = {
-                        viewModel.setStarting(true)
                         doGoLocation()
                     },
                     onZoomIn = { mBaiduMap?.setMapStatus(MapStatusUpdateFactory.zoomIn()) },
@@ -341,9 +340,20 @@ class LocationPickerActivity : BaseActivity(), SensorEventListener {
                         val latVal = lat.toDoubleOrNull()
                         val lngVal = lng.toDoubleOrNull()
                         if (latVal != null && lngVal != null) {
+                            val poiName = item[LocationPickerViewModel.POI_NAME]?.toString()?.trim().orEmpty()
+                            val poiAddress = item[LocationPickerViewModel.POI_ADDRESS]?.toString()?.trim().orEmpty()
                             val target = LatLng(latVal, lngVal)
                             mMarkLatLngMap = target
+                            mMarkName = poiName.ifBlank { poiAddress.ifBlank { "Unknown" } }
                             viewModel.setTargetLocation(target)
+                            viewModel.selectPoi(
+                                LocationPickerViewModel.PoiInfo(
+                                    name = mMarkName ?: "Unknown",
+                                    address = poiAddress,
+                                    latitude = latVal,
+                                    longitude = lngVal
+                                )
+                            )
                             
                             mBaiduMap?.clear()
                             val option = MarkerOptions()
@@ -656,6 +666,10 @@ class LocationPickerActivity : BaseActivity(), SensorEventListener {
     private fun doGoLocation() {
         KailLog.i(this, "LocationPickerActivity", "doGoLocation called")
         val runMode = viewModel.runMode.value
+        if (viewModel.isStarting.value) {
+            KailLog.w(this, "LocationPickerActivity", "doGoLocation ignored: mock start is already in progress")
+            return
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -728,6 +742,7 @@ class LocationPickerActivity : BaseActivity(), SensorEventListener {
             recordCurrentLocation(mMarkLatLngMap.longitude, mMarkLatLngMap.latitude)
 
             // 8.0 之后需要 startForegroundService
+            viewModel.setStarting(true)
             if (Build.VERSION.SDK_INT >= 26) {
                 startForegroundService(intent)
             } else {

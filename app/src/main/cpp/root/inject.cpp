@@ -41,6 +41,7 @@ static int gTargetPid             = 0;            // dword_4EE4
 
 static uint32_t gRemoteDlopen  = 0;               // dword_4EE8
 static uint32_t gRemoteDlerror = 0;               // dword_4EEC
+static uint32_t gRemoteDlsym   = 0;
 static uint32_t gRemoteCalloc  = 0;               // dword_4EF0
 static uint32_t gRemoteFree    = 0;               // dword_4EF4
 
@@ -359,6 +360,23 @@ static uint32_t writeRemoteString(const char *value) {
   return remote;
 }
 
+static void readRemoteCString(uint32_t remote, char *out, size_t outSize, const char *label) {
+  if (!remote || !out || outSize == 0)
+    return;
+
+  waitForRemoteStop();
+  memset(out, 0, outSize);
+  for (size_t off = 0; off < outSize - 1; off += 4) {
+    long word = ptraceWithRetry(label, PTRACE_PEEKTEXT, (uintptr_t)(remote + off), 0);
+    if (word == -1)
+      break;
+    *(uint32_t *)&out[off] = (uint32_t)word;
+    if (memchr(&out[off], '\0', 4))
+      break;
+  }
+  out[outSize - 1] = '\0';
+}
+
 // ---------------------------------------------------------------------------
 // injectLibraryIntoProcess  (sub_14B0)
 // ---------------------------------------------------------------------------
@@ -424,10 +442,12 @@ static int injectLibraryIntoProcess(int pid, const char *libraryPath, const char
     void *handle = dlopen(libdlPath, RTLD_NOW);
     gRemoteDlopen  = resolveRemoteSymbolAddress(libdlPath, (uint32_t)(uintptr_t)dlsym(handle, "dlopen"));
     gRemoteDlerror = resolveRemoteSymbolAddress(libdlPath, (uint32_t)(uintptr_t)dlsym(handle, "dlerror"));
+    gRemoteDlsym   = resolveRemoteSymbolAddress(libdlPath, (uint32_t)(uintptr_t)dlsym(handle, "dlsym"));
     dlclose(handle);
   } else {
     gRemoteDlopen  = resolveRemoteSymbolAddress(linkerPath, (uint32_t)(uintptr_t)&dlopen);
     gRemoteDlerror = resolveRemoteSymbolAddress(linkerPath, (uint32_t)(uintptr_t)&dlerror);
+    gRemoteDlsym   = resolveRemoteSymbolAddress(linkerPath, (uint32_t)(uintptr_t)&dlsym);
   }
 
   void *runtime = dlopen("/system/lib/libandroid_runtime.so", RTLD_NOW);
@@ -436,12 +456,13 @@ static int injectLibraryIntoProcess(int pid, const char *libraryPath, const char
       (uint32_t)(uintptr_t)dlsym(runtime, "_ZN7android14AndroidRuntime7mJavaVME"));
   dlclose(runtime);
 
-  LOGV("calloc:%p free:%p dlopen:%p dlerror:%p javavm:%p",
+  LOGV("calloc:%p free:%p dlopen:%p dlsym:%p dlerror:%p javavm:%p",
        (void *)(uintptr_t)gRemoteCalloc, (void *)(uintptr_t)gRemoteFree,
-       (void *)(uintptr_t)gRemoteDlopen, (void *)(uintptr_t)gRemoteDlerror,
+       (void *)(uintptr_t)gRemoteDlopen, (void *)(uintptr_t)gRemoteDlsym,
+       (void *)(uintptr_t)gRemoteDlerror,
        (void *)(uintptr_t)javaVm);
-  printf("inject diag: calloc=0x%x free=0x%x dlopen=0x%x dlerror=0x%x javavm=0x%x\n",
-         gRemoteCalloc, gRemoteFree, gRemoteDlopen, gRemoteDlerror, javaVm);
+  printf("inject diag: calloc=0x%x free=0x%x dlopen=0x%x dlsym=0x%x dlerror=0x%x javavm=0x%x\n",
+         gRemoteCalloc, gRemoteFree, gRemoteDlopen, gRemoteDlsym, gRemoteDlerror, javaVm);
 
   uint32_t remotePath   = writeRemoteString(libraryPath);
   uint32_t remoteHandle = callRemoteFunction(gRemoteDlopen, 2, remotePath, (uint32_t)RTLD_NOW);
@@ -451,28 +472,38 @@ static int injectLibraryIntoProcess(int pid, const char *libraryPath, const char
   int result;
   if (remoteHandle) {
     void *handle = dlopen(libraryPath, RTLD_NOW);
-    void *doRunLocal = dlsym(handle, "doRun");
-    uint32_t doRunRemote = resolveRemoteSymbolAddress(libraryPath, (uint32_t)(uintptr_t)doRunLocal);
-    KLOGI(kInjectorLogTag, "doRun local=%p remote=0x%x", doRunLocal, doRunRemote);
-    printf("inject diag: doRunLocal=%p doRunRemote=0x%x\n", doRunLocal, doRunRemote);
+    void *doRunLocal = handle ? dlsym(handle, "doRun") : nullptr;
+    uint32_t doRunRemoteBySlide = resolveRemoteSymbolAddress(libraryPath, (uint32_t)(uintptr_t)doRunLocal);
+    if (handle)
+      dlclose(handle);
 
-    // Even when remoteHandle is non-zero, the remote dlopen might have failed
-    // silently (garbage return from callRemoteFunction on hardened Android).
-    uint32_t errPtr = callRemoteFunction(gRemoteDlerror, 0);
-    waitForRemoteStop();
-    char errbuf[1024] = {0};
-    for (size_t off = 0; off < sizeof(errbuf) - 1; off += 4) {
-      long word = ptraceWithRetry("dlerror", PTRACE_PEEKTEXT, (uintptr_t)(errPtr + off), 0);
-      if (word == -1) break;
-      *(uint32_t *)&errbuf[off] = (uint32_t)word;
+    uint32_t doRunRemoteByDlsym = 0;
+    if (gRemoteDlsym) {
+      uint32_t remoteSymbolName = writeRemoteString("doRun");
+      if (remoteSymbolName) {
+        doRunRemoteByDlsym = callRemoteFunction(gRemoteDlsym, 2, remoteHandle, remoteSymbolName);
+        callRemoteFunction(gRemoteFree, 1, remoteSymbolName);
+      }
     }
-    if (errbuf[0]) {
-      KLOGW(kInjectorLogTag, "remote dlerror: %s", errbuf);
-      printf("inject diag: remote dlerror: %s\n", errbuf);
+
+    uint32_t doRunRemote = doRunRemoteByDlsym ? doRunRemoteByDlsym : doRunRemoteBySlide;
+    KLOGI(kInjectorLogTag, "doRun local=%p remote=0x%x dlsym=0x%x slide=0x%x",
+          doRunLocal, doRunRemote, doRunRemoteByDlsym, doRunRemoteBySlide);
+    printf("inject diag: doRunLocal=%p doRunRemote=0x%x remoteDlsym=0x%x slide=0x%x\n",
+           doRunLocal, doRunRemote, doRunRemoteByDlsym, doRunRemoteBySlide);
+
+    if (!doRunRemoteByDlsym && gRemoteDlerror) {
+      char errbuf[1024] = {0};
+      uint32_t errPtr = callRemoteFunction(gRemoteDlerror, 0);
+      readRemoteCString(errPtr, errbuf, sizeof(errbuf), "dlerror");
+      if (errbuf[0]) {
+        KLOGW(kInjectorLogTag, "remote dlerror: %s", errbuf);
+        printf("inject diag: remote dlerror: %s\n", errbuf);
+      }
     }
 
     result = 1;
-    if (doRunLocal && doRunRemote) {
+    if (doRunRemote) {
       uint32_t remoteArg = writeRemoteString(entryArg);
       // doRun does the InjectDex JNI bring-up — see inject64.cpp comment.
       gCallTimeoutMs = 120000;
@@ -494,13 +525,7 @@ static int injectLibraryIntoProcess(int pid, const char *libraryPath, const char
   } else {
     char errbuf[1024] = {0};
     uint32_t errPtr = callRemoteFunction(gRemoteDlerror, 0);
-    waitForRemoteStop();
-    for (size_t off = 0; off < sizeof(errbuf) - 1; off += 4) {
-      long word = ptraceWithRetry("dlerror", PTRACE_PEEKTEXT, (uintptr_t)(errPtr + off), 0);
-      if (word == -1)
-        break;
-      *(uint32_t *)&errbuf[off] = (uint32_t)word;
-    }
+    readRemoteCString(errPtr, errbuf, sizeof(errbuf), "dlerror");
     LOGV("dlopen failed: %s", errbuf);
     printf("inject diag: dlopen failed: %s\n", errbuf);
     result = 1;

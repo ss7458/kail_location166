@@ -133,7 +133,6 @@ class ServiceGoDeveloper : Service() {
             KailLog.e(this, "ServiceGoDeveloper", "Error initializing JoyStick: ${e.message}")
             GoUtils.DisplayToast(applicationContext, getString(R.string.service_overlay_failed, e.message))
         }
-        broadcastStatus()
         KailLog.i(this, "ServiceGoDeveloper", "onCreate finished")
     }
 

@@ -42,6 +42,7 @@ public final class NativeStepHook {
     public static native void nativeSetMocking(int mocking);
     public static native void nativeSetStepSimEnabled(boolean enabled);
     public static native long nativeGetStepSynthEvents();
+    public static native int nativeGetHookState();
     public static native void nativeReset();
     public static native boolean nativeInitHook();
 
@@ -148,6 +149,24 @@ public final class NativeStepHook {
             InjectLog.e(TAG, "getStepSynthEvents failed", t);
             return 0L;
         }
+    }
+
+    public static int getHookState() {
+        if (!loaded) return 0;
+        try {
+            return nativeGetHookState();
+        } catch (Throwable t) {
+            InjectLog.e(TAG, "getHookState failed", t);
+            return 0;
+        }
+    }
+
+    public static boolean isSendObjectsHookInstalled() {
+        return (getHookState() & 1) != 0;
+    }
+
+    public static boolean isConvertHookInstalled() {
+        return (getHookState() & 2) != 0;
     }
 
     public static synchronized void stop() {

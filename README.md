@@ -40,9 +40,6 @@
 
 - [中文说明](README.md)
 - [English README](README_EN.md)
-- [开发者文档](docs/README.md) — 架构总览、开发指南
-  - [项目技术文档](docs/项目技术文档.md) — 完整技术文档（小白快速上手版）：架构、运行模式、调用链、Native 注入、Xposed
-  - [百度地图 API Key 申请](docs/baiduApiKey.md)
 
 ---
 

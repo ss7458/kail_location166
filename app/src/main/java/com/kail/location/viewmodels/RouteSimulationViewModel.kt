@@ -97,7 +97,8 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
             val isSim = intent.getBooleanExtra(ServiceConstants.EXTRA_IS_SIMULATING, false)
             val isPau = intent.getBooleanExtra(ServiceConstants.EXTRA_IS_PAUSED, false)
             if (_isStarting.value && !isSim) {
-                return
+                startTimeoutJob?.cancel()
+                _isStarting.value = false
             }
             if (isSim) {
                 startTimeoutJob?.cancel()

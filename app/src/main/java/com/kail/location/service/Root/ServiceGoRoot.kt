@@ -3,10 +3,6 @@ package com.kail.location.service.Root
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Binder
@@ -123,17 +119,15 @@ class ServiceGoRoot : Service() {
     @Volatile private var rootControlWriterScheduled: Boolean = false
     @Volatile private var lastRootControlAsyncWriteMs: Long = 0L
     @Volatile private var startGeneration: Int = 0
+    @Volatile private var bootstrapInProgress: Boolean = false
     @Volatile private var activeRootControlSession: Long = 0L
     private var lastRouteTickElapsedMs: Long = 0L
     private var rootControlFastProcess: java.lang.Process? = null
     private var rootControlFastWriter: BufferedWriter? = null
     private lateinit var mRootControlWriterThread: HandlerThread
     private lateinit var mRootControlWriterHandler: Handler
-    private var stepCarrierSensorManager: SensorManager? = null
-    private var stepCarrierListener: SensorEventListener? = null
-    @Volatile private var stepCarrierActive: Boolean = false
-    @Volatile private var stepCarrierEvents: Long = 0L
     @Volatile private var lastStepAckLogMs: Long = 0L
+    @Volatile private var stepAckReadInFlight: Boolean = false
 
     /** Drives Android's standard test-provider mechanism. Same code Developer mode uses. */
     private val mMockLocationProvider by lazy { MockLocationProvider(this, mLocManager) }
@@ -315,7 +309,6 @@ class ServiceGoRoot : Service() {
             KailLog.e(this, TAG, "init joystick: ${it.message}")
             GoUtils.DisplayToast(applicationContext, getString(R.string.service_overlay_failed, it.message))
         }
-        broadcastStatus()
         KailLog.i(this, TAG, "onCreate finished")
     }
 
@@ -347,6 +340,12 @@ class ServiceGoRoot : Service() {
                 Thread({ startHideOnInjection() }, "ServiceGoRootHideBootstrap").start()
                 return START_STICKY
             }
+
+            if (bootstrapInProgress && !locationLoopStarted) {
+                KailLog.w(this, TAG, "ignore duplicate start while bootstrap is in progress")
+                return START_STICKY
+            }
+            bootstrapInProgress = true
 
             // Selected WiFi / cell networks (parcelable lists from the UI).
             runCatching {
@@ -415,21 +414,29 @@ class ServiceGoRoot : Service() {
                 mRootControlWriterHandler.removeCallbacksAndMessages(null)
             }
             Thread({
-                // Shell/native setup can take a second or two on real devices.
-                // Keep it off the main thread so the Compose loading indicator
-                // does not freeze immediately after "Start".
-                ensureNativeHookOnce()
-                if (!isCurrentGeneration(generation)) return@Thread
-                val startupOk = startMockLocationOnInjection(generation)
-                // Step mock goes through the oem_location binder, which
-                // only exists after the inject above completes — so apply it
-                // here on the same bootstrap thread rather than on the main
-                // thread before the binder is online.
-                if (isCurrentGeneration(generation)) {
-                    if (startupOk) {
+                try {
+                    // Shell/native setup can take a second or two on real devices.
+                    // Keep it off the main thread so the Compose loading indicator
+                    // does not freeze immediately after "Start".
+                    ensureNativeHookOnce()
+                    if (!isCurrentGeneration(generation)) return@Thread
+                    val startupOk = startMockLocationOnInjection(generation)
+                    // Step mock goes through the oem_location binder, which
+                    // only exists after the inject above completes, so apply it
+                    // here on the same bootstrap thread rather than on the main
+                    // thread before the binder is online.
+                    if (isCurrentGeneration(generation) && startupOk) {
                         applyStepSimulation()
-                    } else {
-                        stopStepCarrier("bootstrap failed")
+                    }
+                } catch (t: Throwable) {
+                    KailLog.e(this, TAG, "bootstrap failed: ${t.message}", t)
+                    if (isCurrentGeneration(generation)) {
+                        broadcastStatusStopped()
+                        android.os.Handler(mainLooper).post { stopSelf() }
+                    }
+                } finally {
+                    if (generation == startGeneration) {
+                        bootstrapInProgress = false
                     }
                 }
             }, "ServiceGoRootBootstrap").start()
@@ -456,6 +463,7 @@ class ServiceGoRoot : Service() {
         KailLog.i(this, TAG, "onDestroy started")
         isRunning = false
         startGeneration++
+        bootstrapInProgress = false
         val stoppingRootControlSession = activeRootControlSession
         activeRootControlSession = 0L
         if (stoppingRootControlSession > 0L) {
@@ -471,7 +479,6 @@ class ServiceGoRoot : Service() {
             if (this::mLocHandler.isInitialized) mLocHandler.removeCallbacksAndMessages(null)
             if (this::mLocHandlerThread.isInitialized) mLocHandlerThread.quitSafely()
             if (this::mRootControlWriterHandler.isInitialized) mRootControlWriterHandler.removeCallbacksAndMessages(null)
-            stopStepCarrier("service destroying")
             closeRootControlFastShell("service destroying")
             if (this::mRootControlWriterThread.isInitialized) mRootControlWriterThread.quitSafely()
             if (this::mJoystickManager.isInitialized) mJoystickManager.destroy()
@@ -695,7 +702,6 @@ class ServiceGoRoot : Service() {
     private fun applyStepSimulation() {
         if (stepEnabled && !rootControlActive && !modeWifiOnly && !modeCellOnly) {
             KailLog.w(this, TAG, "step mock deferred: root location control is not active")
-            stopStepCarrier("root control inactive")
             return
         }
 
@@ -717,12 +723,6 @@ class ServiceGoRoot : Service() {
             }
         }.onFailure { KailLog.e(this, TAG, "applyStepSimulation (binder): ${it.message}") }
 
-        if (stepEnabled) {
-            startStepCarrierIfNeeded()
-        } else {
-            stopStepCarrier("step disabled")
-        }
-
         // Secondary best-effort path — the in-app NativeSensorHook. Only does
         // anything when the SO is loaded into the consuming process (Xposed/
         // Zygisk); a no-op from the controller process. Kept for parity with
@@ -742,63 +742,6 @@ class ServiceGoRoot : Service() {
                 NativeSensorHook.nativeReset()
             }
         }.onFailure { KailLog.e(this, TAG, "applyStepSimulation (native): ${it.message}") }
-    }
-
-    private fun startStepCarrierIfNeeded() {
-        if (stepCarrierActive) return
-        val sensorManager = stepCarrierSensorManager
-            ?: (getSystemService(Context.SENSOR_SERVICE) as? SensorManager)?.also {
-                stepCarrierSensorManager = it
-            }
-            ?: run {
-                KailLog.w(this, TAG, "step carrier unavailable: SensorManager missing")
-                return
-            }
-        val sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-            ?: sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
-            ?: sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
-            ?: run {
-                KailLog.w(this, TAG, "step carrier unavailable: no accel/linear/gyro sensor")
-                return
-            }
-        val listener = object : SensorEventListener {
-            override fun onSensorChanged(event: SensorEvent) {
-                stepCarrierEvents++
-            }
-
-            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
-        }
-        val ok = runCatching {
-            sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_UI)
-        }.getOrElse {
-            KailLog.w(this, TAG, "step carrier register failed: ${it.message}")
-            false
-        }
-        if (ok) {
-            stepCarrierListener = listener
-            stepCarrierActive = true
-            stepCarrierEvents = 0L
-            KailLog.i(this, TAG, "step carrier started type=${sensor.type} name=${sensor.name}")
-        } else {
-            KailLog.w(this, TAG, "step carrier register returned false type=${sensor.type} name=${sensor.name}")
-        }
-    }
-
-    private fun stopStepCarrier(reason: String) {
-        val listener = stepCarrierListener ?: run {
-            stepCarrierActive = false
-            return
-        }
-        runCatching {
-            stepCarrierSensorManager?.unregisterListener(listener)
-        }.onFailure {
-            KailLog.w(this, TAG, "step carrier unregister: ${it.message}")
-        }
-        stepCarrierListener = null
-        val events = stepCarrierEvents
-        stepCarrierEvents = 0L
-        stepCarrierActive = false
-        KailLog.i(this, TAG, "step carrier stopped: $reason events=$events")
     }
 
     // ------------------------------------------------------------------
@@ -882,11 +825,9 @@ class ServiceGoRoot : Service() {
         }.onFailure { KailLog.e(this, TAG, "setAllowMockPackages(wifi): ${it.message}") }
         KailLog.i(this, TAG, "allowMockPackages applied: ${if (list.isEmpty()) "<all apps>" else list.joinToString()}")
 
-        // For per-app hooks (step-sensor spoofing via StepSensorClientHook, and
-        // the client-side location/cell mirrors) to install, each target app
-        // process must be app-hook injected. Server-side hooks already filter
-        // by caller, but the step hook lives entirely in the app process, so
-        // injection is required for step mocking to reach the target app.
+        // Client-side location/cell mirrors install in the target process.
+        // Server-side hooks already filter by caller, but app-hook injection is
+        // still needed for process-local mirrors.
         if (list.isNotEmpty()) {
             Thread({
                 for (pkg in list) {
@@ -1169,10 +1110,17 @@ class ServiceGoRoot : Service() {
             val stepDetail = when {
                 !controlOk -> "位置控制未生效，步频未下发"
                 controlAck?.stepMocking == true && controlAck.stepHookInstalled == true ->
-                    "system_server 已启动步频模拟：spm=${controlAck.stepSpm ?: stepCadence} status=${controlAck.stepStatus ?: "running"} synth=${controlAck.stepSynthEvents ?: 0}"
+                    "system_server 已启动全局步频模拟：spm=${controlAck.stepSpm ?: stepCadence} " +
+                        "status=${controlAck.stepStatus ?: "running"} " +
+                        "synth=${controlAck.stepSynthEvents ?: 0} " +
+                        "send=${controlAck.stepSendHook ?: false} " +
+                        "convert=${controlAck.stepConvertHook ?: false} " +
+                        "handles=${controlAck.stepCounterHandle ?: -1},${controlAck.stepDetectorHandle ?: -1}"
                 else ->
                     "未完全生效：status=${controlAck.stepStatus ?: "?"} mocking=${controlAck.stepMocking ?: false} " +
-                        "hook=${controlAck.stepHookInstalled ?: false} synth=${controlAck.stepSynthEvents ?: 0}${controlAck.stepError?.let { " error=$it" } ?: ""}"
+                        "hook=${controlAck.stepHookInstalled ?: false} " +
+                        "send=${controlAck.stepSendHook ?: false} convert=${controlAck.stepConvertHook ?: false} " +
+                        "${controlAck.stepError?.let { " error=$it" } ?: ""}"
             }
             diag.step("步频模拟", stepControlOk, stepDetail)
         }
@@ -1182,8 +1130,8 @@ class ServiceGoRoot : Service() {
         diag.verdict(startupOk,
             when {
                 !controlOk -> "ROOT 注入未生效，未启用测试Provider，避免真实定位拉回/被检测"
-                stepEnabled && !stepControlOk -> "位置模拟生效，但步频 hook 未启动"
-                stepEnabled -> "FakeLocation 控制文件路径模拟生效，步频模拟已启动"
+                stepEnabled && !stepControlOk -> "位置模拟生效，但全局步频 hook 未启动"
+                stepEnabled -> "FakeLocation 控制文件路径模拟生效，全局步频模拟已启动"
                 else -> "FakeLocation 控制文件路径模拟生效"
             })
         diag.finish()
@@ -1562,6 +1510,11 @@ class ServiceGoRoot : Service() {
         val stepSpm: Float?,
         val stepMocking: Boolean?,
         val stepHookInstalled: Boolean?,
+        val stepHookState: Int?,
+        val stepSendHook: Boolean?,
+        val stepConvertHook: Boolean?,
+        val stepCounterHandle: Int?,
+        val stepDetectorHandle: Int?,
         val stepSynthEvents: Long?,
         val stepStatus: String?,
         val stepError: String?,
@@ -1577,7 +1530,9 @@ class ServiceGoRoot : Service() {
 
         fun summary(): String {
             val step = if (stepEnabled == true) {
-                " step=${stepStatus ?: "?"}/mocking=${stepMocking ?: false}/hook=${stepHookInstalled ?: false}/synth=${stepSynthEvents ?: 0}"
+                " step=${stepStatus ?: "?"}/mocking=${stepMocking ?: false}/hook=${stepHookInstalled ?: false}" +
+                    "/send=${stepSendHook ?: false}/convert=${stepConvertHook ?: false}" +
+                    "/handles=${stepCounterHandle ?: -1},${stepDetectorHandle ?: -1}/synth=${stepSynthEvents ?: 0}"
             } else {
                 ""
             }
@@ -1876,6 +1831,11 @@ class ServiceGoRoot : Service() {
             stepSpm = values["step_spm"]?.toFloatOrNull(),
             stepMocking = values["step_mocking"]?.let { it == "1" || it.equals("true", ignoreCase = true) },
             stepHookInstalled = values["step_hook_installed"]?.let { it == "1" || it.equals("true", ignoreCase = true) },
+            stepHookState = values["step_hook_state"]?.toIntOrNull(),
+            stepSendHook = values["step_send_hook"]?.let { it == "1" || it.equals("true", ignoreCase = true) },
+            stepConvertHook = values["step_convert_hook"]?.let { it == "1" || it.equals("true", ignoreCase = true) },
+            stepCounterHandle = values["step_counter_handle"]?.toIntOrNull(),
+            stepDetectorHandle = values["step_detector_handle"]?.toIntOrNull(),
             stepSynthEvents = values["step_synth_events"]?.toLongOrNull(),
             stepStatus = values["step_status"],
             stepError = values["step_error"],
@@ -1886,22 +1846,28 @@ class ServiceGoRoot : Service() {
     private fun logStepAckIfDue(nowMs: Long) {
         if (!stepEnabled || nowMs - lastStepAckLogMs < 5000L) return
         lastStepAckLogMs = nowMs
-        runCatching {
-            val raw = ShellUtils.executeCommand(
-                "cat ${RootControlPaths.ackPath(applicationContext)} 2>/dev/null",
-                timeoutMs = 1500L
-            ).trim()
-            if (raw.isNotBlank()) {
-                val ack = parseRootLocationAck(raw)
-                KailLog.i(
-                    this,
-                    TAG,
-                    "step ack ${ack.summary()} carrierActive=$stepCarrierActive carrierEvents=$stepCarrierEvents"
-                )
+        if (stepAckReadInFlight) return
+        stepAckReadInFlight = true
+        Thread({
+            try {
+                val raw = ShellUtils.executeCommand(
+                    "cat ${RootControlPaths.ackPath(applicationContext)} 2>/dev/null",
+                    timeoutMs = 1000L
+                ).trim()
+                if (raw.isNotBlank()) {
+                    val ack = parseRootLocationAck(raw)
+                    KailLog.i(
+                        this,
+                        TAG,
+                        "step ack ${ack.summary()}"
+                    )
+                }
+            } catch (t: Throwable) {
+                KailLog.w(this, TAG, "step ack read: ${t.message}")
+            } finally {
+                stepAckReadInFlight = false
             }
-        }.onFailure {
-            KailLog.w(this, TAG, "step ack read: ${it.message}")
-        }
+        }, "ServiceGoRootStepAck").start()
     }
 
 
@@ -1988,7 +1954,7 @@ class ServiceGoRoot : Service() {
     }
 
     private fun initGoLocation() {
-        mLocHandlerThread = HandlerThread(SERVICE_GO_HANDLER_NAME, Process.THREAD_PRIORITY_BACKGROUND)
+        mLocHandlerThread = HandlerThread(SERVICE_GO_HANDLER_NAME, Process.THREAD_PRIORITY_DEFAULT)
         mLocHandlerThread.start()
         mLocHandler = object : Handler(mLocHandlerThread.looper) {
             override fun handleMessage(msg: Message) {
@@ -1996,7 +1962,7 @@ class ServiceGoRoot : Service() {
                     if (!isRunning || !locationLoopStarted) return
                     val now = SystemClock.elapsedRealtime()
                     val elapsedMs = if (lastRouteTickElapsedMs > 0L) {
-                        (now - lastRouteTickElapsedMs).coerceIn(0L, 5000L)
+                        (now - lastRouteTickElapsedMs).coerceIn(0L, 30_000L)
                     } else {
                         currentLocationUpdateIntervalMs()
                     }
