@@ -343,6 +343,13 @@ class ServiceGoSandbox : Service() {
         })
     }
 
+    private fun jitterLocation(): Pair<Double, Double> {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        if (!prefs.getBoolean("setting_natural_jitter", false)) return Pair(mCurLat, mCurLng)
+        val sigma = 2.5e-6
+        return Pair(mCurLat + (Math.random() * 2 - 1) * sigma, mCurLng + (Math.random() * 2 - 1) * sigma)
+    }
+
     private fun initGoLocation() {
         mLocHandlerThread = HandlerThread(SERVICE_GO_HANDLER_NAME, Process.THREAD_PRIORITY_FOREGROUND)
         mLocHandlerThread.start()
@@ -364,7 +371,8 @@ class ServiceGoSandbox : Service() {
                             updateJoystickStatus()
                         }
                     }
-                    SandboxLocationHook.updateLocation(mCurLat, mCurLng, mCurAlt, mCurBea, mSpeed)
+                    val (jlat, jlng) = jitterLocation()
+                    SandboxLocationHook.updateLocation(jlat, jlng, mCurAlt, mCurBea, mSpeed)
                     sendEmptyMessage(HANDLER_MSG_ID)
                 } catch (e: InterruptedException) {
                     KailLog.e(this@ServiceGoSandbox, "ServiceGoSandbox", "handleMessage interrupted: ${e.message}")
