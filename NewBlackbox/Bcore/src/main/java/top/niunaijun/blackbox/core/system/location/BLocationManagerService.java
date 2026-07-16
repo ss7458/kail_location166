@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -302,7 +304,18 @@ public class BLocationManagerService extends IBLocationManagerService.Stub imple
                         + " lat=" + location.getLatitude() + " lng=" + location.getLongitude());
                 BlackBoxCore.get().getHandler().post(() -> {
                     try {
-                        BRILocationListener.get(iInterface).onLocationChanged(location.convert2SystemLocation());
+                        android.location.Location sysLoc = location.convert2SystemLocation();
+                        boolean dispatched = false;
+                        for (Method m : iInterface.getClass().getMethods()) {
+                            if ("onLocationChanged".equals(m.getName()) && m.getParameterCount() == 2) {
+                                m.invoke(iInterface, Collections.singletonList(sysLoc), null);
+                                dispatched = true;
+                                break;
+                            }
+                        }
+                        if (!dispatched) {
+                            BRILocationListener.get(iInterface).onLocationChanged(sysLoc);
+                        }
                         Slog.v(TAG, "addTask: dispatched successfully");
                     } catch (Exception e) {
                         Slog.e(TAG, "addTask: dispatch failed", e);

@@ -61,7 +61,9 @@ public class ILocationManagerProxy extends BinderInvocationStub {
             
             if (methodName.equals("getLastLocation") || 
                 methodName.equals("getLastKnownLocation") ||
-                methodName.equals("requestLocationUpdates")) {
+                methodName.equals("requestLocationUpdates") ||
+                methodName.equals("registerLocationListener") ||
+                methodName.equals("requestListenerUpdates")) {
                 Slog.w(TAG, "Blocking location request from Google Play Services to prevent crash");
                 return null;
             }
@@ -170,6 +172,89 @@ public class ILocationManagerProxy extends BinderInvocationStub {
         }
     }
 
+    @ProxyMethod("registerLocationListener")
+    public static class RegisterLocationListener extends MethodHook {
+
+        @Override
+        protected Object hook(Object who, Method method, Object[] args) throws Throwable {
+            String pkg = BActivityThread.getAppPackageName();
+            int userId = BActivityThread.getUserId();
+            if (BLocationManager.isFakeLocationEnable()) {
+                for (int i = 0; i < args.length; i++) {
+                    if (args[i] instanceof IInterface) {
+                        IInterface listener = (IInterface) args[i];
+                        Slog.i(TAG, "registerLocationListener INTERCEPTED pkg=" + pkg + " userId=" + userId
+                                + " listener=" + listener.asBinder() + " argIdx=" + i);
+                        BLocationManager.get().requestLocationUpdates(listener.asBinder());
+                        return 0;
+                    }
+                }
+                Slog.w(TAG, "registerLocationListener: no IInterface found in " + args.length + " args, pass-through");
+            }
+            Slog.v(TAG, "registerLocationListener PASS-THROUGH pkg=" + pkg + " userId=" + userId);
+            try {
+                return method.invoke(who, args);
+            } catch (Exception e) {
+                if (e.getCause() instanceof SecurityException) {
+                    Slog.w(TAG, "registerLocationListener permission denied, returning 0");
+                    return 0;
+                }
+                throw e;
+            }
+        }
+    }
+
+    @ProxyMethod("requestListenerUpdates")
+    public static class RequestListenerUpdates extends MethodHook {
+
+        @Override
+        protected Object hook(Object who, Method method, Object[] args) throws Throwable {
+            String pkg = BActivityThread.getAppPackageName();
+            int userId = BActivityThread.getUserId();
+            if (BLocationManager.isFakeLocationEnable()) {
+                for (int i = 0; i < args.length; i++) {
+                    if (args[i] instanceof IInterface) {
+                        IInterface listener = (IInterface) args[i];
+                        Slog.i(TAG, "requestListenerUpdates INTERCEPTED pkg=" + pkg + " userId=" + userId
+                                + " listener=" + listener.asBinder() + " argIdx=" + i);
+                        BLocationManager.get().requestLocationUpdates(listener.asBinder());
+                        return 0;
+                    }
+                }
+                Slog.w(TAG, "requestListenerUpdates: no IInterface found");
+            }
+            Slog.v(TAG, "requestListenerUpdates PASS-THROUGH pkg=" + pkg + " userId=" + userId);
+            try {
+                return method.invoke(who, args);
+            } catch (Exception e) {
+                if (e.getCause() instanceof SecurityException) {
+                    Slog.w(TAG, "requestListenerUpdates permission denied, returning 0");
+                    return 0;
+                }
+                throw e;
+            }
+        }
+    }
+
+    @ProxyMethod("getCurrentLocation")
+    public static class GetCurrentLocation extends MethodHook {
+
+        @Override
+        protected Object hook(Object who, Method method, Object[] args) throws Throwable {
+            String pkg = BActivityThread.getAppPackageName();
+            int userId = BActivityThread.getUserId();
+            if (BLocationManager.isFakeLocationEnable()) {
+                BLocation fakeLoc = BLocationManager.get().getLocation(userId, pkg);
+                Slog.i(TAG, "getCurrentLocation FAKED pkg=" + pkg + " userId=" + userId + " -> " + fakeLoc);
+                if (fakeLoc != null) {
+                    return fakeLoc.convert2SystemLocation();
+                }
+            }
+            Slog.v(TAG, "getCurrentLocation PASS-THROUGH pkg=" + pkg + " userId=" + userId);
+            return method.invoke(who, args);
+        }
+    }
+
     @ProxyMethod("removeUpdates")
     public static class RemoveUpdates extends MethodHook {
 
@@ -182,6 +267,22 @@ public class ILocationManagerProxy extends BinderInvocationStub {
                 return 0;
             }
             Slog.v(TAG, "removeUpdates PASS-THROUGH");
+            return method.invoke(who, args);
+        }
+    }
+
+    @ProxyMethod("unregisterLocationListener")
+    public static class UnregisterLocationListener extends MethodHook {
+
+        @Override
+        protected Object hook(Object who, Method method, Object[] args) throws Throwable {
+            if (args[0] instanceof IInterface) {
+                IInterface listener = (IInterface) args[0];
+                Slog.i(TAG, "unregisterLocationListener listener=" + listener.asBinder());
+                BLocationManager.get().removeUpdates(listener.asBinder());
+                return 0;
+            }
+            Slog.v(TAG, "unregisterLocationListener PASS-THROUGH");
             return method.invoke(who, args);
         }
     }
