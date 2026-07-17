@@ -241,7 +241,7 @@ fun LocationSimulationScreen(
                                 )
                             }
 
-                            if (runMode == "root" || runMode == "xposed") {
+                            if (runMode == "root" || runMode == "xposed" || runMode == "sandbox") {
                                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),

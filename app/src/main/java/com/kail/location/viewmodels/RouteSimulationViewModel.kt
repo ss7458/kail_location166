@@ -360,9 +360,9 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
             }
 
             if (settings.value.stepFreqSimulation) {
-                if (currentRunMode != "root" && currentRunMode != "xposed") {
+                if (currentRunMode != "root" && currentRunMode != "xposed" && currentRunMode != "sandbox") {
                     KailLog.persist(app, SimulationDiagnostics.TAG,
-                        "路线模拟启动被拦截：步频模拟需要 ROOT/Xposed 模式，当前=$currentRunMode", 'w')
+                        "路线模拟启动被拦截：步频模拟需要 ROOT/Xposed/Sandbox 模式，当前=$currentRunMode", 'w')
                     _toastMessage.value = app.getString(R.string.vm_step_root_required)
                     return@launch
                 }
@@ -385,7 +385,7 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
             intent.putExtra(extraCoordType, "BD09")
             intent.putExtra(com.kail.location.views.locationpicker.LocationPickerActivity.ALT_MSG_ID, sharedPreferences.getString("setting_altitude", "55.0")?.toDoubleOrNull() ?: 55.0)
             intent.putExtra(extraSpeedFluctuation, settings.value.speedFluctuation)
-            if (currentRunMode == "root" || currentRunMode == "xposed") {
+            if (currentRunMode == "root" || currentRunMode == "xposed" || currentRunMode == "sandbox") {
                 intent.putExtra(ServiceGoRoot.EXTRA_STEP_ENABLED, settings.value.stepFreqSimulation)
                 intent.putExtra(ServiceGoRoot.EXTRA_STEP_FREQ, settings.value.stepCadenceSpm)
                 intent.putExtra("EXTRA_STEP_SCHEME", sharedPreferences.getString("setting_sim_scheme", "0")?.toIntOrNull() ?: 0)
@@ -595,7 +595,7 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
         _settings.value = _settings.value.copy(stepFreqSimulation = enabled)
         PreferenceManager.getDefaultSharedPreferences(getApplication())
             .edit().putBoolean("route_sim_step_enabled", enabled).apply()
-        if (_isSimulating.value && (_runMode.value == "root" || _runMode.value == "xposed")) {
+        if (_isSimulating.value && (_runMode.value == "root" || _runMode.value == "xposed" || _runMode.value == "sandbox")) {
             val app = getApplication<Application>()
             val intent = Intent(app, getServiceClass(_runMode.value))
             intent.putExtra("EXTRA_CONTROL_ACTION", ServiceGoRoot.CONTROL_SET_STEP)
@@ -609,7 +609,7 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
         _settings.value = _settings.value.copy(stepCadenceSpm = spm)
         PreferenceManager.getDefaultSharedPreferences(getApplication())
             .edit().putFloat("route_sim_step_freq", spm).apply()
-        if (_isSimulating.value && (_runMode.value == "root" || _runMode.value == "xposed")) {
+        if (_isSimulating.value && (_runMode.value == "root" || _runMode.value == "xposed" || _runMode.value == "sandbox")) {
             val app = getApplication<Application>()
             val intent = Intent(app, getServiceClass(_runMode.value))
             intent.putExtra("EXTRA_CONTROL_ACTION", ServiceGoRoot.CONTROL_SET_STEP)

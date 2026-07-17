@@ -14,6 +14,7 @@ import top.niunaijun.blackbox.core.system.location.IBLocationManagerService;
 import top.niunaijun.blackbox.entity.location.BCell;
 import top.niunaijun.blackbox.entity.location.BGnssStatus;
 import top.niunaijun.blackbox.entity.location.BLocation;
+import top.niunaijun.blackbox.entity.location.BSensorConfig;
 
 
 public class BLocationManager extends BlackManager<IBLocationManagerService> {
@@ -284,5 +285,45 @@ public class BLocationManager extends BlackManager<IBLocationManagerService> {
         } catch (RemoteException e) {
             Slog.e(TAG, "unregisterGnssStatusCallback failed", e);
         }
+    }
+
+    public void setSensorConfig(int userId, String pkg, BSensorConfig config) {
+        Slog.i(TAG, "setSensorConfig userId=" + userId + " pkg=" + pkg + " config=" + config);
+        try {
+            getService().setSensorConfig(userId, pkg, config);
+        } catch (RemoteException e) {
+            Slog.e(TAG, "setSensorConfig failed", e);
+        }
+    }
+
+    public BSensorConfig getSensorConfig(int userId, String pkg) {
+        try {
+            BSensorConfig result = getService().getSensorConfig(userId, pkg);
+            Slog.v(TAG, "getSensorConfig userId=" + userId + " pkg=" + pkg + " -> " + result);
+            return result;
+        } catch (RemoteException e) {
+            Slog.e(TAG, "getSensorConfig failed", e);
+        }
+        return null;
+    }
+
+    public void setGlobalSensorConfig(BSensorConfig config) {
+        Slog.i(TAG, "setGlobalSensorConfig config=" + config);
+        try {
+            getService().setGlobalSensorConfig(config);
+        } catch (RemoteException e) {
+            Slog.e(TAG, "setGlobalSensorConfig failed", e);
+        }
+    }
+
+    public BSensorConfig getGlobalSensorConfig() {
+        try {
+            BSensorConfig result = getService().getGlobalSensorConfig();
+            Slog.v(TAG, "getGlobalSensorConfig -> " + result);
+            return result;
+        } catch (RemoteException e) {
+            Slog.e(TAG, "getGlobalSensorConfig failed", e);
+        }
+        return null;
     }
 }

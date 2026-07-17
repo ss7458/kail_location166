@@ -236,11 +236,13 @@ class LocationSimulationViewModel(application: Application) : AndroidViewModel(a
                 intent.putExtra(extraCoordType, "BD09")
                 intent.putExtra("EXTRA_IS_ROUTE_SIMULATION", false)
                 
-                if (currentRunMode == "root") {
+                if (currentRunMode == "root" || currentRunMode == "sandbox") {
                     val stepEnabled = _stepSimulationEnabled.value
                     val cadence = _stepCadenceSpm.value
-                    intent.putExtra(ServiceGoRoot.EXTRA_STEP_ENABLED, stepEnabled)
-                    intent.putExtra(ServiceGoRoot.EXTRA_STEP_FREQ, cadence)
+                    val extraStepKey = if (currentRunMode == "root") ServiceGoRoot.EXTRA_STEP_ENABLED else com.kail.location.service.Sandbox.ServiceGoSandbox.EXTRA_STEP_ENABLED
+                    val extraFreqKey = if (currentRunMode == "root") ServiceGoRoot.EXTRA_STEP_FREQ else com.kail.location.service.Sandbox.ServiceGoSandbox.EXTRA_STEP_FREQ
+                    intent.putExtra(extraStepKey, stepEnabled)
+                    intent.putExtra(extraFreqKey, cadence)
                 }
                 
                 if (ContextCompat.checkSelfPermission(app, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {

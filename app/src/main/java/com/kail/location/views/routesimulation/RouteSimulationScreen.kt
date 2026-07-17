@@ -497,7 +497,7 @@ fun SettingsDialog(
     runMode: String = "developer"
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    val canUseStepFreq = runMode == "root" || runMode == "xposed"
+    val canUseStepFreq = runMode == "root" || runMode == "xposed" || runMode == "sandbox"
     
     Dialog(onDismissRequest = onDismiss) {
         Card(

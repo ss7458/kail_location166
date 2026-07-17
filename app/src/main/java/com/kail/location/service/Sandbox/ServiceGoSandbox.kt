@@ -20,6 +20,8 @@ import com.kail.location.sandbox.SandboxStepConfig
 import com.kail.location.viewmodels.JoystickViewModel
 import com.kail.location.views.joystick.JoystickWindowManager
 import com.kail.location.views.locationpicker.LocationPickerActivity
+import top.niunaijun.blackbox.entity.location.BSensorConfig
+import top.niunaijun.blackbox.fake.frameworks.BLocationManager
 import kotlin.math.cos
 
 /**
@@ -209,6 +211,13 @@ class ServiceGoSandbox : Service() {
                         val stepEnabled = intent.getBooleanExtra(EXTRA_STEP_ENABLED, false)
                         val stepFreq = intent.getFloatExtra(EXTRA_STEP_FREQ, 120f)
                         SandboxStepConfig.writeConfig(this, stepEnabled, stepFreq)
+                        try {
+                            BLocationManager.get().setGlobalSensorConfig(BSensorConfig(
+                                stepEnabled, stepFreq, false, 3.0f
+                            ))
+                        } catch (e: Exception) {
+                            KailLog.w(this, "[sandbox] ServiceGoSandbox", "BLocationManager.setGlobalSensorConfig failed: ${e.message}")
+                        }
                         KailLog.i(this, "[sandbox] ServiceGoSandbox", "CONTROL_SET_STEP enabled=$stepEnabled freq=$stepFreq")
                         return super.onStartCommand(intent, flags, startId)
                     }
@@ -277,6 +286,13 @@ class ServiceGoSandbox : Service() {
             val stepEnabled = intent.getBooleanExtra(EXTRA_STEP_ENABLED, false)
             val stepFreq = intent.getFloatExtra(EXTRA_STEP_FREQ, 120f)
             SandboxStepConfig.writeConfig(this, stepEnabled, stepFreq)
+            try {
+                BLocationManager.get().setGlobalSensorConfig(BSensorConfig(
+                    stepEnabled, stepFreq, false, 3.0f
+                ))
+            } catch (e: Exception) {
+                KailLog.w(this, "[sandbox] ServiceGoSandbox", "BLocationManager.setGlobalSensorConfig failed: ${e.message}")
+            }
 
             try {
                 mJoystickViewModel.setCurrentPosition(mCurLng, mCurLat, mCurAlt)

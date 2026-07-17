@@ -29,6 +29,7 @@ import top.niunaijun.blackbox.entity.location.BCell;
 import top.niunaijun.blackbox.entity.location.BGnssStatus;
 import top.niunaijun.blackbox.entity.location.BLocation;
 import top.niunaijun.blackbox.entity.location.BLocationConfig;
+import top.niunaijun.blackbox.entity.location.BSensorConfig;
 import top.niunaijun.blackbox.fake.frameworks.BLocationManager;
 import top.niunaijun.blackbox.utils.CloseUtils;
 import top.niunaijun.blackbox.utils.FileUtils;
@@ -379,6 +380,53 @@ public class BLocationManagerService extends IBLocationManagerService.Stub imple
         }
         LocationRecord removed = mGnssStatusListeners.remove(listener);
         Slog.i(TAG, "unregisterGnssStatusCallback: removed=" + (removed != null) + " remaining=" + mGnssStatusListeners.size());
+    }
+
+    @Override
+    public void setSensorConfig(int userId, String pkg, BSensorConfig config) throws RemoteException {
+        Slog.i(TAG, "setSensorConfig userId=" + userId + " pkg=" + pkg + " config=" + config);
+        synchronized (mLocationConfigs) {
+            getOrCreateConfig(userId, pkg).sensorConfig = config;
+            save();
+        }
+    }
+
+    @Override
+    public BSensorConfig getSensorConfig(int userId, String pkg) throws RemoteException {
+        BLocationConfig config = resolveConfig(userId, pkg);
+        BSensorConfig result;
+        switch (config.pattern) {
+            case BLocationManager.OWN_MODE:
+                result = config.sensorConfig;
+                break;
+            case BLocationManager.GLOBAL_MODE:
+                result = mGlobalConfig.sensorConfig;
+                break;
+            case BLocationManager.CLOSE_MODE:
+            default:
+                result = null;
+                break;
+        }
+        Slog.v(TAG, "getSensorConfig userId=" + userId + " pkg=" + pkg + " -> " + result);
+        return result;
+    }
+
+    @Override
+    public void setGlobalSensorConfig(BSensorConfig config) throws RemoteException {
+        Slog.i(TAG, "setGlobalSensorConfig " + config);
+        synchronized (mGlobalConfig) {
+            mGlobalConfig.sensorConfig = config;
+            save();
+        }
+    }
+
+    @Override
+    public BSensorConfig getGlobalSensorConfig() throws RemoteException {
+        synchronized (mGlobalConfig) {
+            BSensorConfig config = mGlobalConfig.sensorConfig;
+            Slog.v(TAG, "getGlobalSensorConfig -> " + config);
+            return config;
+        }
     }
 
     private void addTask(IBinder locationListener) {
