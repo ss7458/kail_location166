@@ -205,6 +205,8 @@
     <string name="route_plan_coord_error">Please enter valid latitude,longitude</string>
     <string name="route_plan_ok">OK</string>
     <string name="route_plan_cancel">Cancel</string>
+    <string name="route_plan_history">History</string>
+    <string name="route_plan_history_title">Select History Location</string>
 
     <!-- Settings -->
     <string name="setting_sim_scheme">Sensor Simulation Scheme</string>

@@ -165,6 +165,7 @@ class RouteSimulationActivity : BaseActivity(), SensorEventListener {
                         onNavigate = onNavigate,
                             onAddRouteClick = {
                                 editingRouteId = null
+                                viewModel.clearPendingRoute()
                                 mBaiduMap?.clear()
                                 currentScreen = Screen.PLAN
                             },

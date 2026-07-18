@@ -164,6 +164,11 @@ class LocationSimulationViewModel(application: Application) : AndroidViewModel(a
     fun setRunMode(mode: String) {
         _runMode.value = mode
         sharedPreferences.edit().putString("setting_run_mode", mode).apply()
+        if (mode != "root" && mode != "xposed" && mode != "sandbox") {
+            if (_stepSimulationEnabled.value) {
+                setStepSimulationEnabled(false)
+            }
+        }
     }
 
     /**

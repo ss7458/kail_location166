@@ -13,7 +13,9 @@ data class RouteInfo(
     val startName: String,
     val endName: String,
     val distance: String = "104m",
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    val favoriteTime: Long = 0L,
+    val favoriteOrder: Int = 0
 )
 
 /**

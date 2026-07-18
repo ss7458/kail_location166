@@ -224,6 +224,8 @@
     <string name="route_plan_coord_error">请输入有效的纬度,经度</string>
     <string name="route_plan_ok">确定</string>
     <string name="route_plan_cancel">取消</string>
+    <string name="route_plan_history">历史位置</string>
+    <string name="route_plan_history_title">选择历史位置</string>
 
     <!-- Settings -->
     <string name="setting_sim_scheme">传感器模拟方案</string>

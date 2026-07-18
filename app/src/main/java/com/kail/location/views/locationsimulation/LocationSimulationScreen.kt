@@ -28,6 +28,7 @@ import com.kail.location.viewmodels.LocationSimulationViewModel
 import kotlinx.coroutines.launch
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.window.Dialog
 import com.kail.location.views.common.DrawerHeader
 import androidx.compose.ui.platform.LocalContext
 import android.content.Intent
@@ -39,6 +40,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Settings
 
 import com.kail.location.views.common.AppDrawer
 
@@ -90,7 +92,7 @@ fun LocationSimulationScreen(
     val context = LocalContext.current
     var renameTarget by remember { mutableStateOf<HistoryRecord?>(null) }
     var renameText by remember { mutableStateOf("") }
-
+    var showSettingsDialog by remember { mutableStateOf(false) }
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -235,54 +237,17 @@ fun LocationSimulationScreen(
                                     fontWeight = FontWeight.Bold
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
-                                // Placeholder icon
                                 Switch(
                                     checked = isJoystickEnabled,
                                     onCheckedChange = onJoystickToggle,
                                     modifier = Modifier.scale(0.8f)
                                 )
-                            }
-
-                            if (runMode == "root" || runMode == "xposed" || runMode == "sandbox") {
-                                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(stringResource(R.string.route_sim_step_text), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
-                                    Switch(
-                                        checked = stepSimulationEnabled,
-                                        onCheckedChange = onStepSimulationToggle,
-                                        colors = SwitchDefaults.colors(
-                                            checkedThumbColor = Color.White,
-                                            checkedTrackColor = MaterialTheme.colorScheme.primary
-                                        ),
-                                        modifier = Modifier.scale(0.8f)
-                                    )
-                                }
-
-                                if (stepSimulationEnabled) {
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    val stepsPerSecond = (stepCadenceSpm / 60f)
-                                    val kmh = (stepsPerSecond * 0.7f * 3.6f)
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(stringResource(R.string.route_sim_cadence_text), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
-                                        Text(stringResource(R.string.route_sim_cadence_format, stepCadenceSpm.toInt(), ((kmh * 10).toInt() / 10f)), fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
-                                    }
-                                    Slider(
-                                        value = stepCadenceSpm,
-                                        onValueChange = { onStepCadenceChange((it + 0.5f).toInt().toFloat()) },
-                                        valueRange = 60f..180f,
-                                        steps = 11,
-                                        colors = SliderDefaults.colors(
-                                            thumbColor = MaterialTheme.colorScheme.primary,
-                                            activeTrackColor = MaterialTheme.colorScheme.primary
-                                        )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                IconButton(onClick = { showSettingsDialog = true }) {
+                                    Icon(
+                                        Icons.Default.Settings,
+                                        contentDescription = "Settings",
+                                        tint = MaterialTheme.colorScheme.primary
                                     )
                                 }
                             }
@@ -405,6 +370,17 @@ fun LocationSimulationScreen(
             }
         )
     }
+
+    if (showSettingsDialog) {
+        LocationSettingsDialog(
+            stepSimulationEnabled = stepSimulationEnabled,
+            stepCadenceSpm = stepCadenceSpm,
+            runMode = runMode,
+            onDismiss = { showSettingsDialog = false },
+            onStepSimulationToggle = onStepSimulationToggle,
+            onStepCadenceChange = onStepCadenceChange
+        )
+    }
 }
 
 @Composable
@@ -454,6 +430,95 @@ fun historyRecordCard(
                 }
                 IconButton(onClick = { onRecordDelete(record.id) }) {
                     Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun LocationSettingsDialog(
+    stepSimulationEnabled: Boolean,
+    stepCadenceSpm: Float,
+    runMode: String,
+    onDismiss: () -> Unit,
+    onStepSimulationToggle: (Boolean) -> Unit,
+    onStepCadenceChange: (Float) -> Unit
+) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val canUseStepFreq = runMode == "root" || runMode == "xposed" || runMode == "sandbox"
+
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = stringResource(R.string.route_sim_speed_btn),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        stringResource(R.string.route_sim_step_text),
+                        fontSize = 14.sp,
+                        color = if (canUseStepFreq) MaterialTheme.colorScheme.onSurface else Color.Gray
+                    )
+                    Switch(
+                        checked = stepSimulationEnabled,
+                        onCheckedChange = {
+                            if (!canUseStepFreq) {
+                                android.widget.Toast.makeText(
+                                    context,
+                                    context.getString(R.string.vm_step_root_required),
+                                    android.widget.Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                onStepSimulationToggle(it)
+                            }
+                        },
+                        enabled = canUseStepFreq,
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = MaterialTheme.colorScheme.primary
+                        ),
+                        modifier = Modifier.scale(0.8f)
+                    )
+                }
+
+                if (stepSimulationEnabled) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    val stepsPerSecond = (stepCadenceSpm / 60f)
+                    val kmh = (stepsPerSecond * 0.7f * 3.6f)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(stringResource(R.string.route_sim_cadence_text), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
+                        Text(stringResource(R.string.route_sim_cadence_format, stepCadenceSpm.toInt(), ((kmh * 10).toInt() / 10f)), fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
+                    }
+                    Slider(
+                        value = stepCadenceSpm,
+                        onValueChange = { onStepCadenceChange((it + 0.5f).toInt().toFloat()) },
+                        valueRange = 60f..180f,
+                        steps = 11,
+                        colors = SliderDefaults.colors(
+                            thumbColor = MaterialTheme.colorScheme.primary,
+                            activeTrackColor = MaterialTheme.colorScheme.primary
+                        )
+                    )
                 }
             }
         }
