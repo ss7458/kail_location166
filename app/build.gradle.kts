@@ -12,7 +12,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.kail.location"
+        applicationId = "com.kail.location.free"
         minSdk = 27
         targetSdk = 36
         versionCode = 39
