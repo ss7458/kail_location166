@@ -43,9 +43,20 @@ jobs:
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses 2>&1 | tail -3 || echo "sdkmanager license step done"
 
       - name: Build Debug APK
-        run: ./gradlew assembleRelease --stacktrace
+        run: |
+          ./gradlew assembleRelease --stacktrace 2>&1 | tee gradle.log
+          exit ${PIPESTATUS[0]}
+
+      - name: Upload Gradle build log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-log-${{ github.sha }}
+          path: gradle.log
+          if-no-files-found: warn
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: kail_location-${{ github.sha }}
