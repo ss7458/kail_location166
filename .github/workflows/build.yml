@@ -33,46 +33,24 @@ jobs:
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "platforms;android-36" 2>&1 | tail -5 || echo "sdkmanager done"
           ls "$ANDROID_HOME/platforms/" 2>/dev/null
 
-      - name: 🔍 Gradle configuration check
-        shell: bash
-        run: |
-          set +o pipefail
-          ./gradlew projects --stacktrace 2>&1 | tee config.log; rc=${PIPESTATUS[0]}
-          echo "### Gradle project list" >> $GITHUB_STEP_SUMMARY
-          grep -E "(Root|Project)" config.log | head -10 >> $GITHUB_STEP_SUMMARY
-          echo "---" >> $GITHUB_STEP_SUMMARY
-          if [ $rc -ne 0 ]; then
-            echo "### CONFIGURATION FAILED (rc=$rc)" >> $GITHUB_STEP_SUMMARY
-            # Dump the FULL config.log into step summary (it's small, ~3KB)
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            cat config.log >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            # Emit ::error with the key lines
-            grep -i -E "(What went wrong|Cause:|Could not resolve|No cached|from repository|in repository)" config.log | head -10 | while read line; do
-              echo "::error title=Gradle Err::$line"
-            done
-            cat config.log > gradle.log
-          fi
-          exit $rc
-
       - name: 📦 Build APK
         shell: bash
         run: |
           set +o pipefail
           ./gradlew assembleRelease --stacktrace 2>&1 | tee gradle.log; rc=${PIPESTATUS[0]}
-          echo "GRADLE_EXIT_CODE=$rc" >> $GITHUB_ENV
-          echo "### Gradle build output (error context)" >> $GITHUB_STEP_SUMMARY
-          grep -n -i -E "(error|FAILED|Exception|BUILD|What went wrong|Cause|cannot|could not|not found)" gradle.log | tail -30 >> $GITHUB_STEP_SUMMARY
-          echo "--- last 20 lines ---" >> $GITHUB_STEP_SUMMARY
-          tail -20 gradle.log >> $GITHUB_STEP_SUMMARY
+          echo "GRADLE_EXIT_CODE=$rc" >> "$GITHUB_ENV"
+          if [ $rc -ne 0 ]; then
+            echo "### Build failed" >> "$GITHUB_STEP_SUMMARY"
+            tail -50 gradle.log >> "$GITHUB_STEP_SUMMARY"
+          fi
           exit $rc
 
-      - name: Upload Gradle build log
+      - name: Upload Gradle log
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: gradle-log-${{ github.sha }}
-          path: "*.log"
+          path: gradle.log
           if-no-files-found: warn
 
       - name: Upload APK
