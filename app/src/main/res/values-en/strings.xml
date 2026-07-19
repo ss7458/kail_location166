@@ -124,6 +124,7 @@
     <string name="run_mode_developer">Developer Mode</string>
     <string name="run_mode_xposed">Xposed Mode</string>
     <string name="run_mode_sandbox">Sandbox Mode</string>
+    <string name="run_mode_noroot">NoRoot Mode</string>
     <string name="xposed_module_not_found">Xposed Module Not Found</string>
     <string name="xposed_module_download_hint">Please install the KailLocation Xposed module to use Xposed mode.</string>
     <string name="xposed_module_download">Download</string>

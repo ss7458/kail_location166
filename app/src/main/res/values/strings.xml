@@ -139,6 +139,7 @@
     <string name="run_mode_developer">开发者模式</string>
     <string name="run_mode_xposed">Xposed 模式</string>
     <string name="run_mode_sandbox">沙盒模式</string>
+    <string name="run_mode_noroot">NoRoot 模式</string>
     <string name="xposed_module_not_found">未检测到 Xposed 模块</string>
     <string name="xposed_module_download_hint">请先安装 KailLocation Xposed 模块才能使用 Xposed 模式。</string>
     <string name="xposed_module_download">前往下载</string>
