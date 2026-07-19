@@ -43,7 +43,13 @@ jobs:
           echo "---" >> $GITHUB_STEP_SUMMARY
           if [ $rc -ne 0 ]; then
             echo "### CONFIGURATION FAILED (rc=$rc)" >> $GITHUB_STEP_SUMMARY
-            grep -n -i -E "(error|FAILED|Exception|What went wrong|Cause|cannot|could not|not found)" config.log | head -20 >> $GITHUB_STEP_SUMMARY
+            ERROR_LINE=$(grep -n -i -E "(What went wrong|Cause:|could not|cannot|not found)" config.log | head -5)
+            echo "$ERROR_LINE" >> $GITHUB_STEP_SUMMARY
+            # Emit ::error annotation so it shows in GitHub UI without login
+            FIRST_ERROR=$(grep -i -E "(What went wrong|Cause:)" config.log | head -1)
+            if [ -n "$FIRST_ERROR" ]; then
+              echo "::error title=Gradle Config Error::$FIRST_ERROR"
+            fi
             echo "--- last 30 lines ---" >> $GITHUB_STEP_SUMMARY
             tail -30 config.log >> $GITHUB_STEP_SUMMARY
             cat config.log > gradle.log
