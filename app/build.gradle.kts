@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -36,7 +38,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.debug
+            signingConfig = signingConfigs.getByName("debug")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -270,8 +272,8 @@ androidComponents {
 
                 var copied = 0
                 classDirs.forEach { root ->
-                    fileTree(root).forEach { f ->
-                        if (!f.name.endsWith(".class")) return@forEach
+                    fileTree(root).forEach inner@{ f ->
+                        if (!f.name.endsWith(".class")) return@inner
                         val rel = f.toRelativeString(root).replace(File.separatorChar, '/')
                         if (injectClassPrefixes.any { rel.startsWith(it) }) {
                             val dst = file("${staging.absolutePath}/$rel")

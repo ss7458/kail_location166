@@ -1,8 +1,11 @@
 pluginManagement {
     repositories {
-        google()
+        // google() has a built-in content filter that can interfere with KSP
+        // resolution (KSP is in Maven Central/Gradle Plugin Portal, not Google
+        // Maven). Using the raw Maven URL avoids any ambiguity.
         mavenCentral()
         gradlePluginPortal()
+        maven { url = uri("https://dl.google.com/dl/android/maven2/") }
         maven { url = uri("https://jitpack.io") }
     }
 }
@@ -10,8 +13,8 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()
         mavenCentral()
+        maven { url = uri("https://dl.google.com/dl/android/maven2/") }
         maven { url = uri("https://jitpack.io") }
     }
 }
