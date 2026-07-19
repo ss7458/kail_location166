@@ -26,8 +26,24 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: 👁️ Diagnose Android SDK
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          echo "JAVA_HOME=$JAVA_HOME"
+          ls -la "$ANDROID_HOME/platforms/" 2>/dev/null || echo "No platforms dir"
+          ls -la "$ANDROID_HOME/build-tools/" 2>/dev/null || echo "No build-tools dir"
+          ls -la "$ANDROID_HOME/ndk/" 2>/dev/null || echo "No ndk dir"
+          ls -la "$ANDROID_HOME/cmake/" 2>/dev/null || echo "No cmake dir"
+          which cmake 2>/dev/null && cmake --version || echo "cmake not in PATH"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list --sdk_root=$ANDROID_HOME 2>/dev/null | grep "platforms;" | tail -5 || echo "Cannot list sdkmanager"
+
+      - name: ✅ Accept Android SDK Licenses
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses 2>&1 | tail -3 || echo "sdkmanager license step done"
+
       - name: Build Debug APK
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleRelease --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
