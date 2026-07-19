@@ -43,9 +43,12 @@ jobs:
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses 2>&1 | tail -3 || echo "sdkmanager license step done"
 
       - name: Build Debug APK
+        shell: bash
         run: |
-          ./gradlew assembleRelease --stacktrace 2>&1 | tee gradle.log
-          exit ${PIPESTATUS[0]}
+          set +o pipefail
+          ./gradlew assembleRelease --stacktrace 2>&1 | tee gradle.log; rc=${PIPESTATUS[0]}
+          echo "GRADLE_EXIT_CODE=$rc" >> $GITHUB_ENV
+          exit $rc
 
       - name: Upload Gradle build log
         if: failure()
