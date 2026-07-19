@@ -20,8 +20,13 @@ pluginManagement {
         maven { url = uri("https://maven.aliyun.com/repository/public") }
         google {
             content {
+                // NOTE: intentionally NOT claiming com.google.* here. Gradle
+                // makes group resolution exclusive to repos that declare a
+                // matching content filter, so claiming com.google.* would
+                // prevent the Aliyun gradle-plugin mirror (which carries KSP,
+                // google-services, firebase plugins) from being consulted on
+                // CI where gradlePluginPortal is unreachable.
                 includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
                 includeGroupByRegex("androidx.*")
             }
         }
