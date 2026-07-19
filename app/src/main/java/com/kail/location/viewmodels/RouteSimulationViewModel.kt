@@ -29,7 +29,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.widget.Toast
 import com.baidu.mapapi.model.LatLng
-import com.kail.location.auth.UsageManager
 import org.json.JSONObject
 import com.baidu.mapapi.search.core.SearchResult
 import com.baidu.mapapi.search.geocode.GeoCoder
@@ -37,6 +36,7 @@ import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption
 import androidx.core.content.ContextCompat
 import com.kail.location.R
+import com.kail.location.auth.UsageManager
 import com.kail.location.service.Root.ServiceGoRoot
 import com.kail.location.service.Developer.ServiceGoDeveloper
 import com.kail.location.service.Sandbox.ServiceGoSandbox
@@ -341,16 +341,6 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
         if (_isStarting.value || _isSimulating.value) return
         viewModelScope.launch {
             val app = getApplication<Application>()
-            if (!UsageManager.canStartSimulation(app)) {
-                KailLog.persist(app, SimulationDiagnostics.TAG,
-                    "路线模拟启动被拦截：未登录或免费次数用尽（canStartSimulation=false）", 'w')
-                return@launch
-            }
-            if (!UsageManager.consumeSimulation(app)) {
-                KailLog.persist(app, SimulationDiagnostics.TAG,
-                    "路线模拟启动被拦截：扣减模拟次数失败（consumeSimulation=false）", 'w')
-                return@launch
-            }
 
             val pending = _pendingRoutePoints.value
             if (pending != null) {

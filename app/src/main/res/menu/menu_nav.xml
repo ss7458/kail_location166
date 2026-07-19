@@ -52,10 +52,6 @@
                 android:icon="@drawable/ic_contact"
                 android:title="@string/nav_menu_contact" />
             <item
-                android:id="@+id/nav_sponsor"
-                android:icon="@drawable/ic_user"
-                android:title="@string/nav_menu_sponsor" />
-            <item
                 android:id="@+id/nav_github"
                 android:icon="@drawable/ic_menu_dev"
                 android:title="@string/nav_menu_github" />

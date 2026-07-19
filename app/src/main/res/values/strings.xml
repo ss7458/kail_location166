@@ -1,773 +1,693 @@
-<resources>
-    <string name="app_name">KailLocation</string>
-    <string name="app_settings">设置</string>
-    <string name="app_history">历史记录</string>
-    <string name="history_title">历史记录</string>
-    <string name="history_search_hint">搜索历史记录</string>
-    <string name="history_no_record">暂无历史记录</string>
-    <string name="app_author">kail</string>
-    <string name="app_email">kailkali23143@gmail.com</string>
-    <string name="app_statement">仅供学习使用，否则后果自负！</string>
-    <string name="app_service_tips">KailLocation服务正在运行中</string>
-    <string name="app_agreement">用户协议</string>
-    <string name="app_agreement_content">"1. 本软件专为学习 Android 开发使用，不会收集任何用户数据。"
-    "严禁利用本软件侵犯他人隐私权或者用于游戏牟利，如软件使用者不能遵守此规定， 请立即删除。"
-    "对于因用户使用本软件而造成自身或他人隐私泄露等任何不良后果，均由用户自行承担，软件作者不负任何责任。\n"
-    "2. 用户不得对本软件产品进行反向工程（reverse engineer）、反向编译（decompile）或反汇编（disassemble）， 违者属于侵权行为，并自行承担由此产生的不利后果。\n"
-    "3. 软件保证不含任何病毒，木马，等破坏用户数据的恶意代码，但是由于本软件产品可以通过网络等途径下载、传播，对于从非软件作者指定站点下载的本软件产品软件作者无法保证该软件是否感染计算机病毒、是否隐藏有伪装的特洛伊木马程序或者黑客软件，不承担由此引起的直接和间接损害责任。\n"
-    "4. 软件会不断更新，以便及时为用户提供新功能和修正软件中的BUG。 同时软件作者保证本软件在升级过程中也不含有任何旨在破坏用户计算机数据的恶意代码。\n"
-    "5. 由于用户计算机软硬件环境的差异性和复杂性，本软件所提供的各项功能并不能保证在任何情况下都能正常执行或达到用户所期望的结果。 用户使用本软件所产生的一切后果，软件作者不承担任何责任。\n"
-    "6. 如果用户自行安装本软件，即表明用户信任软件作者，自愿选择安装本软件，并接受本协议所有条款。 如果用户不接受本协议，请立即删除。\n"
-    </string>
-    <string name="app_privacy">隐私政策</string>
-    <string name="app_privacy_content">"1. 本软件专为学习 Android 开发使用，不会收集任何用户数据。\n"
-    "2. 用户不得对本软件产品进行反向工程（reverse engineer）、反向编译（decompile）或反汇编（disassemble）， 违者属于侵权行为，并自行承担由此产生的不利后果。\n"
-    "3. 软件保证不含任何病毒，木马，等破坏用户数据的恶意代码，但是由于本软件产品可以通过网络等途径下载、传播，对于从非软件作者指定站点下载的本软件产品软件作者无法保证该软件是否感染计算机病毒、是否隐藏有伪装的特洛伊木马程序或者黑客软件，不承担由此引起的直接和间接损害责任。\n"
-    "4. 软件会不断更新，以便及时为用户提供新功能和修正软件中的BUG。 同时软件作者保证本软件在升级过程中也不含有任何旨在破坏用户计算机数据的恶意代码。\n"
-    "5. 由于用户计算机软硬件环境的差异性和复杂性，本软件所提供的各项功能并不能保证在任何情况下都能正常执行或达到用户所期望的结果。 用户使用本软件所产生的一切后果，软件作者不承担任何责任。\n"
-    "6. 如果用户自行安装本软件，即表明用户信任软件作者，自愿选择安装本软件，并接受本协议所有条款。 如果用户不接受本协议，请立即删除。\n"
-    </string>
-    <string name="app_agreement_privacy">已阅读《用户协议》和《隐私政策》</string>
-    <string name="app_error_agreement">必须先接受\n《用户协议》和《隐私政策》</string>
-    <string name="app_error_read">请依次阅读并接受\n《用户协议》和《隐私政策》</string>
-    <string name="app_error_gps">定位不可用，请检查 GPS 是否开启</string>
-    <string name="app_error_network">网络不可用，请检查网络连接</string>
-    <string name="app_error_permission">权限不足，请授予相关权限</string>
-    <string name="app_error_input">输入有误，请检查输入是否合法</string>
-    <string name="app_error_input_null">输入不能为空，请重新输入内容</string>
-    <string name="app_error_search">查找失败，请检查网络或定位</string>
-    <string name="app_error_location">请先选择位置</string>
-    <string name="app_error_dev">开发者模式未开启，无法跳转！请自行搜索开启方法</string>
-    <string name="app_error_param">非法参数</string>
-    <string name="app_error_protocol">请先阅读并接收用户协议</string>
-    <string name="app_error_username">用户名不合法</string>
-    <string name="app_error_code">注册码不能为空</string>
-    <string name="app_error_longitude">经度超出限制!\n取值：-180.0 ~ 180.0</string>
-    <string name="app_error_latitude">纬度超出限制!\n取值：-90.0 ~ 90.0</string>
-    <string name="app_search_null">没有匹配结果，请重新搜索</string>
-    <string name="app_search_tips">请输入查找内容</string>
-    <string name="app_location_ok">位置已传送</string>
-    <string name="app_location_copy">位置已复制到剪切板</string>
-    <string name="app_location_save">位置已保存</string>
-
-    <!-- 欢迎页 -->
-    <string name="welcome_btn_txt">进入应用</string>
-    <string name="app_btn_agree">同意并继续</string>
-    <string name="app_btn_disagree">不同意</string>
-
-    <!-- 移动相关参数 -->
-    <string name="setting_group_move">移动</string>
-    <string name="setting_joystick_type">摇杆类型</string>
-    <string name="setting_joystick_speed">摇杆移动速度(米/秒)</string>
-    <string name="setting_joystick_speed_default">1.2</string>
-    <string name="setting_walk">步行速度(米/秒)</string>
-    <string name="setting_walk_default">1.2</string>
-    <string name="setting_run">跑步速度(米/秒)</string>
-    <string name="setting_run_default">3.6</string>
-    <string name="setting_bike">驾驶速度(米/秒)</string>
-    <string name="setting_bike_default">10.0</string>
-    <string name="setting_altitude">海拔高度(米)</string>
-    <string name="setting_altitude_default">55.0</string>
-
-    <!-- 位置偏移相关参数 -->
-    <string name="setting_group_location_offset">位置偏移</string>
-    <string name="setting_random_offset">随机偏移</string>
-    <string name="setting_random_offset_summary">仅在使用历史位置时生效</string>
-    <string name="setting_random_offset_default">10.0</string>
-    <string name="setting_lat_max_offset">经度最大偏移距离(米)</string>
-    <string name="setting_lon_max_offset">纬度最大偏移距离(米)</string>
-    <!-- 记录相关参数 -->
-    <string name="setting_group_log">记录</string>
-    <string name="setting_log_off">关闭日志</string>
-    <string name="setting_history_expiration">历史记录有效期(天)</string>
-    <!-- 关于相关参数 -->
-    <string name="setting_group_about">关于</string>
-    <string name="setting_version">版本号</string>
-    <string name="setting_author">开发者</string>
-
-    <!-- 历史记录页面 -->
-    <string name="history_expiration">7</string>
-    <string name="history_location_default_name">地图位置</string>
-    <string name="history_idle">暂无历史记录</string>
-    <string name="history_delete_ok">删除成功！</string>
-    <string name="history_delete_error">删除记录失败</string>
-    <string name="history_error_location">定位失败，请手动选取定位点</string>
-    <string name="history_error_search">未搜索到指定内容</string>
-
-    <!-- 通知栏 -->
-    <string name="note_show">显示摇杆</string>
-    <string name="note_hide">隐藏摇杆</string>
-    <!-- 摇杆 -->
-    <string name="joystick_map_tips">搜索或点击地图位置</string>
-    <string name="joystick_history_tips">搜索或点击历史位置</string>
-    <string name="joystick_history">历史记录</string>
-    <string name="joystick_history_favorites">收藏</string>
-    <string name="joystick_history_normal">历史位置</string>
-    <string name="joystick_map">地图</string>
-    <string name="joystick_move">移动</string>
-    <string name="joystick_walk">步行</string>
-    <string name="joystick_run">跑步</string>
-    <string name="joystick_bike">自行车</string>
-    <!-- 导航页 -->
-    <string name="nav_drawer_open">打开导航菜单</string>
-    <string name="nav_drawer_close">关闭导航菜单</string>
-    <string name="nav_menu_history">历史记录</string>
-    <string name="nav_menu_location_simulation">位置模拟</string>
-    <string name="nav_menu_route_simulation">路线模拟</string>
-    <string name="loc_sim_title">位置模拟</string>
-    <string name="loc_sim_target">目标位置</string>
-    <string name="loc_sim_none">NONE</string>
-    <string name="loc_sim_lat_lng">经纬度: %1$s,%2$s</string>
-    <string name="loc_sim_start">启动模拟</string>
-    <string name="sim_starting">启动中</string>
-    <string name="loc_sim_stop">停止模拟</string>
-    <string name="loc_sim_base_station">基站</string>
-    <string name="loc_sim_joystick">摇杆</string>
-    <string name="loc_sim_history_title">历史位置</string>
-    <string name="loc_sim_add_tips">点击右上角 "+" 按钮进行添加</string>
-    <string name="nav_menu_settings">设置</string>
-    <string name="nav_menu_dev">开发人员选项</string>
-    <string name="nav_menu_more">更多</string>
-    <string name="nav_menu_upgrade">检测更新</string>
-    <string name="nav_menu_feedback">问题反馈</string>
-    <string name="nav_menu_contact">联系作者</string>
-    <string name="nav_app_tips">仅供学习使用，否则后果自负!</string>
-    <string name="nav_menu_sponsor">赞助作者</string>
-    <string name="nav_menu_github">开源仓库</string>
-    <string name="nav_menu_run_mode">运行模式</string>
-    <string name="run_mode_dialog_title">选择运行模式</string>
-    <string name="run_mode_root">Root 模式</string>
-    <string name="run_mode_developer">开发者模式</string>
-    <string name="run_mode_xposed">Xposed 模式</string>
-    <string name="run_mode_sandbox">沙盒模式</string>
-    <string name="xposed_module_not_found">未检测到 Xposed 模块</string>
-    <string name="xposed_module_download_hint">请先安装 KailLocation Xposed 模块才能使用 Xposed 模式。</string>
-    <string name="xposed_module_download">前往下载</string>
-    <string name="run_mode_changed">运行模式已切换为 %s</string>
-    <string name="sponsor_title">赞助作者</string>
-    <string name="sponsor_tron_note">仅支持 TRON 资产收款</string>
-
-    <!-- 主界面 -->
-    <string name="label_longitude">经度</string>
-    <string name="label_latitude">纬度</string>
-    <string name="input_position_ok">传送</string>
-    <string name="input_position_cancel">取消</string>
-    <string name="input_position_baidu">BD09 坐标系</string>
-    <string name="input_position_gps">GPS 坐标系</string>
-    <string name="input_button">输入位置</string>
-    <string name="cur_position">返回当前位置</string>
-    <string name="zoom_in">放大</string>
-    <string name="zoom_out">缩小</string>
-
-    <!-- 百度地图 -->
-    <string name="map_pic_sate">卫星图</string>
-    <string name="map_pic_normal">普通图</string>
-
-    <!-- 更新 -->
-    <string name="update_title">新版本可用</string>
-    <string name="update_downloading">升级文件下载中。。。</string>
-    <string name="update_last">恭喜，KailLocation已是最新版</string>
-    <string name="update_download">立即下载</string>
-    <string name="update_ignore">忽略一次</string>
-    <string name="update_time">更新时间：</string>
-    <string name="update_commit">提交信息：</string>
-
-    <!-- Navigation -->
-    <string name="nav_menu_sim_group">模拟</string>
-    <string name="nav_sim_title">模拟导航</string>
-    <string name="nav_sim_start">开始模拟</string>
-    <string name="nav_sim_stop">结束模拟</string>
-    <string name="nav_sim_pause">暂停</string>
-    <string name="nav_sim_resume">继续</string>
-    <string name="nav_sim_planning">规划中...</string>
-    <string name="nav_sim_start_point">起点:</string>
-    <string name="nav_sim_end_point">终点:</string>
-    <string name="nav_sim_select_start">请选择起点</string>
-    <string name="nav_sim_select_end">请选择终点</string>
-    <string name="nav_sim_multi_route">多路线</string>
-    <string name="nav_sim_history_title">历史数据 (最多显示10条)</string>
-    <string name="nav_sim_clear">清空</string>
-    <string name="nav_sim_switch_route">切换路线</string>
-    <string name="nav_sim_choose_route">选择路线</string>
-    <string name="nav_sim_speed_dialog_title">设置速度 (km/h)</string>
-    <string name="nav_sim_speed">速度</string>
-    <string name="nav_sim_ok">确定</string>
-    <string name="nav_sim_cancel">取消</string>
-
-    <!-- Route Simulation -->
-    <string name="route_sim_title">路线模拟</string>
-    <string name="route_sim_target">目标路线</string>
-    <string name="route_sim_history">历史路线</string>
-    <string name="route_sim_no_name">暂无</string>
-    <string name="route_sim_start">启动模拟</string>
-    <string name="route_sim_stop">结束模拟</string>
-    <string name="route_sim_pause">暂停</string>
-    <string name="route_sim_resume">继续</string>
-    <string name="route_sim_speed_btn">速/频</string>
-    <string name="route_sim_loop">循环</string>
-    <string name="route_sim_rename_title">重命名路线</string>
-    <string name="route_sim_rename_ok">确定</string>
-    <string name="route_sim_rename_cancel">取消</string>
-    <string name="route_sim_need_route">请先添加并保存路线</string>
-    <string name="route_sim_start_failed">启动模拟失败</string>
-
-    <!-- Route Plan -->
-    <string name="route_plan_search_hint">搜索地点</string>
-    <string name="route_plan_map_type">选择地图类型</string>
-    <string name="route_plan_normal">普通地图</string>
-    <string name="route_plan_satellite">卫星地图</string>
-    <string name="route_plan_coord_title">输入坐标</string>
-    <string name="route_plan_latitude">纬度</string>
-    <string name="route_plan_longitude">经度</string>
-    <string name="route_plan_coord_type">BD09坐标 (默认WGS84)</string>
-    <string name="route_plan_coord_combined">纬度,经度</string>
-    <string name="route_plan_coord_error">请输入有效的纬度,经度</string>
-    <string name="route_plan_ok">确定</string>
-    <string name="route_plan_cancel">取消</string>
-    <string name="route_plan_history">历史位置</string>
-    <string name="route_plan_history_title">选择历史位置</string>
-
-    <!-- Settings -->
-    <string name="setting_sim_scheme">传感器模拟方案</string>
-    <string name="setting_sim_fourier">傅里叶级数 (Fourier)</string>
-    <string name="setting_sim_sine_noise">正弦+随机扰动 (Sine+Noise)</string>
-
-    <string-array name="array_sim_scheme">
-        <item>@string/setting_sim_fourier</item>
-        <item>@string/setting_sim_sine_noise</item>
-    </string-array>
-    <string-array name="array_sim_scheme_values">
-        <item>0</item>
-        <item>1</item>
-    </string-array>
-    <string name="setting_step_sim">计步器模拟</string>
-    <string name="setting_step_sim_summary">控制步数检测器(18)与计步器(19)事件的模拟</string>
-    <string name="setting_group_satellite_and_signal">卫星与信号模拟</string>
-    <string name="setting_group_intercept">拦截与降级控制</string>
-    <string name="setting_allow_get_current">允许 GetCurrentLocation</string>
-    <string name="setting_allow_get_current_summary">关闭则拦截 getCurrentLocation 请求</string>
-    <string name="setting_allow_register_listener">允许注册位置监听器</string>
-    <string name="setting_allow_register_listener_summary">关闭则拦截 registerLocationListener</string>
-    <string name="setting_allow_geofence">允许地理围栏请求</string>
-    <string name="setting_allow_geofence_summary">关闭则拦截 addGeofence</string>
-    <string name="setting_allow_get_location">允许位置获取</string>
-    <string name="setting_allow_get_location_summary">关闭则拦截 getFromLocation 等反查</string>
-    <string name="setting_disable_fused">禁用融合定位</string>
-    <string name="setting_disable_fused_summary">阻止应用使用 fused provider</string>
-    <string name="setting_downgrade_cdma">网络定位降级为 CDMA</string>
-    <string name="setting_downgrade_cdma_summary">将网络定位结果伪装为基站定位</string>
-    <string name="setting_disable_wifi_scan">禁用扫描 WiFi 列表</string>
-    <string name="setting_disable_wifi_scan_summary">阻止应用获取真实 WiFi 扫描结果</string>
-    <string name="setting_group_anti_detect">反检测与防拉回</string>
-    <string name="setting_hide_mock">隐藏模拟位置</string>
-    <string name="setting_hide_mock_summary">移除 Location.isFromMockProvider 标记</string>
-    <string name="setting_anti_pullback">反定位拉回</string>
-    <string name="setting_anti_pullback_summary">持续广播位置，一定程度解决被系统拉回</string>
-    <string name="setting_natural_jitter">自然 GPS 抖动</string>
-    <string name="setting_natural_jitter_summary">在注入位置上叠加漂移，关闭后固定点和路线更稳定</string>
-    <string name="setting_group_other">其他</string>
-    <string name="setting_global_mode">全局模式 (system_server)</string>
-    <string name="setting_global_mode_summary">开启则注入 system_server，对所有应用生效；关闭则仅注入下方指定应用</string>
-    <string name="setting_target_packages">目标应用包名</string>
-    <string name="setting_target_packages_summary">逗号分隔，仅在全局模式关闭时生效。例：com.autonavi.minimap</string>
-    <string name="setting_baidu_key">百度地图 Key (需重启生效)</string>
-    <string name="setting_selinux_permissive">注入时临时关闭 SELinux</string>
-    <string name="setting_selinux_permissive_summary">开启后注入 system_server 时短暂切到宽容模式，完成后立即恢复强制模式；关闭则不改动 SELinux 状态。Android 14/15 上注入失败时打开本项可解决</string>
-    <string name="setting_opencellid_key">OpenCellID API Key</string>
-    <string name="setting_opencellid_key_summary">用于通过经纬度查询周边基站，需先在 opencellid.org 注册获取</string>
-    <string name="setting_enable_log">启用日志</string>
-    <string name="setting_enable_log_summary">写入低频日志与关键状态日志到本地文件</string>
-    <string name="setting_enable_debug_log">启用详细调试日志</string>
-    <string name="setting_enable_debug_log_summary">限流写入高频定位调试日志，可能增加耗电和文件体积，仅用于排查问题</string>
-    <string name="setting_export_log">导出日志</string>
-    <string name="setting_export_log_summary">选择保存位置并导出当前日志文件</string>
-    <string name="setting_export_log_success">日志导出成功</string>
-    <string name="setting_export_log_failed">日志导出失败</string>
-    <string name="setting_clear_log_cache">清除日志缓存</string>
-    <string name="setting_clear_log_cache_summary">当前缓存大小：%s</string>
-    <string name="setting_clear_log_cache_confirm">确认清除日志缓存？当前大小：%s</string>
-    <string name="setting_clear_log_cache_success">日志缓存已清除</string>
-    <string name="setting_clear_log_cache_failed">日志缓存清除失败</string>
-    <string name="setting_map_zoom">悬浮窗地图缩放比例</string>
-    <string name="setting_map_zoom_summary">范围 10-21，数值越大地图越详细</string>
-
-    <!-- 数据导出 / 导入 -->
-    <string name="setting_group_data_transfer">数据备份</string>
-    <string name="setting_group_personalization">个性化</string>
-    <string name="setting_floating_window_size">浮窗大小</string>
-    <string name="setting_floating_window_width">浮窗宽度</string>
-    <string name="setting_floating_window_height">浮窗高度</string>
-    <string name="data_transfer_group_general">通用（所有模式）</string>
-    <string name="setting_export_data">导出数据</string>
-    <string name="setting_export_data_summary">将所选菜单的设置导出为 .bak 备份文件</string>
-    <string name="setting_import_data">导入数据</string>
-    <string name="setting_import_data_summary">从 .bak 备份文件中选择性恢复菜单设置</string>
-    <string name="data_transfer_export_title">导出数据</string>
-    <string name="data_transfer_import_title">导入数据</string>
-    <string name="data_transfer_select_categories">选择要导出的数据</string>
-    <string name="data_transfer_select_import_categories">选择要导入的数据</string>
-    <string name="data_transfer_category_count">%1$s（%2$d 项）</string>
-    <string name="data_transfer_category_empty">%1$s（无数据）</string>
-    <string name="data_transfer_filename_label">备份文件名</string>
-    <string name="data_transfer_export_button">导出</string>
-    <string name="data_transfer_import_button">导入</string>
-    <string name="data_transfer_export_success">数据导出成功</string>
-    <string name="data_transfer_export_failed">数据导出失败</string>
-    <string name="data_transfer_import_success">已导入 %1$d 项菜单数据，重启应用后生效</string>
-    <string name="data_transfer_import_failed">数据导入失败</string>
-    <string name="data_transfer_invalid_file">无效的备份文件</string>
-    <string name="data_transfer_none_selected">请至少选择一项</string>
-    <string name="data_transfer_default_filename">kail_location_backup</string>
-
-    <string name="setting_current_version">当前版本</string>
-    <string name="setting_not_set">未设置</string>
-    <string name="setting_ok">确定</string>
-    <string name="setting_cancel">取消</string>
-
-    <!-- NFC Simulation -->
-    <string name="nfc_sim_title">NFC模拟</string>
-    <string name="nfc_sim_status">NFC状态</string>
-    <string name="nfc_sim_enabled">正常</string>
-    <string name="nfc_sim_disabled">未开启</string>
-    <string name="nfc_sim_read_success">读取成功</string>
-    <string name="nfc_sim_clear">清除</string>
-    <string name="nfc_sim_tag_id">标签ID: %s</string>
-    <string name="nfc_sim_tag_type">标签类型: %s</string>
-    <string name="nfc_sim_content">内容: %s</string>
-    <string name="nfc_sim_send_title">模拟NFC发送</string>
-    <string name="nfc_sim_url">URL地址</string>
-    <string name="nfc_sim_package">应用包名</string>
-    <string name="nfc_sim_send">发送</string>
-    <string name="nfc_sim_history">历史记录</string>
-    <string name="nfc_sim_clear_history">清空</string>
-    <string name="nfc_sim_no_history">暂无历史记录</string>
-    <string name="nfc_sim_rename_dialog_title">重命名</string>
-    <string name="nfc_sim_rename_name">名称</string>
-    <string name="nfc_sim_rename_ok">确定</string>
-    <string name="nfc_sim_rename_cancel">取消</string>
-    <string name="nfc_sim_rename_content_desc">重命名</string>
-    <string name="nfc_sim_delete_content_desc">删除</string>
-    <string name="nfc_sim_help_title">使用说明</string>
-    <string name="nfc_sim_help_content">1. 扫描：靠近NFC标签自动读取\n2. 发送：填入URL/包名后点击发送\n3. 历史：点击自动填入，长按重命名</string>
-    <string name="nfc_sim_read_failed">读取失败: %s</string>
-
-    <!-- Independent Simulation -->
-    <string name="nav_menu_independent_sim">独立模拟</string>
-    <string name="ind_sim_title">独立模拟</string>
-    <string name="ind_sim_target_apps">目标应用</string>
-    <string name="ind_sim_target_apps_hint">点击选择要模拟的应用</string>
-    <string name="ind_sim_sim_type">模拟类型</string>
-    <string name="ind_sim_location">位置模拟</string>
-    <string name="ind_sim_route">路线模拟</string>
-    <string name="ind_sim_wifi_mock">WiFi模拟</string>
-    <string name="ind_sim_cell_mock">基站模拟</string>
-    <string name="ind_sim_gnss_mock">GPS卫星状态模拟</string>
-    <string name="ind_sim_gnss_mock_summary">伪造GnssStatus卫星数据（防检测）</string>
-    <string name="ind_sim_jitter_mock">位置抖动</string>
-    <string name="ind_sim_jitter_mock_summary">给模拟位置添加随机偏移</string>
-    <string name="ind_sim_start">启动独立模拟</string>
-    <string name="ind_sim_stop">停止独立模拟</string>
-    <string name="ind_sim_no_apps">请先选择目标应用</string>
-    <string name="ind_sim_select_apps">选择目标应用</string>
-    <string name="ind_sim_search_apps">搜索应用</string>
-    <string name="ind_sim_selected_count">已选择 %d 个应用</string>
-
-    <!-- Root &amp; App Hiding -->
-    <string name="nav_menu_root_app_hide">Root与应用隐藏</string>
-    <string name="root_hide_title">Root与应用隐藏</string>
-    <string name="root_hide_status_running">隐藏运行中</string>
-    <string name="root_hide_status_stopped">隐藏已停止</string>
-    <string name="root_hide_desc">选择目标应用后开启。开启后，对选中的应用隐藏 Root / 框架痕迹与已安装应用列表，其它应用不受影响。底层通过 FakeLocation 注入层生效。</string>
-    <string name="root_hide_hide_root">隐藏 Root</string>
-    <string name="root_hide_hide_root_summary">对目标应用隐藏 Root、Magisk、Xposed 等痕迹</string>
-    <string name="root_hide_hide_applist">隐藏应用列表</string>
-    <string name="root_hide_hide_applist_summary">对目标应用隐藏本机已安装的其它应用（需开启隐藏 Root）</string>
-    <string name="root_hide_target_apps">目标应用</string>
-    <string name="root_hide_target_apps_hint">点击选择要隐藏的应用</string>
-    <string name="root_hide_start">开始隐藏</string>
-    <string name="root_hide_stop">停止隐藏</string>
-    <string name="root_hide_no_apps">请先选择目标应用并至少开启一项隐藏</string>
-    <string name="root_hide_select_apps">选择目标应用</string>
-
-    <!-- WiFi Simulation -->
-    <string name="nav_menu_wifi_sim">WiFi模拟</string>
-    <string name="wifi_sim_title">WiFi模拟</string>
-    <string name="wifi_sim_enable">启用WiFi模拟</string>
-    <string name="wifi_sim_enable_summary">伪造WiFi扫描结果和连接信息</string>
-    <string name="wifi_sim_add">添加WiFi</string>
-    <string name="wifi_sim_list">WiFi列表</string>
-    <string name="wifi_sim_empty">暂无WiFi数据，请点击添加</string>
-    <string name="wifi_sim_ssid">SSID</string>
-    <string name="wifi_sim_bssid">BSSID (MAC)</string>
-    <string name="wifi_sim_rssi">信号强度 (dBm)</string>
-    <string name="wifi_sim_frequency">频率 (MHz)</string>
-    <string name="wifi_sim_capabilities">加密方式</string>
-    <string name="wifi_sim_delete">删除</string>
-    <string name="wifi_sim_edit">编辑</string>
-    <string name="wifi_sim_name">名称</string>
-    <string name="wifi_sim_history">历史记录</string>
-    <string name="wifi_sim_current_target">当前目标WiFi</string>
-    <string name="wifi_sim_select_prompt">请点击下方WiFi进行选择</string>
-    <string name="wifi_sim_rename">重命名</string>
-    <string name="wifi_sim_rename_title">重命名WiFi</string>
-    <string name="wifi_sim_picker_title">选择WiFi</string>
-    <string name="wifi_sim_scan_nearby">扫描附近WiFi</string>
-    <string name="wifi_sim_scanning">正在扫描...</string>
-    <string name="wifi_sim_scan_prompt">点击上方按钮扫描附近WiFi</string>
-    <string name="wifi_sim_scan_prompt2">或点击右下角手动添加</string>
-    <string name="wifi_sim_manual_add">手动添加WiFi</string>
-    <string name="wifi_sim_use">使用</string>
-    <string name="wifi_sim_scan_result_title">扫描到的WiFi</string>
-    <string name="wifi_sim_scan_empty">未扫描到WiFi，请确保WiFi已开启并处于信号覆盖区域</string>
-
-    <!-- Cell Simulation -->
-    <string name="nav_menu_cell_sim">基站模拟</string>
-    <string name="cell_sim_title">基站模拟</string>
-    <string name="cell_sim_enable">启用基站模拟</string>
-    <string name="cell_sim_enable_summary">伪造基站位置和信号信息</string>
-    <string name="cell_sim_add">添加基站</string>
-    <string name="cell_sim_list">基站列表</string>
-    <string name="cell_sim_empty">暂无基站数据，请点击添加</string>
-    <string name="cell_sim_type">网络类型</string>
-    <string name="cell_sim_mcc">MCC</string>
-    <string name="cell_sim_mnc">MNC</string>
-    <string name="cell_sim_lac">LAC/TAC</string>
-    <string name="cell_sim_cid">CID/CellId</string>
-    <string name="cell_sim_psc">PSC/PCI</string>
-    <string name="cell_sim_lat">纬度</string>
-    <string name="cell_sim_lon">经度</string>
-    <string name="cell_sim_radius">覆盖半径 (米)</string>
-    <string name="cell_sim_delete">删除</string>
-    <string name="cell_sim_edit">编辑</string>
-    <string name="cell_sim_scan_current">获取当前位置基站</string>
-    <string name="cell_sim_scanning">正在扫描基站...</string>
-    <string name="cell_sim_scan_result_title">扫描到的基站</string>
-    <string name="cell_sim_scan_empty">未扫描到基站信息，请确保已授予定位权限并处于信号覆盖区域</string>
-    <string name="cell_sim_scan_add_all">全部添加</string>
-    <string name="cell_sim_fetch_network">从网络获取基站</string>
-    <string name="cell_sim_fetching_network">正在获取...</string>
-    <string name="cell_sim_history">历史记录</string>
-    <string name="cell_type_gsm">GSM</string>
-    <string name="cell_type_cdma">CDMA</string>
-    <string name="cell_type_lte">LTE</string>
-    <string name="cell_type_wcdma">WCDMA</string>
-    <string name="nfc_sim_input_hint">请输入URL或包名</string>
-    <string name="nfc_sim_send_failed">发送失败: %s</string>
-    <string name="nfc_sim_sent">已发送: %s</string>
-    <string name="nfc_sim_opened">已打开: %s</string>
-    <string name="nfc_sim_need_nfc">请先开启NFC</string>
-
-    <!-- Login -->
-    <string name="login_screen_title">账户</string>
-    <string name="login_tab_login">登录</string>
-    <string name="login_tab_register">注册</string>
-    <string name="login_dialog_title">登录</string>
-    <string name="register_dialog_title">注册</string>
-    <string name="login_username_hint">用户名</string>
-    <string name="login_email_hint">邮箱地址</string>
-    <string name="login_password_hint">密码</string>
-    <string name="register_nickname_hint">昵称</string>
-    <string name="register_password_confirm_hint">确认密码</string>
-    <string name="register_verification_code_hint">邮箱验证码</string>
-    <string name="register_send_code">发送验证码</string>
-    <string name="login_action_login">登录</string>
-    <string name="login_action_register">注册</string>
-    <string name="login_forgot_password">忘记密码？</string>
-    <string name="login_error_empty_fields">必填项不能为空</string>
-    <string name="login_error_empty_email">邮箱不能为空</string>
-    <string name="login_error_invalid_email_domain">仅支持 QQ 邮箱（@qq.com）与谷歌邮箱（@gmail.com）登录，请更换邮箱后重试</string>
-    <string name="register_error_password_mismatch">两次输入的密码不一致</string>
-    <string name="register_error_send_code_failed">发送验证码失败</string>
-    <string name="login_error_unknown">操作失败，请稍后重试</string>
-    <string name="forgot_password_title">忘记密码</string>
-    <string name="forgot_password_description">请输入邮箱和验证码重置密码。</string>
-    <string name="forgot_password_new_password_hint">新密码</string>
-    <string name="forgot_password_send">重置密码</string>
-    <string name="forgot_password_success">密码重置成功</string>
-    <string name="forgot_password_failed">重置失败，请稍后重试</string>
-
-    <!-- Profile -->
-    <string name="profile_title">个人主页</string>
-
-    <!-- Common -->
-    <string name="common_warning">警告</string>
-    <string name="common_delete_all_confirm">确定要删除全部历史记录吗?</string>
-    <string name="common_delete_item_confirm">确定要删除该项历史记录吗?</string>
-    <string name="common_confirm">确认</string>
-    <string name="common_edit">编辑</string>
-    <string name="common_delete">删除</string>
-    <string name="common_cancel">取消</string>
-    <string name="common_ok">确定</string>
-
-    <!-- Drawer -->
-    <string name="drawer_env_check">环境检测</string>
-    <string name="drawer_ok">确定</string>
-    <string name="drawer_nav_sim">模拟导航</string>
-    <string name="drawer_nfc_sim">NFC模拟</string>
-    <string name="drawer_run_mode">运行模式</string>
-    <string name="drawer_sandbox">沙盒引擎</string>
-    <string name="drawer_xposed_settings">Xposed 设置</string>
-    <string name="drawer_action_login">登录/注册</string>
-    <string name="drawer_action_logout">退出登录</string>
-    <string name="drawer_logged_in_as">已登录</string>
-    <string name="drawer_not_logged_in">未登录</string>
-
-    <!-- Sponsor -->
-    <string name="sponsor_copied">已复制</string>
-    <string name="sponsor_copy_address">复制地址</string>
-    <string name="sponsor_wechat_hint">将下方连接在电脑浏览器打开，国家选择中国</string>
-    <string name="sponsor_copy">复制</string>
-
-    <!-- Welcome -->
-    <string name="welcome_read">已阅读</string>
-    <string name="welcome_and">和</string>
-    <string name="welcome_agreement_text">《用户协议》</string>
-    <string name="welcome_privacy_text">《隐私政策》</string>
-
-    <!-- Joystick -->
-    <string name="joystick_speed">摇杆速度: %s km/h</string>
-    <string name="joystick_progress">进度:</string>
-    <string name="joystick_speed_label">速度:</string>
-    <string name="joystick_modify">修改</string>
-    <string name="joystick_route_progress">当前进度(道路): %s</string>
-
-    <!-- Go Utils Dialogs -->
-    <string name="goutils_enable_mock_title">启用位置模拟</string>
-    <string name="goutils_enable_mock_msg">请在\"开发者选项→选择模拟位置信息应用\"中进行设置</string>
-    <string name="goutils_settings">设置</string>
-    <string name="goutils_cancel">取消</string>
-    <string name="goutils_enable_overlay_title">启用悬浮窗</string>
-    <string name="goutils_enable_overlay_msg">为了模拟定位的稳定性，建议开启\"显示悬浮窗\"选项</string>
-    <string name="goutils_enable_gps_title">启用定位服务</string>
-    <string name="goutils_enable_gps_msg">是否开启 GPS 定位服务?</string>
-    <string name="goutils_ok">确定</string>
-    <string name="goutils_warning">警告</string>
-    <string name="goutils_wifi_warning">开启 WIFI 后（即使没有连接热点）将导致定位闪回真实位置。建议关闭 WIFI，使用移动流量进行游戏！</string>
-    <string name="goutils_turn_off">去关闭</string>
-    <string name="goutils_ignore">忽略</string>
-
-    <!-- ViewModel messages -->
-    <string name="vm_update_failed">检查更新失败: %s</string>
-    <string name="vm_up_to_date">当前已是最新版本</string>
-    <string name="vm_search_city">全国</string>
-    <string name="vm_need_location_permission">需要位置权限才能启动模拟</string>
-    <string name="vm_unknown_location">未知地点</string>
-    <string name="vm_step_root_required">步频模拟需要 ROOT 模式</string>
-    <string name="vm_system_not_ready">系统未就绪，请开机 %1$d 秒后再试（剩余约 %2$d 秒）</string>
-    <string name="service_root_fallback_noroot">ROOT 注入失败，请确认已在 ROOT 管理器里授权 KailLocation 后再试</string>
-    <string name="service_root_fallback_binder">注入未生效，请稍候重试，或重启设备后再开始模拟</string>
-
-    <!-- History VM -->
-    <string name="history_vm_coord_wgs84">[经度:%1$s 纬度:%2$s]</string>
-    <string name="history_vm_coord_bd09">[经度:%1$s 纬度:%2$s]</string>
-    <string name="history_vm_offset">经度偏移: %.2f米\n纬度偏移: %.2f米</string>
-
-    <!-- Service -->
-    <string name="service_grant_overlay">请授予悬浮窗权限</string>
-    <string name="service_overlay_failed">悬浮窗初始化失败: %s</string>
-    <string name="service_set_mock_app">请在开发者选项中设置此应用为模拟位置应用</string>
-    <!-- Route Simulation Settings Dialog -->
-    <string name="route_sim_speed_text">运动速度</string>
-    <string name="route_sim_speed_fluctuation">速度浮动</string>
-    <string name="route_sim_step_text">步频模拟</string>
-    <string name="route_sim_cadence_text">步频</string>
-    <string name="route_sim_cadence_format">%d 步/分钟 · 约 %.1f km/h</string>
-    <string name="route_sim_step_root_required">步频模拟需要 ROOT 模式</string>
-
-    <!-- Common error messages -->
-    <string name="error_cannot_open_email">无法打开邮件应用</string>
-    <string name="error_cannot_open_browser">无法打开浏览器</string>
-    <string name="error_under_development">功能开发中...</string>
-    <string name="download_progress">下载中… %d%%</string>
-
-    <!-- Settings remaining -->
-    <string name="setting_mock_speed">模拟移动速度 (m/s)</string>
-    <string name="setting_accuracy_title">定位精度/定位抖动范围 (米)</string>
-    <string name="setting_accuracy_summary">默认 2.5。自然 GPS 抖动关闭时作为定位精度；开启后作为自然 GPS 抖动范围。</string>
-    <string name="setting_min_satellites">最少模拟卫星数量</string>
-    <string name="setting_min_satellites_summary">仅支持北斗卫星</string>
-    <string name="setting_report_interval">上报位置频率 (ms)</string>
-    <string name="setting_report_interval_summary">单位毫秒，默认 200ms；数值越低，上报越频繁，耗电和负载越高</string>
-    <string name="setting_gps_satellite_title">模拟 GPS 卫星信号</string>
-    <string name="setting_gps_satellite_summary">伪造北斗卫星数量和信号强度</string>
-    <string name="setting_agps_title">启用 AGPS 模块</string>
-    <string name="setting_agps_summary">辅助定位相关（实验性）</string>
-    <string name="setting_nmea_title">启用 NMEA 模块</string>
-    <string name="setting_nmea_summary">伪造 NMEA 数据输出</string>
-    <string name="setting_wlan_title">模拟 WLAN 数据</string>
-    <string name="setting_wlan_summary">伪造 WiFi 定位数据</string>
-
-    <!-- Usage Manager -->
-    <string name="usage_not_logged_in">请先登录后再使用模拟功能</string>
-    <string name="usage_free_exhausted">今日免费模拟次数已用完，订阅后可无限使用</string>
-    <string name="usage_count_exhausted">模拟次数已用完</string>
-
-    <!-- API Errors -->
-    <string name="api_error_remaining">获取剩余次数失败</string>
-    <string name="api_error_send_code">发送验证码失败</string>
-    <string name="api_error_login">登录失败</string>
-    <string name="api_error_plans">获取套餐列表失败</string>
-    <string name="api_error_notices">获取公告失败</string>
-    <string name="api_error_subscription">获取订阅状态失败</string>
-
-    <!-- Sponsor Errors -->
-    <string name="sponsor_error_not_logged_in">未登录</string>
-    <string name="sponsor_error_select_plan">请选择套餐</string>
-    <string name="sponsor_error_create_checkout">创建结算页面失败</string>
-
-    <!-- Sponsor Screen -->
-    <string name="sponsor_top_title">订阅与赞助</string>
-    <string name="sponsor_member_title">会员订阅</string>
-    <string name="sponsor_select_hint">选择套餐以解锁全部功能</string>
-    <string name="sponsor_subscribed_text">已订阅</string>
-    <string name="sponsor_thanks">感谢您的支持！</string>
-    <string name="sponsor_billing_once">一次性</string>
-    <string name="sponsor_billing_month">/月</string>
-    <string name="sponsor_billing_year">/年</string>
-    <string name="sponsor_login_first">请先登录后再订阅</string>
-    <string name="sponsor_credit_card">信用卡/银行卡</string>
-    <string name="sponsor_wechat_pay">微信支付</string>
-    <string name="sponsor_support_title">赞助支持</string>
-    <string name="sponsor_aptos_hint">您也可以直接通过 Aptos 链赞助：</string>
-    <string name="sponsor_copy_aptos_address">复制 Aptos 地址</string>
-
-    <!-- Login Screen -->
-    <string name="login_hint_text">仅支持 QQ 邮箱与谷歌邮箱，输入验证码即可登录或自动注册</string>
-    <string name="login_register_btn">登录 / 注册</string>
-
-    <!-- Profile -->
-    <string name="profile_member_status">会员状态</string>
-    <string name="profile_not_subscribed">未订阅</string>
-    <string name="profile_subscribe_now">订阅会员</string>
-
-    <!-- Cell Simulation Screen -->
-    <string name="cell_sim_empty_text">暂无模拟基站</string>
-    <string name="cell_sim_scan_hint">点击下方按钮扫描或添加基站</string>
-    <string name="cell_sim_deselect_all">取消全选</string>
-    <string name="cell_sim_select_all">全选</string>
-    <string name="cell_sim_running_title">基站模拟运行中</string>
-    <string name="cell_sim_title_short">基站模拟</string>
-    <string name="cell_sim_more_fmt">+ %d 更多...</string>
-    <string name="cell_sim_start">开始模拟</string>
-    <string name="cell_sim_stop">停止模拟</string>
-    <string name="cell_sim_status_running">运行中</string>
-    <string name="cell_sim_scan_count_fmt">扫描到 %d 个基站</string>
-    <string name="cell_sim_location_fmt">位置: %s</string>
-
-    <!-- WiFi Simulation Screen -->
-    <string name="wifi_sim_empty_text">暂无模拟WiFi</string>
-    <string name="wifi_sim_scan_hint">点击下方按钮扫描附近WiFi</string>
-    <string name="wifi_sim_deselect_all">取消全选</string>
-    <string name="wifi_sim_select_all">全选</string>
-    <string name="wifi_sim_running_title">WiFi模拟运行中</string>
-    <string name="wifi_sim_title_short">WiFi模拟</string>
-    <string name="wifi_sim_start">开始模拟</string>
-    <string name="wifi_sim_stop">停止模拟</string>
-    <string name="wifi_sim_status_running">运行中</string>
-    <string name="wifi_sim_scan_count_fmt">扫描到 %d 个WiFi</string>
-    <string name="wifi_sim_add_label">添加</string>
-
-    <!-- Announcement Dialog -->
-    <string name="announcement_default_title">公告</string>
-    <string name="announcement_previous">上一条</string>
-    <string name="announcement_next">下一条</string>
-    <string name="announcement_got_it">我知道了</string>
-
-    <!-- Independent Simulation -->
-    <string name="ind_sim_running">独立模拟运行中</string>
-    <string name="ind_sim_stopped">独立模拟已停止</string>
-    <string name="ind_sim_description">选择目标应用后开启。开启后，在位置/路线/WiFi/基站/步频页面点"开始模拟"，都只对这里选中的应用生效，其它应用读到真实数据。</string>
-    <string name="ind_sim_stop_btn">停止独立模拟</string>
-    <string name="ind_sim_start_btn">开始独立模拟</string>
-
-    <!-- Checkout WebView -->
-    <string name="checkout_title">结账</string>
-    <string name="checkout_back_desc">返回</string>
-
-    <!-- Location Picker -->
-    <string name="picker_map_init_failed">地图初始化失败: %s</string>
-    <string name="picker_search_no_results">抱歉，未能找到结果</string>
-
-    <!-- Update -->
-    <string name="update_found_title">发现新版本: %s</string>
-
-    <!-- Location Simulation -->
-    <string name="location_rename_title">重命名位置</string>
-
-    <!-- Sandbox Manager/Activity/Screen -->
-    <string name="sandbox_install_success">安装成功</string>
-    <string name="sandbox_install_failed">安装失败: %s</string>
-    <string name="sandbox_uninstall_success">卸载成功</string>
-    <string name="sandbox_uninstall_failed">卸载失败: %s</string>
-    <string name="sandbox_launch_failed">启动失败</string>
-    <string name="sandbox_launch_failed_msg">启动失败: %s</string>
-    <string name="sandbox_clear_success">清除成功</string>
-    <string name="sandbox_clear_failed">清除失败: %s</string>
-    <string name="sandbox_stopped">已停止运行</string>
-    <string name="sandbox_stop_failed">停止失败: %s</string>
-    <string name="sandbox_loading_failed">加载沙盒应用失败: %s</string>
-    <string name="sandbox_system_apps_failed">加载系统应用失败: %s</string>
-    <string name="sandbox_title_fmt">沙盒 - %s</string>
-    <string name="sandbox_creating_shortcut">正在创建快捷方式...</string>
-    <string name="sandbox_shortcut_failed">创建快捷方式失败: %s</string>
-    <string name="sandbox_invalid_shortcut">无效的快捷方式</string>
-    <string name="sandbox_empty">沙盒中暂无应用</string>
-    <string name="sandbox_empty_hint">点击右下角 + 按钮克隆应用</string>
-    <string name="sandbox_launch_app">启动应用</string>
-    <string name="sandbox_clear_data">清除数据</string>
-    <string name="sandbox_stop_running">停止运行</string>
-    <string name="sandbox_uninstall_app">卸载应用</string>
-    <string name="sandbox_create_shortcut">创建快捷方式</string>
-    <string name="sandbox_clear_data_btn">清除数据</string>
-    <string name="sandbox_uninstall_btn">卸载</string>
-    <string name="sandbox_clone_title">克隆应用</string>
-    <string name="sandbox_search_placeholder">搜索应用...</string>
-    <string name="sandbox_load_system_apps">加载系统应用列表</string>
-    <string name="sandbox_settings_title">沙盒设置</string>
-    <string name="sandbox_hide_root">隐藏 Root</string>
-    <string name="sandbox_hide_root_desc">对沙盒应用隐藏 Root 权限</string>
-    <string name="sandbox_restart_to_apply">重启应用生效</string>
-    <string name="sandbox_daemon">守护进程</string>
-    <string name="sandbox_daemon_desc">保持沙盒服务在后台运行</string>
-    <string name="sandbox_vpn">使用 VPN 网络</string>
-    <string name="sandbox_vpn_desc">通过 VPN 路由沙盒应用流量，可能改善网络访问</string>
-    <string name="sandbox_disable_secure">禁用 FLAG_SECURE</string>
-    <string name="sandbox_disable_secure_desc">允许在沙盒应用中截屏和录屏</string>
-    <string name="sandbox_step_sim">步频模拟</string>
-    <string name="sandbox_step_sim_desc">为沙盒应用模拟步频传感器数据</string>
-    <string name="sandbox_step_fmt">步频: %d 步/分钟</string>
-    <string name="sandbox_step_adjust">点击调整步频</string>
-    <string name="sandbox_gms">GMS 管理</string>
-    <string name="sandbox_gms_desc">管理 Google 服务框架</string>
-    <string name="sandbox_gms_coming">功能开发中</string>
-    <string name="sandbox_gms_unsupported">当前设备不支持 GMS</string>
-    <string name="sandbox_send_log">发送日志</string>
-    <string name="sandbox_send_log_desc">上传调试日志到开发者</string>
-    <string name="sandbox_log_sent">日志发送成功</string>
-    <string name="sandbox_log_failed">日志发送失败: %s</string>
-    <string name="sandbox_log_sending">正在发送日志...</string>
-    <string name="sandbox_adjust_cadence">调整步频</string>
-    <string name="sandbox_cadence_fmt">%d 步/分钟</string>
-    <string name="sandbox_cadence_range">步频范围: 30 - 240 步/分钟</string>
-
-    <!-- Settings -->
-    <string name="settings_step_sim">步频模拟</string>
-    <string name="settings_step_sim_enable">启用步频模拟</string>
-    <string name="settings_step_sim_summary">模拟步频数据用于计步类应用</string>
-    <string name="settings_step_type">步频数据类型</string>
-
-    <!-- Cell ViewModel -->
-    <string name="cell_fetch_no_location">无法获取当前位置，请先设置模拟位置或开启GPS</string>
-    <string name="cell_fetch_no_key">请先在设置中配置 OpenCellID API Key</string>
-    <string name="cell_fetch_no_data">未查询到基站数据，该区域可能无覆盖或API限制</string>
-    <string name="cell_fetch_failed">网络请求失败: %s</string>
-
-    <!-- NFC -->
-    <string name="nfc_read_failed">读取失败: %s</string>
-
-    <!-- Xposed Settings -->
-    <string name="xposed_not_set">未设置</string>
-
-    <!-- Welcome -->
-    <string name="welcome_cannot_open_settings">无法打开设置页面，请手动开启</string>
-</resources>
+﻿<resources>
+    <string name="app_name">KailLocation</string>
+    <string name="app_settings">璁剧疆</string>
+    <string name="app_history">鍘嗗彶璁板綍</string>
+    <string name="history_title">鍘嗗彶璁板綍</string>
+    <string name="history_search_hint">鎼滅储鍘嗗彶璁板綍</string>
+    <string name="history_no_record">鏆傛棤鍘嗗彶璁板綍</string>
+    <string name="app_author">kail</string>
+    <string name="app_email">kailkali23143@gmail.com</string>
+    <string name="app_statement">浠呬緵瀛︿範浣跨敤锛屽惁鍒欏悗鏋滆嚜璐燂紒</string>
+    <string name="app_service_tips">KailLocation鏈嶅姟姝ｅ湪杩愯涓?/string>
+    <string name="app_agreement">鐢ㄦ埛鍗忚</string>
+    <string name="app_agreement_content">"1. 鏈蒋浠朵笓涓哄涔?Android 寮€鍙戜娇鐢紝涓嶄細鏀堕泦浠讳綍鐢ㄦ埛鏁版嵁銆?
+    "涓ョ鍒╃敤鏈蒋浠朵镜鐘粬浜洪殣绉佹潈鎴栬€呯敤浜庢父鎴忕墴鍒╋紝濡傝蒋浠朵娇鐢ㄨ€呬笉鑳介伒瀹堟瑙勫畾锛?璇风珛鍗冲垹闄ゃ€?
+    "瀵逛簬鍥犵敤鎴蜂娇鐢ㄦ湰杞欢鑰岄€犳垚鑷韩鎴栦粬浜洪殣绉佹硠闇茬瓑浠讳綍涓嶈壇鍚庢灉锛屽潎鐢辩敤鎴疯嚜琛屾壙鎷咃紝杞欢浣滆€呬笉璐熶换浣曡矗浠汇€俓n"
+    "2. 鐢ㄦ埛涓嶅緱瀵规湰杞欢浜у搧杩涜鍙嶅悜宸ョ▼锛坮everse engineer锛夈€佸弽鍚戠紪璇戯紙decompile锛夋垨鍙嶆眹缂栵紙disassemble锛夛紝 杩濊€呭睘浜庝镜鏉冭涓猴紝骞惰嚜琛屾壙鎷呯敱姝や骇鐢熺殑涓嶅埄鍚庢灉銆俓n"
+    "3. 杞欢淇濊瘉涓嶅惈浠讳綍鐥呮瘨锛屾湪椹紝绛夌牬鍧忕敤鎴锋暟鎹殑鎭舵剰浠ｇ爜锛屼絾鏄敱浜庢湰杞欢浜у搧鍙互閫氳繃缃戠粶绛夐€斿緞涓嬭浇銆佷紶鎾紝瀵逛簬浠庨潪杞欢浣滆€呮寚瀹氱珯鐐逛笅杞界殑鏈蒋浠朵骇鍝佽蒋浠朵綔鑰呮棤娉曚繚璇佽杞欢鏄惁鎰熸煋璁＄畻鏈虹梾姣掋€佹槸鍚﹂殣钘忔湁浼鐨勭壒娲涗紛鏈ㄩ┈绋嬪簭鎴栬€呴粦瀹㈣蒋浠讹紝涓嶆壙鎷呯敱姝ゅ紩璧风殑鐩存帴鍜岄棿鎺ユ崯瀹宠矗浠汇€俓n"
+    "4. 杞欢浼氫笉鏂洿鏂帮紝浠ヤ究鍙婃椂涓虹敤鎴锋彁渚涙柊鍔熻兘鍜屼慨姝ｈ蒋浠朵腑鐨凚UG銆?鍚屾椂杞欢浣滆€呬繚璇佹湰杞欢鍦ㄥ崌绾ц繃绋嬩腑涔熶笉鍚湁浠讳綍鏃ㄥ湪鐮村潖鐢ㄦ埛璁＄畻鏈烘暟鎹殑鎭舵剰浠ｇ爜銆俓n"
+    "5. 鐢变簬鐢ㄦ埛璁＄畻鏈鸿蒋纭欢鐜鐨勫樊寮傛€у拰澶嶆潅鎬э紝鏈蒋浠舵墍鎻愪緵鐨勫悇椤瑰姛鑳藉苟涓嶈兘淇濊瘉鍦ㄤ换浣曟儏鍐典笅閮借兘姝ｅ父鎵ц鎴栬揪鍒扮敤鎴锋墍鏈熸湜鐨勭粨鏋溿€?鐢ㄦ埛浣跨敤鏈蒋浠舵墍浜х敓鐨勪竴鍒囧悗鏋滐紝杞欢浣滆€呬笉鎵挎媴浠讳綍璐ｄ换銆俓n"
+    "6. 濡傛灉鐢ㄦ埛鑷瀹夎鏈蒋浠讹紝鍗宠〃鏄庣敤鎴蜂俊浠昏蒋浠朵綔鑰咃紝鑷効閫夋嫨瀹夎鏈蒋浠讹紝骞舵帴鍙楁湰鍗忚鎵€鏈夋潯娆俱€?濡傛灉鐢ㄦ埛涓嶆帴鍙楁湰鍗忚锛岃绔嬪嵆鍒犻櫎銆俓n"
+    </string>
+    <string name="app_privacy">闅愮鏀跨瓥</string>
+    <string name="app_privacy_content">"1. 鏈蒋浠朵笓涓哄涔?Android 寮€鍙戜娇鐢紝涓嶄細鏀堕泦浠讳綍鐢ㄦ埛鏁版嵁銆俓n"
+    "2. 鐢ㄦ埛涓嶅緱瀵规湰杞欢浜у搧杩涜鍙嶅悜宸ョ▼锛坮everse engineer锛夈€佸弽鍚戠紪璇戯紙decompile锛夋垨鍙嶆眹缂栵紙disassemble锛夛紝 杩濊€呭睘浜庝镜鏉冭涓猴紝骞惰嚜琛屾壙鎷呯敱姝や骇鐢熺殑涓嶅埄鍚庢灉銆俓n"
+    "3. 杞欢淇濊瘉涓嶅惈浠讳綍鐥呮瘨锛屾湪椹紝绛夌牬鍧忕敤鎴锋暟鎹殑鎭舵剰浠ｇ爜锛屼絾鏄敱浜庢湰杞欢浜у搧鍙互閫氳繃缃戠粶绛夐€斿緞涓嬭浇銆佷紶鎾紝瀵逛簬浠庨潪杞欢浣滆€呮寚瀹氱珯鐐逛笅杞界殑鏈蒋浠朵骇鍝佽蒋浠朵綔鑰呮棤娉曚繚璇佽杞欢鏄惁鎰熸煋璁＄畻鏈虹梾姣掋€佹槸鍚﹂殣钘忔湁浼鐨勭壒娲涗紛鏈ㄩ┈绋嬪簭鎴栬€呴粦瀹㈣蒋浠讹紝涓嶆壙鎷呯敱姝ゅ紩璧风殑鐩存帴鍜岄棿鎺ユ崯瀹宠矗浠汇€俓n"
+    "4. 杞欢浼氫笉鏂洿鏂帮紝浠ヤ究鍙婃椂涓虹敤鎴锋彁渚涙柊鍔熻兘鍜屼慨姝ｈ蒋浠朵腑鐨凚UG銆?鍚屾椂杞欢浣滆€呬繚璇佹湰杞欢鍦ㄥ崌绾ц繃绋嬩腑涔熶笉鍚湁浠讳綍鏃ㄥ湪鐮村潖鐢ㄦ埛璁＄畻鏈烘暟鎹殑鎭舵剰浠ｇ爜銆俓n"
+    "5. 鐢变簬鐢ㄦ埛璁＄畻鏈鸿蒋纭欢鐜鐨勫樊寮傛€у拰澶嶆潅鎬э紝鏈蒋浠舵墍鎻愪緵鐨勫悇椤瑰姛鑳藉苟涓嶈兘淇濊瘉鍦ㄤ换浣曟儏鍐典笅閮借兘姝ｅ父鎵ц鎴栬揪鍒扮敤鎴锋墍鏈熸湜鐨勭粨鏋溿€?鐢ㄦ埛浣跨敤鏈蒋浠舵墍浜х敓鐨勪竴鍒囧悗鏋滐紝杞欢浣滆€呬笉鎵挎媴浠讳綍璐ｄ换銆俓n"
+    "6. 濡傛灉鐢ㄦ埛鑷瀹夎鏈蒋浠讹紝鍗宠〃鏄庣敤鎴蜂俊浠昏蒋浠朵綔鑰咃紝鑷効閫夋嫨瀹夎鏈蒋浠讹紝骞舵帴鍙楁湰鍗忚鎵€鏈夋潯娆俱€?濡傛灉鐢ㄦ埛涓嶆帴鍙楁湰鍗忚锛岃绔嬪嵆鍒犻櫎銆俓n"
+    </string>
+    <string name="app_agreement_privacy">宸查槄璇汇€婄敤鎴峰崗璁€嬪拰銆婇殣绉佹斂绛栥€?/string>
+    <string name="app_error_agreement">蹇呴』鍏堟帴鍙梊n銆婄敤鎴峰崗璁€嬪拰銆婇殣绉佹斂绛栥€?/string>
+    <string name="app_error_read">璇蜂緷娆￠槄璇诲苟鎺ュ彈\n銆婄敤鎴峰崗璁€嬪拰銆婇殣绉佹斂绛栥€?/string>
+    <string name="app_error_gps">瀹氫綅涓嶅彲鐢紝璇锋鏌?GPS 鏄惁寮€鍚?/string>
+    <string name="app_error_network">缃戠粶涓嶅彲鐢紝璇锋鏌ョ綉缁滆繛鎺?/string>
+    <string name="app_error_permission">鏉冮檺涓嶈冻锛岃鎺堜簣鐩稿叧鏉冮檺</string>
+    <string name="app_error_input">杈撳叆鏈夎锛岃妫€鏌ヨ緭鍏ユ槸鍚﹀悎娉?/string>
+    <string name="app_error_input_null">杈撳叆涓嶈兘涓虹┖锛岃閲嶆柊杈撳叆鍐呭</string>
+    <string name="app_error_search">鏌ユ壘澶辫触锛岃妫€鏌ョ綉缁滄垨瀹氫綅</string>
+    <string name="app_error_location">璇峰厛閫夋嫨浣嶇疆</string>
+    <string name="app_error_dev">寮€鍙戣€呮ā寮忔湭寮€鍚紝鏃犳硶璺宠浆锛佽鑷鎼滅储寮€鍚柟娉?/string>
+    <string name="app_error_param">闈炴硶鍙傛暟</string>
+    <string name="app_error_protocol">璇峰厛闃呰骞舵帴鏀剁敤鎴峰崗璁?/string>
+    <string name="app_error_username">鐢ㄦ埛鍚嶄笉鍚堟硶</string>
+    <string name="app_error_code">娉ㄥ唽鐮佷笉鑳戒负绌?/string>
+    <string name="app_error_longitude">缁忓害瓒呭嚭闄愬埗!\n鍙栧€硷細-180.0 ~ 180.0</string>
+    <string name="app_error_latitude">绾害瓒呭嚭闄愬埗!\n鍙栧€硷細-90.0 ~ 90.0</string>
+    <string name="app_search_null">娌℃湁鍖归厤缁撴灉锛岃閲嶆柊鎼滅储</string>
+    <string name="app_search_tips">璇疯緭鍏ユ煡鎵惧唴瀹?/string>
+    <string name="app_location_ok">浣嶇疆宸蹭紶閫?/string>
+    <string name="app_location_copy">浣嶇疆宸插鍒跺埌鍓垏鏉?/string>
+    <string name="app_location_save">浣嶇疆宸蹭繚瀛?/string>
+
+    <!-- 娆㈣繋椤?-->
+    <string name="welcome_btn_txt">杩涘叆搴旂敤</string>
+    <string name="app_btn_agree">鍚屾剰骞剁户缁?/string>
+    <string name="app_btn_disagree">涓嶅悓鎰?/string>
+
+    <!-- 绉诲姩鐩稿叧鍙傛暟 -->
+    <string name="setting_group_move">绉诲姩</string>
+    <string name="setting_joystick_type">鎽囨潌绫诲瀷</string>
+    <string name="setting_joystick_speed">鎽囨潌绉诲姩閫熷害(绫?绉?</string>
+    <string name="setting_joystick_speed_default">1.2</string>
+    <string name="setting_walk">姝ヨ閫熷害(绫?绉?</string>
+    <string name="setting_walk_default">1.2</string>
+    <string name="setting_run">璺戞閫熷害(绫?绉?</string>
+    <string name="setting_run_default">3.6</string>
+    <string name="setting_bike">椹鹃┒閫熷害(绫?绉?</string>
+    <string name="setting_bike_default">10.0</string>
+    <string name="setting_altitude">娴锋嫈楂樺害(绫?</string>
+    <string name="setting_altitude_default">55.0</string>
+
+    <!-- 浣嶇疆鍋忕Щ鐩稿叧鍙傛暟 -->
+    <string name="setting_group_location_offset">浣嶇疆鍋忕Щ</string>
+    <string name="setting_random_offset">闅忔満鍋忕Щ</string>
+    <string name="setting_random_offset_summary">浠呭湪浣跨敤鍘嗗彶浣嶇疆鏃剁敓鏁?/string>
+    <string name="setting_random_offset_default">10.0</string>
+    <string name="setting_lat_max_offset">缁忓害鏈€澶у亸绉昏窛绂?绫?</string>
+    <string name="setting_lon_max_offset">绾害鏈€澶у亸绉昏窛绂?绫?</string>
+    <!-- 璁板綍鐩稿叧鍙傛暟 -->
+    <string name="setting_group_log">璁板綍</string>
+    <string name="setting_log_off">鍏抽棴鏃ュ織</string>
+    <string name="setting_history_expiration">鍘嗗彶璁板綍鏈夋晥鏈?澶?</string>
+    <!-- 鍏充簬鐩稿叧鍙傛暟 -->
+    <string name="setting_group_about">鍏充簬</string>
+    <string name="setting_version">鐗堟湰鍙?/string>
+    <string name="setting_author">寮€鍙戣€?/string>
+
+    <!-- 鍘嗗彶璁板綍椤甸潰 -->
+    <string name="history_expiration">7</string>
+    <string name="history_location_default_name">鍦板浘浣嶇疆</string>
+    <string name="history_idle">鏆傛棤鍘嗗彶璁板綍</string>
+    <string name="history_delete_ok">鍒犻櫎鎴愬姛锛?/string>
+    <string name="history_delete_error">鍒犻櫎璁板綍澶辫触</string>
+    <string name="history_error_location">瀹氫綅澶辫触锛岃鎵嬪姩閫夊彇瀹氫綅鐐?/string>
+    <string name="history_error_search">鏈悳绱㈠埌鎸囧畾鍐呭</string>
+
+    <!-- 閫氱煡鏍?-->
+    <string name="note_show">鏄剧ず鎽囨潌</string>
+    <string name="note_hide">闅愯棌鎽囨潌</string>
+    <!-- 鎽囨潌 -->
+    <string name="joystick_map_tips">鎼滅储鎴栫偣鍑诲湴鍥句綅缃?/string>
+    <string name="joystick_history_tips">鎼滅储鎴栫偣鍑诲巻鍙蹭綅缃?/string>
+    <string name="joystick_history">鍘嗗彶璁板綍</string>
+    <string name="joystick_history_favorites">鏀惰棌</string>
+    <string name="joystick_history_normal">鍘嗗彶浣嶇疆</string>
+    <string name="joystick_map">鍦板浘</string>
+    <string name="joystick_move">绉诲姩</string>
+    <string name="joystick_walk">姝ヨ</string>
+    <string name="joystick_run">璺戞</string>
+    <string name="joystick_bike">鑷杞?/string>
+    <!-- 瀵艰埅椤?-->
+    <string name="nav_drawer_open">鎵撳紑瀵艰埅鑿滃崟</string>
+    <string name="nav_drawer_close">鍏抽棴瀵艰埅鑿滃崟</string>
+    <string name="nav_menu_history">鍘嗗彶璁板綍</string>
+    <string name="nav_menu_location_simulation">浣嶇疆妯℃嫙</string>
+    <string name="nav_menu_route_simulation">璺嚎妯℃嫙</string>
+    <string name="loc_sim_title">浣嶇疆妯℃嫙</string>
+    <string name="loc_sim_target">鐩爣浣嶇疆</string>
+    <string name="loc_sim_none">NONE</string>
+    <string name="loc_sim_lat_lng">缁忕含搴? %1$s,%2$s</string>
+    <string name="loc_sim_start">鍚姩妯℃嫙</string>
+    <string name="sim_starting">鍚姩涓?/string>
+    <string name="loc_sim_stop">鍋滄妯℃嫙</string>
+    <string name="loc_sim_base_station">鍩虹珯</string>
+    <string name="loc_sim_joystick">鎽囨潌</string>
+    <string name="loc_sim_history_title">鍘嗗彶浣嶇疆</string>
+    <string name="loc_sim_add_tips">鐐瑰嚮鍙充笂瑙?"+" 鎸夐挳杩涜娣诲姞</string>
+    <string name="nav_menu_settings">璁剧疆</string>
+    <string name="nav_menu_dev">寮€鍙戜汉鍛橀€夐」</string>
+    <string name="nav_menu_more">鏇村</string>
+    <string name="nav_menu_upgrade">妫€娴嬫洿鏂?/string>
+    <string name="nav_menu_feedback">闂鍙嶉</string>
+    <string name="nav_menu_contact">鑱旂郴浣滆€?/string>
+    <string name="nav_app_tips">浠呬緵瀛︿範浣跨敤锛屽惁鍒欏悗鏋滆嚜璐?</string>
+    <string name="nav_menu_github">寮€婧愪粨搴?/string>
+    <string name="nav_menu_run_mode">杩愯妯″紡</string>
+    <string name="run_mode_dialog_title">閫夋嫨杩愯妯″紡</string>
+    <string name="run_mode_root">Root 妯″紡</string>
+    <string name="run_mode_developer">寮€鍙戣€呮ā寮?/string>
+    <string name="run_mode_xposed">Xposed 妯″紡</string>
+    <string name="run_mode_sandbox">娌欑洅妯″紡</string>
+    <string name="xposed_module_not_found">鏈娴嬪埌 Xposed 妯″潡</string>
+    <string name="xposed_module_download_hint">璇峰厛瀹夎 KailLocation Xposed 妯″潡鎵嶈兘浣跨敤 Xposed 妯″紡銆?/string>
+    <string name="xposed_module_download">鍓嶅線涓嬭浇</string>
+    <string name="run_mode_changed">杩愯妯″紡宸插垏鎹负 %s</string>
+
+    <!-- 涓荤晫闈?-->
+    <string name="label_longitude">缁忓害</string>
+    <string name="label_latitude">绾害</string>
+    <string name="input_position_ok">浼犻€?/string>
+    <string name="input_position_cancel">鍙栨秷</string>
+    <string name="input_position_baidu">BD09 鍧愭爣绯?/string>
+    <string name="input_position_gps">GPS 鍧愭爣绯?/string>
+    <string name="input_button">杈撳叆浣嶇疆</string>
+    <string name="cur_position">杩斿洖褰撳墠浣嶇疆</string>
+    <string name="zoom_in">鏀惧ぇ</string>
+    <string name="zoom_out">缂╁皬</string>
+
+    <!-- 鐧惧害鍦板浘 -->
+    <string name="map_pic_sate">鍗槦鍥?/string>
+    <string name="map_pic_normal">鏅€氬浘</string>
+
+    <!-- 鏇存柊 -->
+    <string name="update_title">鏂扮増鏈彲鐢?/string>
+    <string name="update_downloading">鍗囩骇鏂囦欢涓嬭浇涓€傘€傘€?/string>
+    <string name="update_last">鎭枩锛孠ailLocation宸叉槸鏈€鏂扮増</string>
+    <string name="update_download">绔嬪嵆涓嬭浇</string>
+    <string name="update_ignore">蹇界暐涓€娆?/string>
+    <string name="update_time">鏇存柊鏃堕棿锛?/string>
+    <string name="update_commit">鎻愪氦淇℃伅锛?/string>
+
+    <!-- Navigation -->
+    <string name="nav_menu_sim_group">妯℃嫙</string>
+    <string name="nav_sim_title">妯℃嫙瀵艰埅</string>
+    <string name="nav_sim_start">寮€濮嬫ā鎷?/string>
+    <string name="nav_sim_stop">缁撴潫妯℃嫙</string>
+    <string name="nav_sim_pause">鏆傚仠</string>
+    <string name="nav_sim_resume">缁х画</string>
+    <string name="nav_sim_planning">瑙勫垝涓?..</string>
+    <string name="nav_sim_start_point">璧风偣:</string>
+    <string name="nav_sim_end_point">缁堢偣:</string>
+    <string name="nav_sim_select_start">璇烽€夋嫨璧风偣</string>
+    <string name="nav_sim_select_end">璇烽€夋嫨缁堢偣</string>
+    <string name="nav_sim_multi_route">澶氳矾绾?/string>
+    <string name="nav_sim_history_title">鍘嗗彶鏁版嵁 (鏈€澶氭樉绀?0鏉?</string>
+    <string name="nav_sim_clear">娓呯┖</string>
+    <string name="nav_sim_switch_route">鍒囨崲璺嚎</string>
+    <string name="nav_sim_choose_route">閫夋嫨璺嚎</string>
+    <string name="nav_sim_speed_dialog_title">璁剧疆閫熷害 (km/h)</string>
+    <string name="nav_sim_speed">閫熷害</string>
+    <string name="nav_sim_ok">纭畾</string>
+    <string name="nav_sim_cancel">鍙栨秷</string>
+
+    <!-- Route Simulation -->
+    <string name="route_sim_title">璺嚎妯℃嫙</string>
+    <string name="route_sim_target">鐩爣璺嚎</string>
+    <string name="route_sim_history">鍘嗗彶璺嚎</string>
+    <string name="route_sim_no_name">鏆傛棤</string>
+    <string name="route_sim_start">鍚姩妯℃嫙</string>
+    <string name="route_sim_stop">缁撴潫妯℃嫙</string>
+    <string name="route_sim_pause">鏆傚仠</string>
+    <string name="route_sim_resume">缁х画</string>
+    <string name="route_sim_speed_btn">閫?棰?/string>
+    <string name="route_sim_loop">寰幆</string>
+    <string name="route_sim_rename_title">閲嶅懡鍚嶈矾绾?/string>
+    <string name="route_sim_rename_ok">纭畾</string>
+    <string name="route_sim_rename_cancel">鍙栨秷</string>
+    <string name="route_sim_need_route">璇峰厛娣诲姞骞朵繚瀛樿矾绾?/string>
+    <string name="route_sim_start_failed">鍚姩妯℃嫙澶辫触</string>
+
+    <!-- Route Plan -->
+    <string name="route_plan_search_hint">鎼滅储鍦扮偣</string>
+    <string name="route_plan_map_type">閫夋嫨鍦板浘绫诲瀷</string>
+    <string name="route_plan_normal">鏅€氬湴鍥?/string>
+    <string name="route_plan_satellite">鍗槦鍦板浘</string>
+    <string name="route_plan_coord_title">杈撳叆鍧愭爣</string>
+    <string name="route_plan_latitude">绾害</string>
+    <string name="route_plan_longitude">缁忓害</string>
+    <string name="route_plan_coord_type">BD09鍧愭爣 (榛樿WGS84)</string>
+    <string name="route_plan_coord_combined">绾害,缁忓害</string>
+    <string name="route_plan_coord_error">璇疯緭鍏ユ湁鏁堢殑绾害,缁忓害</string>
+    <string name="route_plan_ok">纭畾</string>
+    <string name="route_plan_cancel">鍙栨秷</string>
+    <string name="route_plan_history">鍘嗗彶浣嶇疆</string>
+    <string name="route_plan_history_title">閫夋嫨鍘嗗彶浣嶇疆</string>
+
+    <!-- Settings -->
+    <string name="setting_sim_scheme">浼犳劅鍣ㄦā鎷熸柟妗?/string>
+    <string name="setting_sim_fourier">鍌呴噷鍙剁骇鏁?(Fourier)</string>
+    <string name="setting_sim_sine_noise">姝ｅ鸡+闅忔満鎵板姩 (Sine+Noise)</string>
+
+    <string-array name="array_sim_scheme">
+        <item>@string/setting_sim_fourier</item>
+        <item>@string/setting_sim_sine_noise</item>
+    </string-array>
+    <string-array name="array_sim_scheme_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+    <string name="setting_step_sim">璁℃鍣ㄦā鎷?/string>
+    <string name="setting_step_sim_summary">鎺у埗姝ユ暟妫€娴嬪櫒(18)涓庤姝ュ櫒(19)浜嬩欢鐨勬ā鎷?/string>
+    <string name="setting_group_satellite_and_signal">鍗槦涓庝俊鍙锋ā鎷?/string>
+    <string name="setting_group_intercept">鎷︽埅涓庨檷绾ф帶鍒?/string>
+    <string name="setting_allow_get_current">鍏佽 GetCurrentLocation</string>
+    <string name="setting_allow_get_current_summary">鍏抽棴鍒欐嫤鎴?getCurrentLocation 璇锋眰</string>
+    <string name="setting_allow_register_listener">鍏佽娉ㄥ唽浣嶇疆鐩戝惉鍣?/string>
+    <string name="setting_allow_register_listener_summary">鍏抽棴鍒欐嫤鎴?registerLocationListener</string>
+    <string name="setting_allow_geofence">鍏佽鍦扮悊鍥存爮璇锋眰</string>
+    <string name="setting_allow_geofence_summary">鍏抽棴鍒欐嫤鎴?addGeofence</string>
+    <string name="setting_allow_get_location">鍏佽浣嶇疆鑾峰彇</string>
+    <string name="setting_allow_get_location_summary">鍏抽棴鍒欐嫤鎴?getFromLocation 绛夊弽鏌?/string>
+    <string name="setting_disable_fused">绂佺敤铻嶅悎瀹氫綅</string>
+    <string name="setting_disable_fused_summary">闃绘搴旂敤浣跨敤 fused provider</string>
+    <string name="setting_downgrade_cdma">缃戠粶瀹氫綅闄嶇骇涓?CDMA</string>
+    <string name="setting_downgrade_cdma_summary">灏嗙綉缁滃畾浣嶇粨鏋滀吉瑁呬负鍩虹珯瀹氫綅</string>
+    <string name="setting_disable_wifi_scan">绂佺敤鎵弿 WiFi 鍒楄〃</string>
+    <string name="setting_disable_wifi_scan_summary">闃绘搴旂敤鑾峰彇鐪熷疄 WiFi 鎵弿缁撴灉</string>
+    <string name="setting_group_anti_detect">鍙嶆娴嬩笌闃叉媺鍥?/string>
+    <string name="setting_hide_mock">闅愯棌妯℃嫙浣嶇疆</string>
+    <string name="setting_hide_mock_summary">绉婚櫎 Location.isFromMockProvider 鏍囪</string>
+    <string name="setting_anti_pullback">鍙嶅畾浣嶆媺鍥?/string>
+    <string name="setting_anti_pullback_summary">鎸佺画骞挎挱浣嶇疆锛屼竴瀹氱▼搴﹁В鍐宠绯荤粺鎷夊洖</string>
+    <string name="setting_natural_jitter">鑷劧 GPS 鎶栧姩</string>
+    <string name="setting_natural_jitter_summary">鍦ㄦ敞鍏ヤ綅缃笂鍙犲姞婕傜Щ锛屽叧闂悗鍥哄畾鐐瑰拰璺嚎鏇寸ǔ瀹?/string>
+    <string name="setting_group_other">鍏朵粬</string>
+    <string name="setting_global_mode">鍏ㄥ眬妯″紡 (system_server)</string>
+    <string name="setting_global_mode_summary">寮€鍚垯娉ㄥ叆 system_server锛屽鎵€鏈夊簲鐢ㄧ敓鏁堬紱鍏抽棴鍒欎粎娉ㄥ叆涓嬫柟鎸囧畾搴旂敤</string>
+    <string name="setting_target_packages">鐩爣搴旂敤鍖呭悕</string>
+    <string name="setting_target_packages_summary">閫楀彿鍒嗛殧锛屼粎鍦ㄥ叏灞€妯″紡鍏抽棴鏃剁敓鏁堛€備緥锛歝om.autonavi.minimap</string>
+    <string name="setting_baidu_key">鐧惧害鍦板浘 Key (闇€閲嶅惎鐢熸晥)</string>
+    <string name="setting_selinux_permissive">娉ㄥ叆鏃朵复鏃跺叧闂?SELinux</string>
+    <string name="setting_selinux_permissive_summary">寮€鍚悗娉ㄥ叆 system_server 鏃剁煭鏆傚垏鍒板瀹规ā寮忥紝瀹屾垚鍚庣珛鍗虫仮澶嶅己鍒舵ā寮忥紱鍏抽棴鍒欎笉鏀瑰姩 SELinux 鐘舵€併€侫ndroid 14/15 涓婃敞鍏ュけ璐ユ椂鎵撳紑鏈」鍙В鍐?/string>
+    <string name="setting_opencellid_key">OpenCellID API Key</string>
+    <string name="setting_opencellid_key_summary">鐢ㄤ簬閫氳繃缁忕含搴︽煡璇㈠懆杈瑰熀绔欙紝闇€鍏堝湪 opencellid.org 娉ㄥ唽鑾峰彇</string>
+    <string name="setting_enable_log">鍚敤鏃ュ織</string>
+    <string name="setting_enable_log_summary">鍐欏叆浣庨鏃ュ織涓庡叧閿姸鎬佹棩蹇楀埌鏈湴鏂囦欢</string>
+    <string name="setting_enable_debug_log">鍚敤璇︾粏璋冭瘯鏃ュ織</string>
+    <string name="setting_enable_debug_log_summary">闄愭祦鍐欏叆楂橀瀹氫綅璋冭瘯鏃ュ織锛屽彲鑳藉鍔犺€楃數鍜屾枃浠朵綋绉紝浠呯敤浜庢帓鏌ラ棶棰?/string>
+    <string name="setting_export_log">瀵煎嚭鏃ュ織</string>
+    <string name="setting_export_log_summary">閫夋嫨淇濆瓨浣嶇疆骞跺鍑哄綋鍓嶆棩蹇楁枃浠?/string>
+    <string name="setting_export_log_success">鏃ュ織瀵煎嚭鎴愬姛</string>
+    <string name="setting_export_log_failed">鏃ュ織瀵煎嚭澶辫触</string>
+    <string name="setting_clear_log_cache">娓呴櫎鏃ュ織缂撳瓨</string>
+    <string name="setting_clear_log_cache_summary">褰撳墠缂撳瓨澶у皬锛?s</string>
+    <string name="setting_clear_log_cache_confirm">纭娓呴櫎鏃ュ織缂撳瓨锛熷綋鍓嶅ぇ灏忥細%s</string>
+    <string name="setting_clear_log_cache_success">鏃ュ織缂撳瓨宸叉竻闄?/string>
+    <string name="setting_clear_log_cache_failed">鏃ュ織缂撳瓨娓呴櫎澶辫触</string>
+    <string name="setting_map_zoom">鎮诞绐楀湴鍥剧缉鏀炬瘮渚?/string>
+    <string name="setting_map_zoom_summary">鑼冨洿 10-21锛屾暟鍊艰秺澶у湴鍥捐秺璇︾粏</string>
+
+    <!-- 鏁版嵁瀵煎嚭 / 瀵煎叆 -->
+    <string name="setting_group_data_transfer">鏁版嵁澶囦唤</string>
+    <string name="setting_group_personalization">涓€у寲</string>
+    <string name="setting_floating_window_size">娴獥澶у皬</string>
+    <string name="setting_floating_window_width">娴獥瀹藉害</string>
+    <string name="setting_floating_window_height">娴獥楂樺害</string>
+    <string name="data_transfer_group_general">閫氱敤锛堟墍鏈夋ā寮忥級</string>
+    <string name="setting_export_data">瀵煎嚭鏁版嵁</string>
+    <string name="setting_export_data_summary">灏嗘墍閫夎彍鍗曠殑璁剧疆瀵煎嚭涓?.bak 澶囦唤鏂囦欢</string>
+    <string name="setting_import_data">瀵煎叆鏁版嵁</string>
+    <string name="setting_import_data_summary">浠?.bak 澶囦唤鏂囦欢涓€夋嫨鎬ф仮澶嶈彍鍗曡缃?/string>
+    <string name="data_transfer_export_title">瀵煎嚭鏁版嵁</string>
+    <string name="data_transfer_import_title">瀵煎叆鏁版嵁</string>
+    <string name="data_transfer_select_categories">閫夋嫨瑕佸鍑虹殑鏁版嵁</string>
+    <string name="data_transfer_select_import_categories">閫夋嫨瑕佸鍏ョ殑鏁版嵁</string>
+    <string name="data_transfer_category_count">%1$s锛?2$d 椤癸級</string>
+    <string name="data_transfer_category_empty">%1$s锛堟棤鏁版嵁锛?/string>
+    <string name="data_transfer_filename_label">澶囦唤鏂囦欢鍚?/string>
+    <string name="data_transfer_export_button">瀵煎嚭</string>
+    <string name="data_transfer_import_button">瀵煎叆</string>
+    <string name="data_transfer_export_success">鏁版嵁瀵煎嚭鎴愬姛</string>
+    <string name="data_transfer_export_failed">鏁版嵁瀵煎嚭澶辫触</string>
+    <string name="data_transfer_import_success">宸插鍏?%1$d 椤硅彍鍗曟暟鎹紝閲嶅惎搴旂敤鍚庣敓鏁?/string>
+    <string name="data_transfer_import_failed">鏁版嵁瀵煎叆澶辫触</string>
+    <string name="data_transfer_invalid_file">鏃犳晥鐨勫浠芥枃浠?/string>
+    <string name="data_transfer_none_selected">璇疯嚦灏戦€夋嫨涓€椤?/string>
+    <string name="data_transfer_default_filename">kail_location_backup</string>
+
+    <string name="setting_current_version">褰撳墠鐗堟湰</string>
+    <string name="setting_not_set">鏈缃?/string>
+    <string name="setting_ok">纭畾</string>
+    <string name="setting_cancel">鍙栨秷</string>
+
+    <!-- NFC Simulation -->
+    <string name="nfc_sim_title">NFC妯℃嫙</string>
+    <string name="nfc_sim_status">NFC鐘舵€?/string>
+    <string name="nfc_sim_enabled">姝ｅ父</string>
+    <string name="nfc_sim_disabled">鏈紑鍚?/string>
+    <string name="nfc_sim_read_success">璇诲彇鎴愬姛</string>
+    <string name="nfc_sim_clear">娓呴櫎</string>
+    <string name="nfc_sim_tag_id">鏍囩ID: %s</string>
+    <string name="nfc_sim_tag_type">鏍囩绫诲瀷: %s</string>
+    <string name="nfc_sim_content">鍐呭: %s</string>
+    <string name="nfc_sim_send_title">妯℃嫙NFC鍙戦€?/string>
+    <string name="nfc_sim_url">URL鍦板潃</string>
+    <string name="nfc_sim_package">搴旂敤鍖呭悕</string>
+    <string name="nfc_sim_send">鍙戦€?/string>
+    <string name="nfc_sim_history">鍘嗗彶璁板綍</string>
+    <string name="nfc_sim_clear_history">娓呯┖</string>
+    <string name="nfc_sim_no_history">鏆傛棤鍘嗗彶璁板綍</string>
+    <string name="nfc_sim_rename_dialog_title">閲嶅懡鍚?/string>
+    <string name="nfc_sim_rename_name">鍚嶇О</string>
+    <string name="nfc_sim_rename_ok">纭畾</string>
+    <string name="nfc_sim_rename_cancel">鍙栨秷</string>
+    <string name="nfc_sim_rename_content_desc">閲嶅懡鍚?/string>
+    <string name="nfc_sim_delete_content_desc">鍒犻櫎</string>
+    <string name="nfc_sim_help_title">浣跨敤璇存槑</string>
+    <string name="nfc_sim_help_content">1. 鎵弿锛氶潬杩慛FC鏍囩鑷姩璇诲彇\n2. 鍙戦€侊細濉叆URL/鍖呭悕鍚庣偣鍑诲彂閫乗n3. 鍘嗗彶锛氱偣鍑昏嚜鍔ㄥ～鍏ワ紝闀挎寜閲嶅懡鍚?/string>
+    <string name="nfc_sim_read_failed">璇诲彇澶辫触: %s</string>
+
+    <!-- Independent Simulation -->
+    <string name="nav_menu_independent_sim">鐙珛妯℃嫙</string>
+    <string name="ind_sim_title">鐙珛妯℃嫙</string>
+    <string name="ind_sim_target_apps">鐩爣搴旂敤</string>
+    <string name="ind_sim_target_apps_hint">鐐瑰嚮閫夋嫨瑕佹ā鎷熺殑搴旂敤</string>
+    <string name="ind_sim_sim_type">妯℃嫙绫诲瀷</string>
+    <string name="ind_sim_location">浣嶇疆妯℃嫙</string>
+    <string name="ind_sim_route">璺嚎妯℃嫙</string>
+    <string name="ind_sim_wifi_mock">WiFi妯℃嫙</string>
+    <string name="ind_sim_cell_mock">鍩虹珯妯℃嫙</string>
+    <string name="ind_sim_gnss_mock">GPS鍗槦鐘舵€佹ā鎷?/string>
+    <string name="ind_sim_gnss_mock_summary">浼€燝nssStatus鍗槦鏁版嵁锛堥槻妫€娴嬶級</string>
+    <string name="ind_sim_jitter_mock">浣嶇疆鎶栧姩</string>
+    <string name="ind_sim_jitter_mock_summary">缁欐ā鎷熶綅缃坊鍔犻殢鏈哄亸绉?/string>
+    <string name="ind_sim_start">鍚姩鐙珛妯℃嫙</string>
+    <string name="ind_sim_stop">鍋滄鐙珛妯℃嫙</string>
+    <string name="ind_sim_no_apps">璇峰厛閫夋嫨鐩爣搴旂敤</string>
+    <string name="ind_sim_select_apps">閫夋嫨鐩爣搴旂敤</string>
+    <string name="ind_sim_search_apps">鎼滅储搴旂敤</string>
+    <string name="ind_sim_selected_count">宸查€夋嫨 %d 涓簲鐢?/string>
+
+    <!-- Root &amp; App Hiding -->
+    <string name="nav_menu_root_app_hide">Root涓庡簲鐢ㄩ殣钘?/string>
+    <string name="root_hide_title">Root涓庡簲鐢ㄩ殣钘?/string>
+    <string name="root_hide_status_running">闅愯棌杩愯涓?/string>
+    <string name="root_hide_status_stopped">闅愯棌宸插仠姝?/string>
+    <string name="root_hide_desc">閫夋嫨鐩爣搴旂敤鍚庡紑鍚€傚紑鍚悗锛屽閫変腑鐨勫簲鐢ㄩ殣钘?Root / 妗嗘灦鐥曡抗涓庡凡瀹夎搴旂敤鍒楄〃锛屽叾瀹冨簲鐢ㄤ笉鍙楀奖鍝嶃€傚簳灞傞€氳繃 FakeLocation 娉ㄥ叆灞傜敓鏁堛€?/string>
+    <string name="root_hide_hide_root">闅愯棌 Root</string>
+    <string name="root_hide_hide_root_summary">瀵圭洰鏍囧簲鐢ㄩ殣钘?Root銆丮agisk銆乆posed 绛夌棔杩?/string>
+    <string name="root_hide_hide_applist">闅愯棌搴旂敤鍒楄〃</string>
+    <string name="root_hide_hide_applist_summary">瀵圭洰鏍囧簲鐢ㄩ殣钘忔湰鏈哄凡瀹夎鐨勫叾瀹冨簲鐢紙闇€寮€鍚殣钘?Root锛?/string>
+    <string name="root_hide_target_apps">鐩爣搴旂敤</string>
+    <string name="root_hide_target_apps_hint">鐐瑰嚮閫夋嫨瑕侀殣钘忕殑搴旂敤</string>
+    <string name="root_hide_start">寮€濮嬮殣钘?/string>
+    <string name="root_hide_stop">鍋滄闅愯棌</string>
+    <string name="root_hide_no_apps">璇峰厛閫夋嫨鐩爣搴旂敤骞惰嚦灏戝紑鍚竴椤归殣钘?/string>
+    <string name="root_hide_select_apps">閫夋嫨鐩爣搴旂敤</string>
+
+    <!-- WiFi Simulation -->
+    <string name="nav_menu_wifi_sim">WiFi妯℃嫙</string>
+    <string name="wifi_sim_title">WiFi妯℃嫙</string>
+    <string name="wifi_sim_enable">鍚敤WiFi妯℃嫙</string>
+    <string name="wifi_sim_enable_summary">浼€燱iFi鎵弿缁撴灉鍜岃繛鎺ヤ俊鎭?/string>
+    <string name="wifi_sim_add">娣诲姞WiFi</string>
+    <string name="wifi_sim_list">WiFi鍒楄〃</string>
+    <string name="wifi_sim_empty">鏆傛棤WiFi鏁版嵁锛岃鐐瑰嚮娣诲姞</string>
+    <string name="wifi_sim_ssid">SSID</string>
+    <string name="wifi_sim_bssid">BSSID (MAC)</string>
+    <string name="wifi_sim_rssi">淇″彿寮哄害 (dBm)</string>
+    <string name="wifi_sim_frequency">棰戠巼 (MHz)</string>
+    <string name="wifi_sim_capabilities">鍔犲瘑鏂瑰紡</string>
+    <string name="wifi_sim_delete">鍒犻櫎</string>
+    <string name="wifi_sim_edit">缂栬緫</string>
+    <string name="wifi_sim_name">鍚嶇О</string>
+    <string name="wifi_sim_history">鍘嗗彶璁板綍</string>
+    <string name="wifi_sim_current_target">褰撳墠鐩爣WiFi</string>
+    <string name="wifi_sim_select_prompt">璇风偣鍑讳笅鏂筗iFi杩涜閫夋嫨</string>
+    <string name="wifi_sim_rename">閲嶅懡鍚?/string>
+    <string name="wifi_sim_rename_title">閲嶅懡鍚峎iFi</string>
+    <string name="wifi_sim_picker_title">閫夋嫨WiFi</string>
+    <string name="wifi_sim_scan_nearby">鎵弿闄勮繎WiFi</string>
+    <string name="wifi_sim_scanning">姝ｅ湪鎵弿...</string>
+    <string name="wifi_sim_scan_prompt">鐐瑰嚮涓婃柟鎸夐挳鎵弿闄勮繎WiFi</string>
+    <string name="wifi_sim_scan_prompt2">鎴栫偣鍑诲彸涓嬭鎵嬪姩娣诲姞</string>
+    <string name="wifi_sim_manual_add">鎵嬪姩娣诲姞WiFi</string>
+    <string name="wifi_sim_use">浣跨敤</string>
+    <string name="wifi_sim_scan_result_title">鎵弿鍒扮殑WiFi</string>
+    <string name="wifi_sim_scan_empty">鏈壂鎻忓埌WiFi锛岃纭繚WiFi宸插紑鍚苟澶勪簬淇″彿瑕嗙洊鍖哄煙</string>
+
+    <!-- Cell Simulation -->
+    <string name="nav_menu_cell_sim">鍩虹珯妯℃嫙</string>
+    <string name="cell_sim_title">鍩虹珯妯℃嫙</string>
+    <string name="cell_sim_enable">鍚敤鍩虹珯妯℃嫙</string>
+    <string name="cell_sim_enable_summary">浼€犲熀绔欎綅缃拰淇″彿淇℃伅</string>
+    <string name="cell_sim_add">娣诲姞鍩虹珯</string>
+    <string name="cell_sim_list">鍩虹珯鍒楄〃</string>
+    <string name="cell_sim_empty">鏆傛棤鍩虹珯鏁版嵁锛岃鐐瑰嚮娣诲姞</string>
+    <string name="cell_sim_type">缃戠粶绫诲瀷</string>
+    <string name="cell_sim_mcc">MCC</string>
+    <string name="cell_sim_mnc">MNC</string>
+    <string name="cell_sim_lac">LAC/TAC</string>
+    <string name="cell_sim_cid">CID/CellId</string>
+    <string name="cell_sim_psc">PSC/PCI</string>
+    <string name="cell_sim_lat">绾害</string>
+    <string name="cell_sim_lon">缁忓害</string>
+    <string name="cell_sim_radius">瑕嗙洊鍗婂緞 (绫?</string>
+    <string name="cell_sim_delete">鍒犻櫎</string>
+    <string name="cell_sim_edit">缂栬緫</string>
+    <string name="cell_sim_scan_current">鑾峰彇褰撳墠浣嶇疆鍩虹珯</string>
+    <string name="cell_sim_scanning">姝ｅ湪鎵弿鍩虹珯...</string>
+    <string name="cell_sim_scan_result_title">鎵弿鍒扮殑鍩虹珯</string>
+    <string name="cell_sim_scan_empty">鏈壂鎻忓埌鍩虹珯淇℃伅锛岃纭繚宸叉巿浜堝畾浣嶆潈闄愬苟澶勪簬淇″彿瑕嗙洊鍖哄煙</string>
+    <string name="cell_sim_scan_add_all">鍏ㄩ儴娣诲姞</string>
+    <string name="cell_sim_fetch_network">浠庣綉缁滆幏鍙栧熀绔?/string>
+    <string name="cell_sim_fetching_network">姝ｅ湪鑾峰彇...</string>
+    <string name="cell_sim_history">鍘嗗彶璁板綍</string>
+    <string name="cell_type_gsm">GSM</string>
+    <string name="cell_type_cdma">CDMA</string>
+    <string name="cell_type_lte">LTE</string>
+    <string name="cell_type_wcdma">WCDMA</string>
+    <string name="nfc_sim_input_hint">璇疯緭鍏RL鎴栧寘鍚?/string>
+    <string name="nfc_sim_send_failed">鍙戦€佸け璐? %s</string>
+    <string name="nfc_sim_sent">宸插彂閫? %s</string>
+    <string name="nfc_sim_opened">宸叉墦寮€: %s</string>
+    <string name="nfc_sim_need_nfc">璇峰厛寮€鍚疦FC</string>
+
+
+
+    <!-- Common -->
+    <string name="common_warning">璀﹀憡</string>
+    <string name="common_delete_all_confirm">纭畾瑕佸垹闄ゅ叏閮ㄥ巻鍙茶褰曞悧?</string>
+    <string name="common_delete_item_confirm">纭畾瑕佸垹闄よ椤瑰巻鍙茶褰曞悧?</string>
+    <string name="common_confirm">纭</string>
+    <string name="common_edit">缂栬緫</string>
+    <string name="common_delete">鍒犻櫎</string>
+    <string name="common_cancel">鍙栨秷</string>
+    <string name="common_ok">纭畾</string>
+
+    <!-- Drawer -->
+    <string name="drawer_env_check">鐜妫€娴?/string>
+    <string name="drawer_ok">纭畾</string>
+    <string name="drawer_nav_sim">妯℃嫙瀵艰埅</string>
+    <string name="drawer_nfc_sim">NFC妯℃嫙</string>
+    <string name="drawer_run_mode">杩愯妯″紡</string>
+    <string name="drawer_sandbox">娌欑洅寮曟搸</string>
+    <string name="drawer_xposed_settings">Xposed 璁剧疆</string>
+
+
+    <!-- Welcome -->
+    <string name="welcome_read">宸查槄璇?/string>
+    <string name="welcome_and">鍜?/string>
+    <string name="welcome_agreement_text">銆婄敤鎴峰崗璁€?/string>
+    <string name="welcome_privacy_text">銆婇殣绉佹斂绛栥€?/string>
+
+    <!-- Joystick -->
+    <string name="joystick_speed">鎽囨潌閫熷害: %s km/h</string>
+    <string name="joystick_progress">杩涘害:</string>
+    <string name="joystick_speed_label">閫熷害:</string>
+    <string name="joystick_modify">淇敼</string>
+    <string name="joystick_route_progress">褰撳墠杩涘害(閬撹矾): %s</string>
+
+    <!-- Go Utils Dialogs -->
+    <string name="goutils_enable_mock_title">鍚敤浣嶇疆妯℃嫙</string>
+    <string name="goutils_enable_mock_msg">璇峰湪\"寮€鍙戣€呴€夐」鈫掗€夋嫨妯℃嫙浣嶇疆淇℃伅搴旂敤\"涓繘琛岃缃?/string>
+    <string name="goutils_settings">璁剧疆</string>
+    <string name="goutils_cancel">鍙栨秷</string>
+    <string name="goutils_enable_overlay_title">鍚敤鎮诞绐?/string>
+    <string name="goutils_enable_overlay_msg">涓轰簡妯℃嫙瀹氫綅鐨勭ǔ瀹氭€э紝寤鸿寮€鍚痋"鏄剧ず鎮诞绐梊"閫夐」</string>
+    <string name="goutils_enable_gps_title">鍚敤瀹氫綅鏈嶅姟</string>
+    <string name="goutils_enable_gps_msg">鏄惁寮€鍚?GPS 瀹氫綅鏈嶅姟?</string>
+    <string name="goutils_ok">纭畾</string>
+    <string name="goutils_warning">璀﹀憡</string>
+    <string name="goutils_wifi_warning">寮€鍚?WIFI 鍚庯紙鍗充娇娌℃湁杩炴帴鐑偣锛夊皢瀵艰嚧瀹氫綅闂洖鐪熷疄浣嶇疆銆傚缓璁叧闂?WIFI锛屼娇鐢ㄧЩ鍔ㄦ祦閲忚繘琛屾父鎴忥紒</string>
+    <string name="goutils_turn_off">鍘诲叧闂?/string>
+    <string name="goutils_ignore">蹇界暐</string>
+
+    <!-- ViewModel messages -->
+    <string name="vm_update_failed">妫€鏌ユ洿鏂板け璐? %s</string>
+    <string name="vm_up_to_date">褰撳墠宸叉槸鏈€鏂扮増鏈?/string>
+    <string name="vm_search_city">鍏ㄥ浗</string>
+    <string name="vm_need_location_permission">闇€瑕佷綅缃潈闄愭墠鑳藉惎鍔ㄦā鎷?/string>
+    <string name="vm_unknown_location">鏈煡鍦扮偣</string>
+    <string name="vm_step_root_required">姝ラ妯℃嫙闇€瑕?ROOT 妯″紡</string>
+    <string name="vm_system_not_ready">绯荤粺鏈氨缁紝璇峰紑鏈?%1$d 绉掑悗鍐嶈瘯锛堝墿浣欑害 %2$d 绉掞級</string>
+    <string name="service_root_fallback_noroot">ROOT 娉ㄥ叆澶辫触锛岃纭宸插湪 ROOT 绠＄悊鍣ㄩ噷鎺堟潈 KailLocation 鍚庡啀璇?/string>
+    <string name="service_root_fallback_binder">娉ㄥ叆鏈敓鏁堬紝璇风◢鍊欓噸璇曪紝鎴栭噸鍚澶囧悗鍐嶅紑濮嬫ā鎷?/string>
+
+    <!-- History VM -->
+    <string name="history_vm_coord_wgs84">[缁忓害:%1$s 绾害:%2$s]</string>
+    <string name="history_vm_coord_bd09">[缁忓害:%1$s 绾害:%2$s]</string>
+    <string name="history_vm_offset">缁忓害鍋忕Щ: %.2f绫砛n绾害鍋忕Щ: %.2f绫?/string>
+
+    <!-- Service -->
+    <string name="service_grant_overlay">璇锋巿浜堟偓娴獥鏉冮檺</string>
+    <string name="service_overlay_failed">鎮诞绐楀垵濮嬪寲澶辫触: %s</string>
+    <string name="service_set_mock_app">璇峰湪寮€鍙戣€呴€夐」涓缃搴旂敤涓烘ā鎷熶綅缃簲鐢?/string>
+    <!-- Route Simulation Settings Dialog -->
+    <string name="route_sim_speed_text">杩愬姩閫熷害</string>
+    <string name="route_sim_speed_fluctuation">閫熷害娴姩</string>
+    <string name="route_sim_step_text">姝ラ妯℃嫙</string>
+    <string name="route_sim_cadence_text">姝ラ</string>
+    <string name="route_sim_cadence_format">%d 姝?鍒嗛挓 路 绾?%.1f km/h</string>
+    <string name="route_sim_step_root_required">姝ラ妯℃嫙闇€瑕?ROOT 妯″紡</string>
+
+    <!-- Common error messages -->
+    <string name="error_cannot_open_email">鏃犳硶鎵撳紑閭欢搴旂敤</string>
+    <string name="error_cannot_open_browser">鏃犳硶鎵撳紑娴忚鍣?/string>
+    <string name="error_under_development">鍔熻兘寮€鍙戜腑...</string>
+    <string name="download_progress">涓嬭浇涓€?%d%%</string>
+
+    <!-- Settings remaining -->
+    <string name="setting_mock_speed">妯℃嫙绉诲姩閫熷害 (m/s)</string>
+    <string name="setting_accuracy_title">瀹氫綅绮惧害/瀹氫綅鎶栧姩鑼冨洿 (绫?</string>
+    <string name="setting_accuracy_summary">榛樿 2.5銆傝嚜鐒?GPS 鎶栧姩鍏抽棴鏃朵綔涓哄畾浣嶇簿搴︼紱寮€鍚悗浣滀负鑷劧 GPS 鎶栧姩鑼冨洿銆?/string>
+    <string name="setting_min_satellites">鏈€灏戞ā鎷熷崼鏄熸暟閲?/string>
+    <string name="setting_min_satellites_summary">浠呮敮鎸佸寳鏂楀崼鏄?/string>
+    <string name="setting_report_interval">涓婃姤浣嶇疆棰戠巼 (ms)</string>
+    <string name="setting_report_interval_summary">鍗曚綅姣锛岄粯璁?200ms锛涙暟鍊艰秺浣庯紝涓婃姤瓒婇绻侊紝鑰楃數鍜岃礋杞借秺楂?/string>
+    <string name="setting_gps_satellite_title">妯℃嫙 GPS 鍗槦淇″彿</string>
+    <string name="setting_gps_satellite_summary">浼€犲寳鏂楀崼鏄熸暟閲忓拰淇″彿寮哄害</string>
+    <string name="setting_agps_title">鍚敤 AGPS 妯″潡</string>
+    <string name="setting_agps_summary">杈呭姪瀹氫綅鐩稿叧锛堝疄楠屾€э級</string>
+    <string name="setting_nmea_title">鍚敤 NMEA 妯″潡</string>
+    <string name="setting_nmea_summary">浼€?NMEA 鏁版嵁杈撳嚭</string>
+    <string name="setting_wlan_title">妯℃嫙 WLAN 鏁版嵁</string>
+    <string name="setting_wlan_summary">浼€?WiFi 瀹氫綅鏁版嵁</string>
+
+
+    <!-- API Errors -->
+    <string name="api_error_notices">鑾峰彇鍏憡澶辫触</string>
+
+
+
+
+
+    <!-- Cell Simulation Screen -->
+    <string name="cell_sim_empty_text">鏆傛棤妯℃嫙鍩虹珯</string>
+    <string name="cell_sim_scan_hint">鐐瑰嚮涓嬫柟鎸夐挳鎵弿鎴栨坊鍔犲熀绔?/string>
+    <string name="cell_sim_deselect_all">鍙栨秷鍏ㄩ€?/string>
+    <string name="cell_sim_select_all">鍏ㄩ€?/string>
+    <string name="cell_sim_running_title">鍩虹珯妯℃嫙杩愯涓?/string>
+    <string name="cell_sim_title_short">鍩虹珯妯℃嫙</string>
+    <string name="cell_sim_more_fmt">+ %d 鏇村...</string>
+    <string name="cell_sim_start">寮€濮嬫ā鎷?/string>
+    <string name="cell_sim_stop">鍋滄妯℃嫙</string>
+    <string name="cell_sim_status_running">杩愯涓?/string>
+    <string name="cell_sim_scan_count_fmt">鎵弿鍒?%d 涓熀绔?/string>
+    <string name="cell_sim_location_fmt">浣嶇疆: %s</string>
+
+    <!-- WiFi Simulation Screen -->
+    <string name="wifi_sim_empty_text">鏆傛棤妯℃嫙WiFi</string>
+    <string name="wifi_sim_scan_hint">鐐瑰嚮涓嬫柟鎸夐挳鎵弿闄勮繎WiFi</string>
+    <string name="wifi_sim_deselect_all">鍙栨秷鍏ㄩ€?/string>
+    <string name="wifi_sim_select_all">鍏ㄩ€?/string>
+    <string name="wifi_sim_running_title">WiFi妯℃嫙杩愯涓?/string>
+    <string name="wifi_sim_title_short">WiFi妯℃嫙</string>
+    <string name="wifi_sim_start">寮€濮嬫ā鎷?/string>
+    <string name="wifi_sim_stop">鍋滄妯℃嫙</string>
+    <string name="wifi_sim_status_running">杩愯涓?/string>
+    <string name="wifi_sim_scan_count_fmt">鎵弿鍒?%d 涓猈iFi</string>
+    <string name="wifi_sim_add_label">娣诲姞</string>
+
+    <!-- Announcement Dialog -->
+    <string name="announcement_default_title">鍏憡</string>
+    <string name="announcement_previous">涓婁竴鏉?/string>
+    <string name="announcement_next">涓嬩竴鏉?/string>
+    <string name="announcement_got_it">鎴戠煡閬撲簡</string>
+
+    <!-- Independent Simulation -->
+    <string name="ind_sim_running">鐙珛妯℃嫙杩愯涓?/string>
+    <string name="ind_sim_stopped">鐙珛妯℃嫙宸插仠姝?/string>
+    <string name="ind_sim_description">閫夋嫨鐩爣搴旂敤鍚庡紑鍚€傚紑鍚悗锛屽湪浣嶇疆/璺嚎/WiFi/鍩虹珯/姝ラ椤甸潰鐐?寮€濮嬫ā鎷?锛岄兘鍙杩欓噷閫変腑鐨勫簲鐢ㄧ敓鏁堬紝鍏跺畠搴旂敤璇诲埌鐪熷疄鏁版嵁銆?/string>
+    <string name="ind_sim_stop_btn">鍋滄鐙珛妯℃嫙</string>
+    <string name="ind_sim_start_btn">寮€濮嬬嫭绔嬫ā鎷?/string>
+
+
+    <!-- Location Picker -->
+    <string name="picker_map_init_failed">鍦板浘鍒濆鍖栧け璐? %s</string>
+    <string name="picker_search_no_results">鎶辨瓑锛屾湭鑳芥壘鍒扮粨鏋?/string>
+
+    <!-- Update -->
+    <string name="update_found_title">鍙戠幇鏂扮増鏈? %s</string>
+
+    <!-- Location Simulation -->
+    <string name="location_rename_title">閲嶅懡鍚嶄綅缃?/string>
+
+    <!-- Sandbox Manager/Activity/Screen -->
+    <string name="sandbox_install_success">瀹夎鎴愬姛</string>
+    <string name="sandbox_install_failed">瀹夎澶辫触: %s</string>
+    <string name="sandbox_uninstall_success">鍗歌浇鎴愬姛</string>
+    <string name="sandbox_uninstall_failed">鍗歌浇澶辫触: %s</string>
+    <string name="sandbox_launch_failed">鍚姩澶辫触</string>
+    <string name="sandbox_launch_failed_msg">鍚姩澶辫触: %s</string>
+    <string name="sandbox_clear_success">娓呴櫎鎴愬姛</string>
+    <string name="sandbox_clear_failed">娓呴櫎澶辫触: %s</string>
+    <string name="sandbox_stopped">宸插仠姝㈣繍琛?/string>
+    <string name="sandbox_stop_failed">鍋滄澶辫触: %s</string>
+    <string name="sandbox_loading_failed">鍔犺浇娌欑洅搴旂敤澶辫触: %s</string>
+    <string name="sandbox_system_apps_failed">鍔犺浇绯荤粺搴旂敤澶辫触: %s</string>
+    <string name="sandbox_title_fmt">娌欑洅 - %s</string>
+    <string name="sandbox_creating_shortcut">姝ｅ湪鍒涘缓蹇嵎鏂瑰紡...</string>
+    <string name="sandbox_shortcut_failed">鍒涘缓蹇嵎鏂瑰紡澶辫触: %s</string>
+    <string name="sandbox_invalid_shortcut">鏃犳晥鐨勫揩鎹锋柟寮?/string>
+    <string name="sandbox_empty">娌欑洅涓殏鏃犲簲鐢?/string>
+    <string name="sandbox_empty_hint">鐐瑰嚮鍙充笅瑙?+ 鎸夐挳鍏嬮殕搴旂敤</string>
+    <string name="sandbox_launch_app">鍚姩搴旂敤</string>
+    <string name="sandbox_clear_data">娓呴櫎鏁版嵁</string>
+    <string name="sandbox_stop_running">鍋滄杩愯</string>
+    <string name="sandbox_uninstall_app">鍗歌浇搴旂敤</string>
+    <string name="sandbox_create_shortcut">鍒涘缓蹇嵎鏂瑰紡</string>
+    <string name="sandbox_clear_data_btn">娓呴櫎鏁版嵁</string>
+    <string name="sandbox_uninstall_btn">鍗歌浇</string>
+    <string name="sandbox_clone_title">鍏嬮殕搴旂敤</string>
+    <string name="sandbox_search_placeholder">鎼滅储搴旂敤...</string>
+    <string name="sandbox_load_system_apps">鍔犺浇绯荤粺搴旂敤鍒楄〃</string>
+    <string name="sandbox_settings_title">娌欑洅璁剧疆</string>
+    <string name="sandbox_hide_root">闅愯棌 Root</string>
+    <string name="sandbox_hide_root_desc">瀵规矙鐩掑簲鐢ㄩ殣钘?Root 鏉冮檺</string>
+    <string name="sandbox_restart_to_apply">閲嶅惎搴旂敤鐢熸晥</string>
+    <string name="sandbox_daemon">瀹堟姢杩涚▼</string>
+    <string name="sandbox_daemon_desc">淇濇寔娌欑洅鏈嶅姟鍦ㄥ悗鍙拌繍琛?/string>
+    <string name="sandbox_vpn">浣跨敤 VPN 缃戠粶</string>
+    <string name="sandbox_vpn_desc">閫氳繃 VPN 璺敱娌欑洅搴旂敤娴侀噺锛屽彲鑳芥敼鍠勭綉缁滆闂?/string>
+    <string name="sandbox_disable_secure">绂佺敤 FLAG_SECURE</string>
+    <string name="sandbox_disable_secure_desc">鍏佽鍦ㄦ矙鐩掑簲鐢ㄤ腑鎴睆鍜屽綍灞?/string>
+    <string name="sandbox_step_sim">姝ラ妯℃嫙</string>
+    <string name="sandbox_step_sim_desc">涓烘矙鐩掑簲鐢ㄦā鎷熸棰戜紶鎰熷櫒鏁版嵁</string>
+    <string name="sandbox_step_fmt">姝ラ: %d 姝?鍒嗛挓</string>
+    <string name="sandbox_step_adjust">鐐瑰嚮璋冩暣姝ラ</string>
+    <string name="sandbox_gms">GMS 绠＄悊</string>
+    <string name="sandbox_gms_desc">绠＄悊 Google 鏈嶅姟妗嗘灦</string>
+    <string name="sandbox_gms_coming">鍔熻兘寮€鍙戜腑</string>
+    <string name="sandbox_gms_unsupported">褰撳墠璁惧涓嶆敮鎸?GMS</string>
+    <string name="sandbox_send_log">鍙戦€佹棩蹇?/string>
+    <string name="sandbox_send_log_desc">涓婁紶璋冭瘯鏃ュ織鍒板紑鍙戣€?/string>
+    <string name="sandbox_log_sent">鏃ュ織鍙戦€佹垚鍔?/string>
+    <string name="sandbox_log_failed">鏃ュ織鍙戦€佸け璐? %s</string>
+    <string name="sandbox_log_sending">姝ｅ湪鍙戦€佹棩蹇?..</string>
+    <string name="sandbox_adjust_cadence">璋冩暣姝ラ</string>
+    <string name="sandbox_cadence_fmt">%d 姝?鍒嗛挓</string>
+    <string name="sandbox_cadence_range">姝ラ鑼冨洿: 30 - 240 姝?鍒嗛挓</string>
+
+    <!-- Settings -->
+    <string name="settings_step_sim">姝ラ妯℃嫙</string>
+    <string name="settings_step_sim_enable">鍚敤姝ラ妯℃嫙</string>
+    <string name="settings_step_sim_summary">妯℃嫙姝ラ鏁版嵁鐢ㄤ簬璁℃绫诲簲鐢?/string>
+    <string name="settings_step_type">姝ラ鏁版嵁绫诲瀷</string>
+
+    <!-- Cell ViewModel -->
+    <string name="cell_fetch_no_location">鏃犳硶鑾峰彇褰撳墠浣嶇疆锛岃鍏堣缃ā鎷熶綅缃垨寮€鍚疓PS</string>
+    <string name="cell_fetch_no_key">璇峰厛鍦ㄨ缃腑閰嶇疆 OpenCellID API Key</string>
+    <string name="cell_fetch_no_data">鏈煡璇㈠埌鍩虹珯鏁版嵁锛岃鍖哄煙鍙兘鏃犺鐩栨垨API闄愬埗</string>
+    <string name="cell_fetch_failed">缃戠粶璇锋眰澶辫触: %s</string>
+
+    <!-- NFC -->
+    <string name="nfc_read_failed">璇诲彇澶辫触: %s</string>
+
+    <!-- Xposed Settings -->
+    <string name="xposed_not_set">鏈缃?/string>
+
+    <!-- Welcome -->
+    <string name="welcome_cannot_open_settings">鏃犳硶鎵撳紑璁剧疆椤甸潰锛岃鎵嬪姩寮€鍚?/string>
+</resources>

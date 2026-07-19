@@ -10,8 +10,6 @@ import com.baidu.mapapi.CoordType
 import com.baidu.mapapi.SDKInitializer
 import com.google.firebase.FirebaseApp
 import com.kail.location.R
-import com.kail.location.auth.AuthManager
-import com.kail.location.auth.UsageManager
 import com.kail.location.sandbox.SandboxManager
 import com.kail.location.sandbox.SandboxSettingsManager
 import com.kail.location.service.Root.RootDeployer
@@ -109,9 +107,6 @@ class GoApplication : Application(), Application.ActivityLifecycleCallbacks {
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences_main, false)
         FirebaseApp.initializeApp(this)
-
-        AuthManager.init(this)
-        UsageManager.init(this)
 
         registerActivityLifecycleCallbacks(this)
 

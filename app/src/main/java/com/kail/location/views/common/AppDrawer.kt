@@ -44,22 +44,8 @@ fun AppDrawer(
     var showRunModeDialog by remember { mutableStateOf(false) }
     var showEnvDialog by remember { mutableStateOf(false) }
     var showXposedDownloadDialog by remember { mutableStateOf(false) }
-    var showLoginActivity by remember { mutableStateOf(false) }
-    var showProfileActivity by remember { mutableStateOf(false) }
     var envMessage by remember { mutableStateOf("") }
     val context = LocalContext.current
-
-    if (showLoginActivity) {
-        val intent = Intent(context, com.kail.location.views.auth.LoginActivity::class.java)
-        context.startActivity(intent)
-        showLoginActivity = false
-    }
-
-    if (showProfileActivity) {
-        val intent = Intent(context, com.kail.location.views.auth.ProfileActivity::class.java)
-        context.startActivity(intent)
-        showProfileActivity = false
-    }
 
     fun isXposedModuleInstalled(): Boolean {
         return try {
@@ -276,7 +262,7 @@ fun AppDrawer(
 
     ModalDrawerSheet {
         LazyColumn {
-            item { DrawerHeader(appVersion, onLoginClick = { showLoginActivity = true }, onProfileClick = { showProfileActivity = true }) }
+            item { DrawerHeader(appVersion) }
             item { HorizontalDivider() }
 
             // ===== Group: 模拟 =====
@@ -417,14 +403,6 @@ fun AppDrawer(
                     icon = { Icon(painterResource(R.drawable.ic_contact), contentDescription = null) },
                     selected = false,
                     onClick = { scope.launch { closeDrawerSmooth(); onNavigate(R.id.nav_contact) } }
-                )
-            }
-            item {
-                NavigationDrawerItem(
-                    label = { Text(stringResource(R.string.nav_menu_sponsor)) },
-                    icon = { Icon(painterResource(R.drawable.ic_user), contentDescription = null) },
-                    selected = false,
-                    onClick = { scope.launch { closeDrawerSmooth(); onNavigate(R.id.nav_sponsor) } }
                 )
             }
             item {

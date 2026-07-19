@@ -19,7 +19,8 @@ import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
-import com.kail.location.auth.UsageManager
+
+
 
 /**
  * 基站模拟页面的 ViewModel
@@ -118,16 +119,7 @@ class CellSimulationViewModel(application: Application) : AndroidViewModel(appli
 
     fun setSimulating(value: Boolean) {
         if (value) {
-            viewModelScope.launch {
-                val app = getApplication<Application>()
-                if (!UsageManager.canStartSimulation(app)) {
-                    return@launch
-                }
-                if (!UsageManager.consumeSimulation(app)) {
-                    return@launch
-                }
-                doSetSimulating(true)
-            }
+            doSetSimulating(true)
         } else {
             doSetSimulating(false)
         }

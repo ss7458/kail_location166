@@ -8,7 +8,6 @@
     <item name="nav_feedback" type="id"/>
     <item name="nav_contact" type="id"/>
     <item name="nav_github" type="id"/>
-    <item name="nav_sponsor" type="id"/>
     <item name="nav_source_code" type="id"/>
     <item name="nav_run_mode" type="id"/>
     <item name="nav_nfc_simulation" type="id"/>

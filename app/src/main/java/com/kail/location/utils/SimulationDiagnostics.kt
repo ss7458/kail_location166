@@ -131,7 +131,7 @@ class SimulationDiagnostics private constructor(
             r.contains("ROOT") || r.contains("su ") || r.contains("授权") ->
                 "在 KernelSU/Magisk 管理器里给 KailLocation 授予 ROOT 权限后重试。"
             r.contains("开机") || r.contains("就绪") ->
-                "刚开机系统未稳定，等开机满 ${UsageManager.bootReadyThresholdSeconds()}s 后再开始模拟。"
+                "刚开机系统未稳定，等开机满 100s 后再开始模拟。"
             r.contains("watchdog") || r.contains("超时") ->
                 "注入超时多因 system_server 繁忙或刚开机；稍候重试，仍失败则重启设备后再试。"
             r.contains("缺失") || r.contains("部署") ->

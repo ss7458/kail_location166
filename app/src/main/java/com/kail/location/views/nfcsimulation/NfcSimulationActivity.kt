@@ -77,7 +77,6 @@ class NfcSimulationActivity : BaseActivity() {
                 R.id.nav_settings -> Intent(this, com.kail.location.views.settings.SettingsActivity::class.java)
                 R.id.nav_navigation_simulation -> Intent(this, com.kail.location.views.navigationsimulation.NavigationSimulationActivity::class.java)
                 R.id.nav_nfc_simulation -> null
-                R.id.nav_sponsor -> Intent(this, com.kail.location.views.sponsor.SponsorActivity::class.java)
                 else -> null
             }
             

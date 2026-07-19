@@ -77,9 +77,6 @@ class XposedSettingsActivity : BaseActivity() {
                                 startActivity(Intent(this, SettingsActivity::class.java))
                                 finish()
                             }
-                            R.id.nav_sponsor -> {
-                                startActivity(Intent(this, com.kail.location.views.sponsor.SponsorActivity::class.java))
-                            }
                             R.id.nav_contact -> {
                                 try {
                                     val intent = Intent(Intent.ACTION_SENDTO).apply {

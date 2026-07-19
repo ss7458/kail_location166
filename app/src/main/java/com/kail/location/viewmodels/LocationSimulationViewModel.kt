@@ -25,7 +25,6 @@ import com.kail.location.utils.MapUtils
 import com.kail.location.utils.GoUtils
 import com.kail.location.utils.KailLog
 import com.kail.location.utils.SimulationDiagnostics
-import com.kail.location.auth.UsageManager
 import androidx.preference.PreferenceManager
 import android.database.sqlite.SQLiteDatabase
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +33,7 @@ import kotlinx.coroutines.launch
 import androidx.lifecycle.viewModelScope
 import androidx.core.content.ContextCompat
 import com.kail.location.R
+import com.kail.location.auth.UsageManager
 import com.kail.location.service.Root.ServiceGoRoot
 import com.kail.location.service.Developer.ServiceGoDeveloper
 import com.kail.location.service.Sandbox.ServiceGoSandbox
@@ -180,16 +180,6 @@ class LocationSimulationViewModel(application: Application) : AndroidViewModel(a
         val next = !_isSimulating.value
         if (next) {
             viewModelScope.launch {
-                if (!UsageManager.canStartSimulation(app)) {
-                    KailLog.persist(app, SimulationDiagnostics.TAG,
-                        "位置模拟启动被拦截：未登录或免费次数用尽（canStartSimulation=false）", 'w')
-                    return@launch
-                }
-                if (!UsageManager.consumeSimulation(app)) {
-                    KailLog.persist(app, SimulationDiagnostics.TAG,
-                        "位置模拟启动被拦截：扣减模拟次数失败（consumeSimulation=false）", 'w')
-                    return@launch
-                }
                 val info = locationInfo.value
                 
                 // 关键修复：启动前强制同步一次最新的运行模式

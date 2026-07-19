@@ -1,733 +1,641 @@
-<resources>
-    <string name="app_settings">設定</string>
-    <string name="app_history">履歴</string>
-    <string name="history_title">履歴</string>
-    <string name="history_search_hint">履歴を検索</string>
-    <string name="history_no_record">履歴はありません</string>
-    <string name="app_service_tips">KailLocation サービスを実行中</string>
-    <string name="app_agreement">利用規約</string>
-    <string name="app_privacy">プライバシーポリシー</string>
-    <string name="app_agreement_privacy">利用規約とプライバシーポリシーを読み、同意しました</string>
-    <string name="app_error_agreement">まず利用規約とプライバシーポリシーに同意してください</string>
-    <string name="app_error_read">利用規約とプライバシーポリシーを読んで同意してください</string>
-    <string name="app_error_gps">位置情報を利用できません。GPS が有効か確認してください</string>
-    <string name="app_error_network">ネットワークを利用できません。接続を確認してください</string>
-    <string name="app_error_permission">権限が不足しています。必要な権限を付与してください</string>
-    <string name="app_error_input">入力に誤りがあります。内容を確認してください</string>
-    <string name="app_error_input_null">入力は空にできません。値を入力してください</string>
-    <string name="app_error_search">検索に失敗しました。ネットワークまたは位置情報を確認してください</string>
-    <string name="app_error_location">先に位置を選択してください</string>
-    <string name="app_error_dev">開発者向けオプションが有効ではありません。移動できません！有効化方法を自分で検索してください</string>
-    <string name="app_error_param">不正なパラメータ</string>
-    <string name="app_error_protocol">まず利用規約を読んで同意してください</string>
-    <string name="app_error_username">ユーザー名が不正です</string>
-    <string name="app_error_code">登録コードは空にできません</string>
-    <string name="app_error_longitude">経度が範囲外です！\n値: -180.0 ～ 180.0</string>
-    <string name="app_error_latitude">緯度が範囲外です！\n値: -90.0 ～ 90.0</string>
-    <string name="app_search_null">該当する結果がありません。もう一度検索してください</string>
-    <string name="app_search_tips">検索内容を入力してください</string>
-    <string name="app_location_ok">位置を送信しました</string>
-    <string name="app_location_copy">位置をクリップボードにコピーしました</string>
-    <string name="app_location_save">位置を保存しました</string>
-
-    <string name="welcome_btn_txt">アプリを開く</string>
-    <string name="app_btn_agree">同意して続行</string>
-    <string name="app_btn_disagree">同意しない</string>
-
-    <string name="setting_group_move">移動</string>
-    <string name="setting_joystick_type">ジョイスティックの種類</string>
-    <string name="setting_joystick_speed">ジョイスティック速度 (m/s)</string>
-    <string name="setting_joystick_speed_default">1.2</string>
-    <string name="setting_walk">歩行速度 (m/s)</string>
-    <string name="setting_walk_default">1.2</string>
-    <string name="setting_run">走行速度 (m/s)</string>
-    <string name="setting_run_default">3.6</string>
-    <string name="setting_bike">自転車速度 (m/s)</string>
-    <string name="setting_bike_default">10.0</string>
-    <string name="setting_altitude">標高 (m)</string>
-    <string name="setting_altitude_default">55.0</string>
-
-    <string name="setting_group_location_offset">位置オフセット</string>
-    <string name="setting_random_offset">ランダムオフセット</string>
-    <string name="setting_random_offset_summary">履歴位置を使う場合のみ有効です</string>
-    <string name="setting_random_offset_default">10.0</string>
-    <string name="setting_lat_max_offset">経度の最大オフセット距離 (m)</string>
-    <string name="setting_lon_max_offset">緯度の最大オフセット距離 (m)</string>
-    <string name="setting_group_log">ログ</string>
-    <string name="setting_log_off">ログを無効化</string>
-    <string name="setting_history_expiration">履歴の有効期限 (日)</string>
-    <string name="setting_group_about">概要</string>
-    <string name="setting_version">バージョン</string>
-    <string name="setting_author">開発者</string>
-
-    <string name="history_expiration">7</string>
-    <string name="history_location_default_name">地図の位置</string>
-    <string name="history_idle">履歴はありません</string>
-    <string name="history_delete_ok">削除しました！</string>
-    <string name="history_delete_error">履歴の削除に失敗しました</string>
-    <string name="history_error_location">位置取得に失敗しました。手動で選択してください</string>
-    <string name="history_error_search">該当する内容が見つかりませんでした</string>
-
-    <string name="note_show">ジョイスティックを表示</string>
-    <string name="note_hide">ジョイスティックを非表示</string>
-    <string name="joystick_map_tips">地図上の位置を検索またはタップしてください</string>
-    <string name="joystick_history_tips">履歴の位置を検索またはタップしてください</string>
-    <string name="joystick_history">履歴</string>
-    <string name="joystick_map">地図</string>
-    <string name="joystick_move">移動</string>
-    <string name="joystick_walk">歩行</string>
-    <string name="joystick_run">走行</string>
-    <string name="joystick_bike">自転車</string>
-    <string name="nav_drawer_open">ナビゲーションメニューを開く</string>
-    <string name="nav_drawer_close">ナビゲーションメニューを閉じる</string>
-    <string name="nav_menu_history">履歴</string>
-    <string name="nav_menu_location_simulation">位置シミュレーション</string>
-    <string name="nav_menu_route_simulation">ルートシミュレーション</string>
-    <string name="nav_menu_sim_group">シミュレーション</string>
-    <string name="nav_menu_independent_sim">独立シミュレーション</string>
-    <string name="nav_menu_root_app_hide">Root &amp; アプリ非表示</string>
-    <string name="nav_menu_wifi_sim">WiFi シミュレーション</string>
-    <string name="nav_menu_cell_sim">基地局シミュレーション</string>
-    <string name="nav_menu_settings">設定</string>
-    <string name="nav_menu_dev">開発者向けオプション</string>
-    <string name="nav_menu_more">その他</string>
-    <string name="nav_menu_upgrade">更新を確認</string>
-    <string name="nav_menu_feedback">フィードバック</string>
-    <string name="nav_menu_contact">作者に連絡</string>
-    <string name="nav_app_tips">学習用途のみ。自己責任でご利用ください！</string>
-    <string name="nav_menu_sponsor">作者を支援</string>
-    <string name="nav_menu_github">オープンソース</string>
-    <string name="nav_menu_run_mode">実行モード</string>
-    <string name="run_mode_dialog_title">実行モードを選択</string>
-    <string name="run_mode_root">Root モード</string>
-    <string name="run_mode_developer">開発者モード</string>
-    <string name="run_mode_xposed">Xposed モード</string>
-    <string name="run_mode_sandbox">サンドボックス モード</string>
-    <string name="xposed_module_not_found">Xposed モジュールが見つかりません</string>
-    <string name="xposed_module_download_hint">Xposed モードを使用するには、KailLocation Xposed モジュールをインストールしてください。</string>
-    <string name="xposed_module_download">ダウンロード</string>
-    <string name="run_mode_changed">実行モードを %s に切り替えました</string>
-    <string name="sponsor_title">作者を支援</string>
-    <string name="sponsor_tron_note">TRON 資産のみ対応</string>
-
-    <string name="label_longitude">経度</string>
-    <string name="label_latitude">緯度</string>
-    <string name="input_position_ok">送信</string>
-    <string name="input_position_cancel">キャンセル</string>
-    <string name="input_position_baidu">BD09 座標系</string>
-    <string name="input_position_gps">GPS 座標系</string>
-    <string name="input_button">位置を入力</string>
-    <string name="cur_position">現在位置に戻る</string>
-    <string name="zoom_in">拡大</string>
-    <string name="zoom_out">縮小</string>
-
-    <string name="map_pic_sate">衛星</string>
-    <string name="map_pic_normal">通常</string>
-
-    <string name="update_title">新しいバージョンがあります</string>
-    <string name="update_downloading">更新ファイルをダウンロード中...</string>
-    <string name="update_last">KailLocation は最新です</string>
-    <string name="update_download">今すぐダウンロード</string>
-    <string name="update_ignore">今回は無視</string>
-    <string name="update_time">更新日時：</string>
-    <string name="update_commit">更新内容：</string>
-
-    <string name="nav_sim_title">ナビゲーションシミュレーション</string>
-    <string name="nav_sim_start">ナビゲーション開始</string>
-    <string name="nav_sim_stop">シミュレーション終了</string>
-    <string name="nav_sim_pause">一時停止</string>
-    <string name="nav_sim_resume">再開</string>
-    <string name="nav_sim_planning">計画中...</string>
-    <string name="nav_sim_start_point">開始：</string>
-    <string name="nav_sim_end_point">終了：</string>
-    <string name="nav_sim_select_start">開始地点を選択してください</string>
-    <string name="nav_sim_select_end">終了地点を選択してください</string>
-    <string name="nav_sim_multi_route">複数ルート</string>
-    <string name="nav_sim_history_title">履歴データ（最大 10 件）</string>
-    <string name="nav_sim_clear">クリア</string>
-    <string name="nav_sim_switch_route">ルート切り替え</string>
-    <string name="nav_sim_choose_route">ルートを選択</string>
-    <string name="nav_sim_speed_dialog_title">速度を設定 (km/h)</string>
-    <string name="nav_sim_speed">速度</string>
-    <string name="nav_sim_ok">OK</string>
-    <string name="nav_sim_cancel">キャンセル</string>
-
-    <string name="route_sim_title">ルートシミュレーション</string>
-    <string name="route_sim_target">対象ルート</string>
-    <string name="route_sim_history">履歴ルート</string>
-    <string name="route_sim_no_name">名称なし</string>
-    <string name="route_sim_start">シミュレーション開始</string>
-    <string name="route_sim_stop">シミュレーション終了</string>
-    <string name="route_sim_pause">一時停止</string>
-    <string name="route_sim_resume">再開</string>
-    <string name="route_sim_speed_btn">速度/頻度</string>
-    <string name="route_sim_loop">ループ</string>
-    <string name="route_sim_rename_title">ルート名を変更</string>
-    <string name="route_sim_rename_ok">OK</string>
-    <string name="route_sim_rename_cancel">キャンセル</string>
-    <string name="route_sim_need_route">まずルートを追加して保存してください</string>
-    <string name="route_sim_start_failed">シミュレーションの開始に失敗しました</string>
-
-    <string name="route_plan_search_hint">場所を検索</string>
-    <string name="route_plan_map_type">地図の種類を選択</string>
-    <string name="route_plan_normal">通常地図</string>
-    <string name="route_plan_satellite">衛星地図</string>
-    <string name="route_plan_coord_title">座標を入力</string>
-    <string name="route_plan_latitude">緯度</string>
-    <string name="route_plan_longitude">経度</string>
-    <string name="route_plan_coord_type">BD09 座標（既定は WGS84）</string>
-    <string name="route_plan_coord_combined">緯度,経度</string>
-    <string name="route_plan_coord_error">有効な緯度,経度を入力してください</string>
-    <string name="route_plan_ok">OK</string>
-    <string name="route_plan_cancel">キャンセル</string>
-
-    <string name="setting_sim_scheme">センサーシミュレーション方式</string>
-    <string name="setting_sim_fourier">フーリエ級数</string>
-    <string name="setting_sim_sine_noise">正弦 + ランダムノイズ</string>
-    <string name="setting_step_sim">歩数カウンターシミュレーション</string>
-    <string name="setting_step_sim_summary">歩数検出器 (18) と歩数カウンター (19) のイベントを制御します</string>
-    <string name="setting_group_satellite_and_signal">衛星と信号のシミュレーション</string>
-    <string name="setting_group_intercept">遮断と降格</string>
-    <string name="setting_allow_get_current">GetCurrentLocation を許可</string>
-    <string name="setting_allow_get_current_summary">オフにすると getCurrentLocation 要求を遮断します</string>
-    <string name="setting_allow_register_listener">位置リスナー登録を許可</string>
-    <string name="setting_allow_register_listener_summary">オフにすると registerLocationListener を遮断します</string>
-    <string name="setting_allow_geofence">ジオフェンス要求を許可</string>
-    <string name="setting_allow_geofence_summary">オフにすると addGeofence を遮断します</string>
-    <string name="setting_allow_get_location">位置検索を許可</string>
-    <string name="setting_allow_get_location_summary">オフにすると getFromLocation などの逆引きを遮断します</string>
-    <string name="setting_disable_fused">Fused Location を無効化</string>
-    <string name="setting_disable_fused_summary">アプリの fused provider 利用を防ぎます</string>
-    <string name="setting_downgrade_cdma">ネットワーク位置を CDMA に降格</string>
-    <string name="setting_downgrade_cdma_summary">ネットワーク位置結果を基地局位置として偽装します</string>
-    <string name="setting_disable_wifi_scan">Wi‑Fi スキャンを無効化</string>
-    <string name="setting_disable_wifi_scan_summary">アプリが実際の Wi‑Fi スキャン結果を取得するのを防ぎます</string>
-    <string name="setting_group_anti_detect">検知回避と引き戻し防止</string>
-    <string name="setting_hide_mock">モック位置を隠す</string>
-    <string name="setting_hide_mock_summary">Location.isFromMockProvider フラグを除去します</string>
-    <string name="setting_anti_pullback">位置の引き戻し防止</string>
-    <string name="setting_anti_pullback_summary">位置を継続的に送信して、システムに戻されにくくします</string>
-    <string name="setting_natural_jitter">自然な GPS 揺らぎ</string>
-    <string name="setting_natural_jitter_summary">注入位置に揺らぎを追加します。固定位置やルートを安定させる場合はオフにしてください。</string>
-    <string name="setting_group_other">その他</string>
-    <string name="setting_global_mode">グローバルモード (system_server)</string>
-    <string name="setting_global_mode_summary">有効にすると system_server を注入し、すべてのアプリに適用されます。無効にすると以下の対象アプリのみ注入します</string>
-    <string name="setting_target_packages">対象アプリのパッケージ名</string>
-    <string name="setting_target_packages_summary">カンマ区切り、グローバルモードがオフの場合のみ有効。例: com.autonavi.minimap</string>
-    <string name="setting_baidu_key">Baidu Map Key（再起動が必要）</string>
-    <string name="setting_selinux_permissive">注入中だけ SELinux を Permissive に</string>
-    <string name="setting_selinux_permissive_summary">オンにすると system_server への注入中だけ SELinux を一時的に Permissive に切り替え、完了後すぐに Enforcing に戻します。オフのときは SELinux を変更しません。Android 14/15 で注入失敗するときに有効。</string>
-    <string name="setting_enable_log">ログを有効化</string>
-    <string name="setting_enable_log_summary">低頻度ログと重要な状態ログをローカルファイルに保存します</string>
-    <string name="setting_enable_debug_log">詳細デバッグログを有効化</string>
-    <string name="setting_enable_debug_log_summary">高頻度の位置デバッグログを制限付きで保存します。消費電力とファイルサイズが増える可能性があるため、問題調査時のみ使用してください。</string>
-    <string name="setting_export_log">ログをエクスポート</string>
-    <string name="setting_export_log_summary">保存先を選択して現在のログファイルを書き出します</string>
-    <string name="setting_export_log_success">ログをエクスポートしました</string>
-    <string name="setting_export_log_failed">ログのエクスポートに失敗しました</string>
-    <string name="setting_clear_log_cache">ログキャッシュを削除</string>
-    <string name="setting_clear_log_cache_summary">現在のキャッシュサイズ: %s</string>
-    <string name="setting_clear_log_cache_confirm">ログキャッシュを削除しますか？現在のサイズ: %s</string>
-    <string name="setting_clear_log_cache_success">ログキャッシュを削除しました</string>
-    <string name="setting_clear_log_cache_failed">ログキャッシュの削除に失敗しました</string>
-    <string name="setting_map_zoom">フローティングウィンドウの地図ズーム</string>
-    <string name="setting_map_zoom_summary">範囲は 10-21、数値が大きいほど詳細になります</string>
-
-    <!-- データのエクスポート / インポート -->
-    <string name="setting_group_data_transfer">データバックアップ</string>
-    <string name="data_transfer_group_general">共通（全モード）</string>
-    <string name="setting_export_data">データをエクスポート</string>
-    <string name="setting_export_data_summary">選択したメニューの設定を .bak バックアップファイルにエクスポートします</string>
-    <string name="setting_import_data">データをインポート</string>
-    <string name="setting_import_data_summary">.bak バックアップファイルからメニュー設定を選択して復元します</string>
-    <string name="data_transfer_export_title">データをエクスポート</string>
-    <string name="data_transfer_import_title">データをインポート</string>
-    <string name="data_transfer_select_categories">エクスポートするデータを選択</string>
-    <string name="data_transfer_select_import_categories">インポートするデータを選択</string>
-    <string name="data_transfer_category_count">%1$s（%2$d 件）</string>
-    <string name="data_transfer_category_empty">%1$s（データなし）</string>
-    <string name="data_transfer_filename_label">バックアップファイル名</string>
-    <string name="data_transfer_export_button">エクスポート</string>
-    <string name="data_transfer_import_button">インポート</string>
-    <string name="data_transfer_export_success">データをエクスポートしました</string>
-    <string name="data_transfer_export_failed">データのエクスポートに失敗しました</string>
-    <string name="data_transfer_import_success">%1$d 件のメニューデータをインポートしました。アプリを再起動すると反映されます</string>
-    <string name="data_transfer_import_failed">データのインポートに失敗しました</string>
-    <string name="data_transfer_invalid_file">無効なバックアップファイルです</string>
-    <string name="data_transfer_none_selected">少なくとも 1 つ選択してください</string>
-    <string name="data_transfer_default_filename">kail_location_backup</string>
-
-    <string name="setting_current_version">現在のバージョン</string>
-    <string name="setting_not_set">未設定</string>
-    <string name="setting_ok">OK</string>
-    <string name="setting_cancel">キャンセル</string>
-
-    <string name="nfc_sim_title">NFC シミュレーション</string>
-    <string name="nfc_sim_status">NFC 状態</string>
-    <string name="nfc_sim_enabled">有効</string>
-    <string name="nfc_sim_disabled">無効</string>
-    <string name="nfc_sim_read_success">読み取り成功</string>
-    <string name="nfc_sim_clear">クリア</string>
-    <string name="nfc_sim_tag_id">タグ ID: %s</string>
-    <string name="nfc_sim_tag_type">タグ種類: %s</string>
-    <string name="nfc_sim_content">内容: %s</string>
-    <string name="nfc_sim_send_title">NFC 送信をシミュレート</string>
-    <string name="nfc_sim_url">URL</string>
-    <string name="nfc_sim_package">アプリのパッケージ名</string>
-    <string name="nfc_sim_send">送信</string>
-    <string name="nfc_sim_history">履歴</string>
-    <string name="nfc_sim_clear_history">クリア</string>
-    <string name="nfc_sim_no_history">履歴はありません</string>
-    <string name="nfc_sim_rename_dialog_title">名前を変更</string>
-    <string name="nfc_sim_rename_name">名前</string>
-    <string name="nfc_sim_rename_ok">OK</string>
-    <string name="nfc_sim_rename_cancel">キャンセル</string>
-    <string name="nfc_sim_rename_content_desc">名前を変更</string>
-    <string name="nfc_sim_delete_content_desc">削除</string>
-    <string name="nfc_sim_help_title">使い方</string>
-    <string name="nfc_sim_help_content">1. スキャン: NFC タグに近づけると自動で読み取ります\n2. 送信: URL/パッケージ名を入力して送信を押します\n3. 履歴: タップで自動入力、長押しで名前変更</string>
-    <string name="nfc_sim_read_failed">読み取りに失敗しました: %s</string>
-    <string name="nfc_sim_input_hint">URL またはパッケージ名を入力してください</string>
-    <string name="nfc_sim_send_failed">送信に失敗しました: %s</string>
-    <string name="nfc_sim_sent">送信済み: %s</string>
-    <string name="nfc_sim_opened">開きました: %s</string>
-    <string name="nfc_sim_need_nfc">先に NFC を有効にしてください</string>
-
-    <string name="common_warning">警告</string>
-    <string name="common_delete_all_confirm">履歴をすべて削除しますか？</string>
-    <string name="common_delete_item_confirm">この履歴を削除しますか？</string>
-    <string name="common_confirm">確認</string>
-    <string name="common_edit">編集</string>
-    <string name="common_delete">削除</string>
-    <string name="common_cancel">キャンセル</string>
-    <string name="common_ok">OK</string>
-
-    <string name="drawer_env_check">環境チェック</string>
-    <string name="drawer_ok">OK</string>
-    <string name="drawer_nav_sim">ナビゲーションシミュレーション</string>
-    <string name="drawer_nfc_sim">NFC シミュレーション</string>
-    <string name="drawer_run_mode">実行モード</string>
-    <string name="drawer_sandbox">サンドボックス エンジン</string>
-    <string name="drawer_xposed_settings">Xposed 設定</string>
-    <string name="drawer_action_login">ログイン / 登録</string>
-    <string name="drawer_action_logout">ログアウト</string>
-    <string name="drawer_logged_in_as">ログイン中</string>
-    <string name="drawer_not_logged_in">未ログイン</string>
-
-    <string name="sponsor_copied">コピーしました</string>
-    <string name="sponsor_copy_address">アドレスをコピー</string>
-    <string name="sponsor_wechat_hint">以下のリンクをPCブラウザで開き、国を中国に選択してください</string>
-    <string name="sponsor_copy">コピー</string>
-
-    <string name="welcome_read">読みました</string>
-    <string name="welcome_and">と</string>
-    <string name="welcome_agreement_text">利用規約</string>
-    <string name="welcome_privacy_text">プライバシーポリシー</string>
-
-    <string name="joystick_speed">ジョイスティック速度: %s km/h</string>
-    <string name="joystick_progress">進行状況: %s</string>
-    <string name="joystick_speed_label">速度:</string>
-    <string name="joystick_modify">変更</string>
-    <string name="joystick_route_progress">現在の進行状況: %s</string>
-
-    <string name="goutils_enable_mock_title">モック位置を有効にする</string>
-    <string name="goutils_enable_mock_msg">開発者向けオプションの「モック位置アプリを選択」でこのアプリを設定してください</string>
-    <string name="goutils_settings">設定</string>
-    <string name="goutils_cancel">キャンセル</string>
-    <string name="goutils_enable_overlay_title">フローティングウィンドウを有効にする</string>
-    <string name="goutils_enable_overlay_msg">シミュレーションを安定させるため、フローティングウィンドウを有効にすることを推奨します</string>
-    <string name="goutils_enable_gps_title">GPS を有効にする</string>
-    <string name="goutils_enable_gps_msg">GPS 位置情報サービスを有効にしますか？</string>
-    <string name="goutils_ok">OK</string>
-    <string name="goutils_warning">警告</string>
-    <string name="goutils_wifi_warning">Wi‑Fi を有効にすると、接続していなくても位置が実位置に戻ることがあります。Wi‑Fi を切ってモバイル通信を使うことをおすすめします！</string>
-    <string name="goutils_turn_off">オフにする</string>
-    <string name="goutils_ignore">無視</string>
-
-    <string name="vm_update_failed">更新確認に失敗しました: %s</string>
-    <string name="vm_up_to_date">すでに最新バージョンです</string>
-    <string name="vm_search_city">全国</string>
-    <string name="vm_need_location_permission">シミュレーションを開始するには位置情報権限が必要です</string>
-    <string name="vm_unknown_location">不明な場所</string>
-    <string name="vm_step_root_required">歩数シミュレーションには ROOT モードが必要です</string>
-
-    <string name="history_vm_coord_wgs84">[経度:%1$s 緯度:%2$s]</string>
-    <string name="history_vm_coord_bd09">[経度:%1$s 緯度:%2$s]</string>
-    <string name="history_vm_offset">経度オフセット: %.2f m\n緯度オフセット: %.2f m</string>
-
-    <string name="service_grant_overlay">フローティングウィンドウ権限を許可してください</string>
-    <string name="service_overlay_failed">フローティングウィンドウの初期化に失敗しました: %s</string>
-    <string name="service_set_mock_app">開発者向けオプションでこのアプリをモック位置アプリとして設定してください</string>
-    <string name="route_sim_speed_text">移動速度</string>
-    <string name="route_sim_speed_fluctuation">速度の変動</string>
-    <string name="route_sim_step_text">歩数シミュレーション</string>
-    <string name="route_sim_cadence_text">歩調</string>
-    <string name="route_sim_cadence_format">%d 歩/分 ・ 約 %.1f km/h</string>
-    <string name="route_sim_step_root_required">歩数シミュレーションには ROOT モードが必要です</string>
-
-    <string name="error_cannot_open_email">メールアプリを開けません</string>
-    <string name="error_cannot_open_browser">ブラウザを開けません</string>
-    <string name="error_under_development">機能は開発中です...</string>
-    <string name="download_progress">ダウンロード中... %d%%</string>
-
-    <string name="setting_mock_speed">シミュレート移動速度 (m/s)</string>
-    <string name="setting_accuracy_title">位置精度/揺らぎ範囲 (m)</string>
-    <string name="setting_accuracy_summary">既定値は 2.5。自然な GPS 揺らぎがオフの場合は位置精度、オンの場合は揺らぎ範囲として使用します。</string>
-    <string name="setting_min_satellites">最小シミュレート衛星数</string>
-    <string name="setting_min_satellites_summary">BeiDou 衛星のみ対応</string>
-    <string name="setting_report_interval">報告間隔 (ms)</string>
-    <string name="setting_report_interval_summary">ミリ秒単位、既定は 200ms。値を小さくすると報告頻度が上がり、消費電力と負荷が増えます</string>
-    <string name="setting_gps_satellite_title">GPS 衛星信号をシミュレート</string>
-    <string name="setting_gps_satellite_summary">BeiDou 衛星数と信号強度を偽装します</string>
-    <string name="setting_agps_title">AGPS モジュールを有効にする</string>
-    <string name="setting_agps_summary">補助測位関連（実験的）</string>
-    <string name="setting_nmea_title">NMEA モジュールを有効にする</string>
-    <string name="setting_nmea_summary">NMEA データ出力を偽装します</string>
-    <string name="setting_wlan_title">WLAN データをシミュレート</string>
-    <string name="setting_wlan_summary">Wi‑Fi 測位データを偽装します</string>
-
-    <!-- Usage Manager -->
-    <string name="usage_not_logged_in">シミュレーションを使用するにはログインしてください</string>
-    <string name="usage_free_exhausted">本日の無料シミュレーション回数を使い切りました。購読すると無制限に利用できます。</string>
-    <string name="usage_count_exhausted">シミュレーション回数を使い切りました</string>
-
-    <!-- API Errors -->
-    <string name="api_error_remaining">残り回数の取得に失敗しました</string>
-    <string name="api_error_send_code">認証コードの送信に失敗しました</string>
-    <string name="api_error_login">ログインに失敗しました</string>
-    <string name="api_error_plans">プラン一覧の取得に失敗しました</string>
-    <string name="api_error_notices">お知らせの取得に失敗しました</string>
-    <string name="api_error_subscription">購読状態の取得に失敗しました</string>
-
-    <!-- Sponsor Errors -->
-    <string name="sponsor_error_not_logged_in">ログインしていません</string>
-    <string name="sponsor_error_select_plan">プランを選択してください</string>
-    <string name="sponsor_error_create_checkout">チェックアウトの作成に失敗しました</string>
-
-    <!-- Sponsor Screen -->
-    <string name="sponsor_top_title">購読 &amp; スポンサー</string>
-    <string name="sponsor_member_title">メンバー購読</string>
-    <string name="sponsor_select_hint">プランを選択して全機能をアンロック</string>
-    <string name="sponsor_subscribed_text">購読中</string>
-    <string name="sponsor_thanks">ご支援ありがとうございます！</string>
-    <string name="sponsor_billing_once">一回限り</string>
-    <string name="sponsor_billing_month">/月</string>
-    <string name="sponsor_billing_year">/年</string>
-    <string name="sponsor_login_first">購読するにはログインしてください</string>
-    <string name="sponsor_credit_card">クレジット/デビットカード</string>
-    <string name="sponsor_wechat_pay">WeChat Pay</string>
-    <string name="sponsor_support_title">スポンサー</string>
-    <string name="sponsor_aptos_hint">Aptos チェーンでのスポンサーも受け付けています：</string>
-    <string name="sponsor_copy_aptos_address">Aptos アドレスをコピー</string>
-
-    <!-- Login Screen -->
-    <string name="login_hint_text">QQ メールと Gmail のみ対応。認証コードを入力してログインまたは自動登録。</string>
-    <string name="login_register_btn">ログイン / 登録</string>
-
-    <!-- Profile -->
-    <string name="profile_member_status">メンバーシップ状態</string>
-    <string name="profile_not_subscribed">未購読</string>
-    <string name="profile_subscribe_now">今すぐ購読</string>
-
-    <!-- Cell Simulation Screen -->
-    <string name="cell_sim_empty_text">模擬基地局がありません</string>
-    <string name="cell_sim_scan_hint">以下のボタンで基地局をスキャンまたは追加</string>
-    <string name="cell_sim_deselect_all">全選択解除</string>
-    <string name="cell_sim_select_all">全選択</string>
-    <string name="cell_sim_running_title">基地局模擬実行中</string>
-    <string name="cell_sim_title_short">基地局模擬</string>
-    <string name="cell_sim_more_fmt">+ %d 件...</string>
-    <string name="cell_sim_start">模擬開始</string>
-    <string name="cell_sim_stop">模擬停止</string>
-    <string name="cell_sim_status_running">実行中</string>
-    <string name="cell_sim_scan_count_fmt">%d 個の基地局をスキャンしました</string>
-    <string name="cell_sim_location_fmt">位置: %s</string>
-
-    <!-- WiFi Simulation Screen -->
-    <string name="wifi_sim_empty_text">模擬 WiFi がありません</string>
-    <string name="wifi_sim_scan_hint">以下のボタンで WiFi をスキャン</string>
-    <string name="wifi_sim_deselect_all">全選択解除</string>
-    <string name="wifi_sim_select_all">全選択</string>
-    <string name="wifi_sim_running_title">WiFi 模擬実行中</string>
-    <string name="wifi_sim_title_short">WiFi 模擬</string>
-    <string name="wifi_sim_start">模擬開始</string>
-    <string name="wifi_sim_stop">模擬停止</string>
-    <string name="wifi_sim_status_running">実行中</string>
-    <string name="wifi_sim_scan_count_fmt">%d 個の WiFi をスキャンしました</string>
-    <string name="wifi_sim_add_label">追加</string>
-
-    <!-- Announcement Dialog -->
-    <string name="announcement_default_title">お知らせ</string>
-    <string name="announcement_previous">前へ</string>
-    <string name="announcement_next">次へ</string>
-    <string name="announcement_got_it">確認しました</string>
-
-    <!-- Independent Simulation -->
-    <string name="ind_sim_running">独立模擬実行中</string>
-    <string name="ind_sim_stopped">独立模擬停止中</string>
-    <string name="ind_sim_description">対象アプリを選択して有効化すると、位置/ルート/WiFi/基地局/歩数ページの「模擬開始」が選択したアプリにのみ適用されます。</string>
-    <string name="ind_sim_stop_btn">独立模擬を停止</string>
-    <string name="ind_sim_start_btn">独立模擬を開始</string>
-
-    <!-- Checkout WebView -->
-    <string name="checkout_title">チェックアウト</string>
-    <string name="checkout_back_desc">戻る</string>
-
-    <!-- Location Picker -->
-    <string name="picker_map_init_failed">地図の初期化に失敗しました: %s</string>
-    <string name="picker_search_no_results">結果が見つかりませんでした</string>
-
-    <!-- Update -->
-    <string name="update_found_title">新しいバージョンを発見: %s</string>
-
-    <!-- Location Simulation -->
-    <string name="location_rename_title">位置名を変更</string>
-
-    <!-- Sandbox Manager/Activity/Screen -->
-    <string name="sandbox_install_success">インストール成功</string>
-    <string name="sandbox_install_failed">インストール失敗: %s</string>
-    <string name="sandbox_uninstall_success">アンインストール成功</string>
-    <string name="sandbox_uninstall_failed">アンインストール失敗: %s</string>
-    <string name="sandbox_launch_failed">起動失敗</string>
-    <string name="sandbox_launch_failed_msg">起動失敗: %s</string>
-    <string name="sandbox_clear_success">クリア成功</string>
-    <string name="sandbox_clear_failed">クリア失敗: %s</string>
-    <string name="sandbox_stopped">停止しました</string>
-    <string name="sandbox_stop_failed">停止失敗: %s</string>
-    <string name="sandbox_loading_failed">サンドボックスアプリの読み込みに失敗: %s</string>
-    <string name="sandbox_system_apps_failed">システムアプリの読み込みに失敗: %s</string>
-    <string name="sandbox_title_fmt">サンドボックス - %s</string>
-    <string name="sandbox_creating_shortcut">ショートカットを作成中...</string>
-    <string name="sandbox_shortcut_failed">ショートカット作成失敗: %s</string>
-    <string name="sandbox_invalid_shortcut">無効なショートカット</string>
-    <string name="sandbox_empty">サンドボックスにアプリがありません</string>
-    <string name="sandbox_empty_hint">右下の + ボタンでアプリをクローン</string>
-    <string name="sandbox_launch_app">アプリを起動</string>
-    <string name="sandbox_clear_data">データをクリア</string>
-    <string name="sandbox_stop_running">停止</string>
-    <string name="sandbox_uninstall_app">アプリをアンインストール</string>
-    <string name="sandbox_create_shortcut">ショートカットを作成</string>
-    <string name="sandbox_clear_data_btn">データをクリア</string>
-    <string name="sandbox_uninstall_btn">アンインストール</string>
-    <string name="sandbox_clone_title">アプリをクローン</string>
-    <string name="sandbox_search_placeholder">アプリを検索...</string>
-    <string name="sandbox_load_system_apps">システムアプリ一覧を読み込み中</string>
-    <string name="sandbox_settings_title">サンドボックス設定</string>
-    <string name="sandbox_hide_root">Root を隠す</string>
-    <string name="sandbox_hide_root_desc">サンドボックスアプリから Root 権限を隠す</string>
-    <string name="sandbox_restart_to_apply">アプリを再起動して適用</string>
-    <string name="sandbox_daemon">デーモン</string>
-    <string name="sandbox_daemon_desc">サンドボックスサービスをバックグラウンドで維持</string>
-    <string name="sandbox_vpn">VPN を使用</string>
-    <string name="sandbox_vpn_desc">サンドボックストラフィックを VPN 経由に</string>
-    <string name="sandbox_disable_secure">FLAG_SECURE を無効化</string>
-    <string name="sandbox_disable_secure_desc">サンドボックスアプリでのスクリーンショットを許可</string>
-    <string name="sandbox_step_sim">歩数模擬</string>
-    <string name="sandbox_step_sim_desc">サンドボックスアプリに歩数センサーデータを模擬</string>
-    <string name="sandbox_step_fmt">歩数: %d 歩/分</string>
-    <string name="sandbox_step_adjust">タップして調整</string>
-    <string name="sandbox_gms">GMS 管理</string>
-    <string name="sandbox_gms_desc">Google サービスフレームワークを管理</string>
-    <string name="sandbox_gms_coming">開発中</string>
-    <string name="sandbox_gms_unsupported">このデバイスは GMS をサポートしていません</string>
-    <string name="sandbox_send_log">ログを送信</string>
-    <string name="sandbox_send_log_desc">デバッグログを開発者に送信</string>
-    <string name="sandbox_log_sent">ログを送信しました</string>
-    <string name="sandbox_log_failed">ログ送信失敗: %s</string>
-    <string name="sandbox_log_sending">ログを送信中...</string>
-    <string name="sandbox_adjust_cadence">歩数調整</string>
-    <string name="sandbox_cadence_fmt">%d 歩/分</string>
-    <string name="sandbox_cadence_range">範囲: 30 - 240 歩/分</string>
-
-    <!-- Settings -->
-    <string name="settings_step_sim">歩数模擬</string>
-    <string name="settings_step_sim_enable">歩数模擬を有効にする</string>
-    <string name="settings_step_sim_summary">歩数計アプリ向けに歩数データを模擬</string>
-    <string name="settings_step_type">歩数データタイプ</string>
-
-    <!-- Cell ViewModel -->
-    <string name="cell_fetch_no_location">現在地を取得できません。模擬位置を設定するか GPS を有効にしてください。</string>
-    <string name="cell_fetch_no_key">設定で OpenCellID API Key を設定してください</string>
-    <string name="cell_fetch_no_data">基地局データが見つかりませんでした</string>
-    <string name="cell_fetch_failed">ネットワークリクエスト失敗: %s</string>
-
-    <!-- NFC -->
-    <string name="nfc_read_failed">読み取り失敗: %s</string>
-
-    <!-- Xposed Settings -->
-    <string name="xposed_not_set">未設定</string>
-
-    <!-- Welcome -->
-    <string name="welcome_cannot_open_settings">設定画面を開けません。手動で有効にしてください。</string>
-
-    <!-- Login / Register -->
-    <string name="login_screen_title">アカウント</string>
-    <string name="login_tab_login">ログイン</string>
-    <string name="login_tab_register">登録</string>
-    <string name="login_dialog_title">ログイン</string>
-    <string name="register_dialog_title">登録</string>
-    <string name="login_username_hint">ユーザー名</string>
-    <string name="login_email_hint">メールアドレス</string>
-    <string name="login_password_hint">パスワード</string>
-    <string name="register_nickname_hint">ニックネーム</string>
-    <string name="register_password_confirm_hint">パスワード確認</string>
-    <string name="register_verification_code_hint">認証コード</string>
-    <string name="register_send_code">送信</string>
-    <string name="login_action_login">ログイン</string>
-    <string name="login_action_register">登録</string>
-    <string name="login_forgot_password">パスワードをお忘れですか？</string>
-    <string name="login_error_empty_fields">必須項目を入力してください</string>
-    <string name="login_error_empty_email">メールアドレスを入力してください</string>
-    <string name="login_error_invalid_email_domain">QQメール（@qq.com）とGmail（@gmail.com）のみ対応しています。</string>
-    <string name="register_error_password_mismatch">パスワードが一致しません</string>
-    <string name="register_error_send_code_failed">認証コードの送信に失敗しました</string>
-    <string name="login_error_unknown">操作に失敗しました。後でもう一度お試しください</string>
-    <string name="forgot_password_title">パスワードをお忘れの場合</string>
-    <string name="forgot_password_description">メールアドレスと認証コードを入力してパスワードをリセットしてください。</string>
-    <string name="forgot_password_new_password_hint">新しいパスワード</string>
-    <string name="forgot_password_send">リセット</string>
-    <string name="forgot_password_success">パスワードをリセットしました</string>
-    <string name="forgot_password_failed">リセットに失敗しました。後でもう一度お試しください</string>
-    <string name="profile_title">プロフィール</string>
-
-    <string name="loc_sim_title">位置シミュレーション</string>
-    <string name="loc_sim_target">ターゲット位置</string>
-    <string name="loc_sim_none">NONE</string>
-    <string name="loc_sim_lat_lng">経度/緯度: %1$s,%2$s</string>
-    <string name="loc_sim_start">模擬開始</string>
-    <string name="sim_starting">起動中...</string>
-    <string name="loc_sim_stop">模擬停止</string>
-    <string name="loc_sim_base_station">基地局</string>
-    <string name="loc_sim_joystick">ジョイスティック</string>
-    <string name="loc_sim_history_title">履歴</string>
-    <string name="loc_sim_add_tips">右上の「+」をタップして追加</string>
-
-    <string name="root_hide_title">Root &amp; アプリ非表示</string>
-    <string name="root_hide_status_running">非表示実行中</string>
-    <string name="root_hide_status_stopped">非表示停止中</string>
-    <string name="root_hide_desc">対象アプリを選択して有効化すると、Root/フレームワークの痕跡とインストール済みアプリ一覧が対象アプリから隠されます。</string>
-    <string name="root_hide_hide_root">Root を隠す</string>
-    <string name="root_hide_hide_root_summary">対象アプリから Root、Magisk、Xposed の痕跡を隠す</string>
-    <string name="root_hide_hide_applist">アプリ一覧を隠す</string>
-    <string name="root_hide_hide_applist_summary">対象アプリからインストール済みアプリ一覧を隠す（Root非表示が必要）</string>
-    <string name="root_hide_target_apps">対象アプリ</string>
-    <string name="root_hide_target_apps_hint">タップしてアプリを選択</string>
-    <string name="root_hide_start">非表示開始</string>
-    <string name="root_hide_stop">非表示停止</string>
-    <string name="root_hide_no_apps">対象アプリを選択し、少なくとも1つの非表示オプションを有効にしてください</string>
-    <string name="root_hide_select_apps">対象アプリを選択</string>
-
-
-    <string name="app_name">KailLocation</string>
-    <string name="app_author">kail</string>
-    <string name="app_email">kailkali23143@gmail.com</string>
-    <string name="app_statement">学習目的のみ。自己責任でご利用ください！</string>
-    <string name="app_agreement_content">"1. 本ソフトウェアは Android 開発学習専用であり、ユーザーデータを収集することはありません。
-"    "2. 本ソフトウェアをプライバシー侵害やゲームでの不正利用に使用することを固く禁じます。遵守できない場合は直ちに削除してください。
-"    "3. 本ソフトウェアの使用により生じたプライバシー漏洩を含む一切の不利益は、ユーザー自身が負うものとし、作者は一切の責任を負いません。
-"    "4. ユーザーは本ソフトウェアのリバースエンジニアリング、逆コンパイル、逆アセンブルを行ってはなりません。違反者は著作権侵害となり、不利な結果を自ら負うものとします。
-"    "5. 本ソフトウェアにはウイルス、トロイの木馬などの悪意のあるコードは含まれていませんが、ネットワーク経由でのダウンロード・配布において、作者指定以外のサイトから入手したバージョンの安全性は保証できません。
-"    "6. 本ソフトウェアは継続的に更新され、新機能の提供とバグ修正が行われます。アップデートプロセスに悪意のあるコードは含まれていません。
-"    "7. ユーザーのコンピュータ環境の差異により、本ソフトウェアの機能がすべての状況で正常に動作することを保証できません。
-"    "8. 本ソフトウェアをインストールした場合、本契約の条項に同意したものとみなします。同意しない場合は直ちに削除してください。
-"    </string>
-    <string name="app_privacy_content">"1. 本ソフトウェアは Android 開発学習専用であり、ユーザーデータを収集することはありません。
-"    "2. ユーザーは本ソフトウェアのリバースエンジニアリング、逆コンパイル、逆アセンブルを行ってはなりません。
-"    "3. 本ソフトウェアにはウイルス、トロイの木馬などの悪意のあるコードは含まれていませんが、作者指定以外のサイトから入手したバージョンの安全性は保証できません。
-"    "4. 本ソフトウェアは継続的に更新されます。アップデートプロセスに悪意のあるコードは含まれていません。
-"    "5. ユーザーのコンピュータ環境の差異により、すべての状況で正常に動作することを保証できません。
-"    "6. 本ソフトウェアをインストールした場合、本契約に同意したものとみなします。同意しない場合は直ちに削除してください。
-"    </string>
-    <string name="setting_opencellid_key">OpenCellID API Key</string>
-    <string name="setting_opencellid_key_summary">经纬度から周辺基地局を検索するために使用。opencellid.org で登録が必要</string>
-    <string name="vm_system_not_ready">システムの準備ができていません。%1$d 秒後にお試しください（残り約 %2$d 秒）</string>
-    <string name="service_root_fallback_noroot">ROOT 注入に失敗しました。Root マネージャーで KailLocation を承認してから再試行してください</string>
-    <string name="service_root_fallback_binder">注入が適用されませんでした。後で再試行するか、デバイスを再起動してください</string>
-    <string name="cell_type_gsm">GSM</string>
-    <string name="cell_type_cdma">CDMA</string>
-    <string name="cell_type_lte">LTE</string>
-    <string name="cell_type_wcdma">WCDMA</string>
-    <string name="ind_sim_title">独立シミュレーション</string>
-    <string name="ind_sim_target_apps">対象アプリ</string>
-    <string name="ind_sim_target_apps_hint">タップしてシミュレートするアプリを選択</string>
-    <string name="ind_sim_sim_type">シミュレーション種類</string>
-    <string name="ind_sim_location">位置シミュレーション</string>
-    <string name="ind_sim_route">ルートシミュレーション</string>
-    <string name="ind_sim_wifi_mock">WiFi シミュレーション</string>
-    <string name="ind_sim_cell_mock">基地局シミュレーション</string>
-    <string name="ind_sim_gnss_mock">GPS 衛星状態シミュレーション</string>
-    <string name="ind_sim_gnss_mock_summary">GnssStatus 衛星データを偽装（検出防止）</string>
-    <string name="ind_sim_jitter_mock">位置ジッター</string>
-    <string name="ind_sim_jitter_mock_summary">シミュレート位置にランダムオフセットを追加</string>
-    <string name="ind_sim_start">独立シミュレーションを開始</string>
-    <string name="ind_sim_stop">独立シミュレーションを停止</string>
-    <string name="ind_sim_no_apps">先に対象アプリを選択してください</string>
-    <string name="ind_sim_select_apps">対象アプリを選択</string>
-    <string name="ind_sim_search_apps">アプリを検索</string>
-    <string name="ind_sim_selected_count">%d 個のアプリを選択</string>
-    <string name="wifi_sim_title">WiFi シミュレーション</string>
-    <string name="wifi_sim_enable">WiFi シミュレーションを有効にする</string>
-    <string name="wifi_sim_enable_summary">WiFi スキャン結果と接続情報を偽装</string>
-    <string name="wifi_sim_add">WiFi を追加</string>
-    <string name="wifi_sim_list">WiFi リスト</string>
-    <string name="wifi_sim_empty">WiFi データがありません。タップして追加</string>
-    <string name="wifi_sim_ssid">SSID</string>
-    <string name="wifi_sim_bssid">BSSID (MAC)</string>
-    <string name="wifi_sim_rssi">信号強度 (dBm)</string>
-    <string name="wifi_sim_frequency">周波数 (MHz)</string>
-    <string name="wifi_sim_capabilities">暗号化方式</string>
-    <string name="wifi_sim_delete">削除</string>
-    <string name="wifi_sim_edit">編集</string>
-    <string name="wifi_sim_name">名前</string>
-    <string name="wifi_sim_history">履歴</string>
-    <string name="wifi_sim_current_target">現在の対象 WiFi</string>
-    <string name="wifi_sim_select_prompt">以下の WiFi をタップして選択</string>
-    <string name="wifi_sim_rename">名前を変更</string>
-    <string name="wifi_sim_rename_title">WiFi の名前を変更</string>
-    <string name="wifi_sim_picker_title">WiFi を選択</string>
-    <string name="wifi_sim_scan_nearby">近くの WiFi をスキャン</string>
-    <string name="wifi_sim_scanning">スキャン中...</string>
-    <string name="wifi_sim_scan_prompt">上のボタンをタップして近くの WiFi をスキャン</string>
-    <string name="wifi_sim_scan_prompt2">または右下の + をタップして手動追加</string>
-    <string name="wifi_sim_manual_add">WiFi を手動追加</string>
-    <string name="wifi_sim_use">使用</string>
-    <string name="wifi_sim_scan_result_title">スキャン結果の WiFi</string>
-    <string name="wifi_sim_scan_empty">WiFi が見つかりませんでした。WiFi がオンで電波範囲内であることを確認してください</string>
-    <string name="cell_sim_title">基地局シミュレーション</string>
-    <string name="cell_sim_enable">基地局シミュレーションを有効にする</string>
-    <string name="cell_sim_enable_summary">基地局の位置と信号情報を偽装</string>
-    <string name="cell_sim_add">基地局を追加</string>
-    <string name="cell_sim_list">基地局リスト</string>
-    <string name="cell_sim_empty">基地局データがありません。タップして追加</string>
-    <string name="cell_sim_type">ネットワーク種類</string>
-    <string name="cell_sim_mcc">MCC</string>
-    <string name="cell_sim_mnc">MNC</string>
-    <string name="cell_sim_lac">LAC/TAC</string>
-    <string name="cell_sim_cid">CID/CellId</string>
-    <string name="cell_sim_psc">PSC/PCI</string>
-    <string name="cell_sim_lat">緯度</string>
-    <string name="cell_sim_lon">経度</string>
-    <string name="cell_sim_radius">カバレッジ半径 (m)</string>
-    <string name="cell_sim_delete">削除</string>
-    <string name="cell_sim_edit">編集</string>
-    <string name="cell_sim_scan_current">現在地の基地局を取得</string>
-    <string name="cell_sim_scanning">基地局をスキャン中...</string>
-    <string name="cell_sim_scan_result_title">スキャン結果の基地局</string>
-    <string name="cell_sim_scan_empty">基地局が見つかりませんでした。位置情報権限が付与されていて電波範囲内であることを確認してください</string>
-    <string name="cell_sim_scan_add_all">すべて追加</string>
-    <string name="cell_sim_fetch_network">ネットワークから基地局を取得</string>
-    <string name="cell_sim_fetching_network">取得中...</string>
-    <string name="cell_sim_history">履歴</string>
-    <string-array name="array_sim_scheme">
-        <item>@string/setting_sim_fourier</item>
-        <item>@string/setting_sim_sine_noise</item>
-    </string-array>
-    <string-array name="array_sim_scheme_values">
-        <item>0</item>
-        <item>1</item>
-    </string-array>
-    <string name="setting_group_personalization">パーソナライズ</string>
-    <string name="setting_floating_window_size">フローティングウィンドウサイズ</string>
-    <string name="setting_floating_window_width">幅</string>
-    <string name="setting_floating_window_height">高さ</string>
-</resources>
+﻿<resources>
+    <string name="app_settings">瑷畾</string>
+    <string name="app_history">灞ユ</string>
+    <string name="history_title">灞ユ</string>
+    <string name="history_search_hint">灞ユ銈掓绱?/string>
+    <string name="history_no_record">灞ユ銇亗銈娿伨銇涖倱</string>
+    <string name="app_service_tips">KailLocation 銈点兗銉撱偣銈掑疅琛屼腑</string>
+    <string name="app_agreement">鍒╃敤瑕忕磩</string>
+    <string name="app_privacy">銉椼儵銈ゃ儛銈枫兗銉濄儶銈枫兗</string>
+    <string name="app_agreement_privacy">鍒╃敤瑕忕磩銇ㄣ儣銉┿偆銉愩偡銉笺儩銉偡銉笺倰瑾伩銆佸悓鎰忋仐銇俱仐銇?/string>
+    <string name="app_error_agreement">銇俱仛鍒╃敤瑕忕磩銇ㄣ儣銉┿偆銉愩偡銉笺儩銉偡銉笺伀鍚屾剰銇椼仸銇忋仩銇曘亜</string>
+    <string name="app_error_read">鍒╃敤瑕忕磩銇ㄣ儣銉┿偆銉愩偡銉笺儩銉偡銉笺倰瑾倱銇у悓鎰忋仐銇︺亸銇犮仌銇?/string>
+    <string name="app_error_gps">浣嶇疆鎯呭牨銈掑埄鐢ㄣ仹銇嶃伨銇涖倱銆侴PS 銇屾湁鍔广亱纰鸿獚銇椼仸銇忋仩銇曘亜</string>
+    <string name="app_error_network">銉嶃儍銉堛儻銉笺偗銈掑埄鐢ㄣ仹銇嶃伨銇涖倱銆傛帴缍氥倰纰鸿獚銇椼仸銇忋仩銇曘亜</string>
+    <string name="app_error_permission">妯╅檺銇屼笉瓒炽仐銇︺亜銇俱仚銆傚繀瑕併仾妯╅檺銈掍粯涓庛仐銇︺亸銇犮仌銇?/string>
+    <string name="app_error_input">鍏ュ姏銇銈娿亴銇傘倞銇俱仚銆傚唴瀹广倰纰鸿獚銇椼仸銇忋仩銇曘亜</string>
+    <string name="app_error_input_null">鍏ュ姏銇┖銇仹銇嶃伨銇涖倱銆傚€ゃ倰鍏ュ姏銇椼仸銇忋仩銇曘亜</string>
+    <string name="app_error_search">妞滅储銇け鏁椼仐銇俱仐銇熴€傘儘銉冦儓銉兗銈伨銇熴伅浣嶇疆鎯呭牨銈掔⒑瑾嶃仐銇︺亸銇犮仌銇?/string>
+    <string name="app_error_location">鍏堛伀浣嶇疆銈掗伕鎶炪仐銇︺亸銇犮仌銇?/string>
+    <string name="app_error_dev">闁嬬櫤鑰呭悜銇戙偑銉椼偡銉с兂銇屾湁鍔广仹銇亗銈娿伨銇涖倱銆傜Щ鍕曘仹銇嶃伨銇涖倱锛佹湁鍔瑰寲鏂规硶銈掕嚜鍒嗐仹妞滅储銇椼仸銇忋仩銇曘亜</string>
+    <string name="app_error_param">涓嶆銇儜銉┿儭銉笺偪</string>
+    <string name="app_error_protocol">銇俱仛鍒╃敤瑕忕磩銈掕銈撱仹鍚屾剰銇椼仸銇忋仩銇曘亜</string>
+    <string name="app_error_username">銉︺兗銈躲兗鍚嶃亴涓嶆銇с仚</string>
+    <string name="app_error_code">鐧婚尣銈炽兗銉夈伅绌恒伀銇с亶銇俱仜銈?/string>
+    <string name="app_error_longitude">绲屽害銇岀瘎鍥插銇с仚锛乗n鍊? -180.0 锝?180.0</string>
+    <string name="app_error_latitude">绶害銇岀瘎鍥插銇с仚锛乗n鍊? -90.0 锝?90.0</string>
+    <string name="app_search_null">瑭插綋銇欍倠绲愭灉銇屻亗銈娿伨銇涖倱銆傘倐銇嗕竴搴︽绱仐銇︺亸銇犮仌銇?/string>
+    <string name="app_search_tips">妞滅储鍐呭銈掑叆鍔涖仐銇︺亸銇犮仌銇?/string>
+    <string name="app_location_ok">浣嶇疆銈掗€佷俊銇椼伨銇椼仧</string>
+    <string name="app_location_copy">浣嶇疆銈掋偗銉儍銉椼儨銉笺儔銇偝銉斻兗銇椼伨銇椼仧</string>
+    <string name="app_location_save">浣嶇疆銈掍繚瀛樸仐銇俱仐銇?/string>
+
+    <string name="welcome_btn_txt">銈儣銉倰闁嬨亸</string>
+    <string name="app_btn_agree">鍚屾剰銇椼仸缍氳</string>
+    <string name="app_btn_disagree">鍚屾剰銇椼仾銇?/string>
+
+    <string name="setting_group_move">绉诲嫊</string>
+    <string name="setting_joystick_type">銈搞儳銈ゃ偣銉嗐偅銉冦偗銇ó椤?/string>
+    <string name="setting_joystick_speed">銈搞儳銈ゃ偣銉嗐偅銉冦偗閫熷害 (m/s)</string>
+    <string name="setting_joystick_speed_default">1.2</string>
+    <string name="setting_walk">姝╄閫熷害 (m/s)</string>
+    <string name="setting_walk_default">1.2</string>
+    <string name="setting_run">璧拌閫熷害 (m/s)</string>
+    <string name="setting_run_default">3.6</string>
+    <string name="setting_bike">鑷虎杌婇€熷害 (m/s)</string>
+    <string name="setting_bike_default">10.0</string>
+    <string name="setting_altitude">妯欓珮 (m)</string>
+    <string name="setting_altitude_default">55.0</string>
+
+    <string name="setting_group_location_offset">浣嶇疆銈儠銈汇儍銉?/string>
+    <string name="setting_random_offset">銉┿兂銉€銉犮偑銉曘偦銉冦儓</string>
+    <string name="setting_random_offset_summary">灞ユ浣嶇疆銈掍娇銇嗗牬鍚堛伄銇挎湁鍔广仹銇?/string>
+    <string name="setting_random_offset_default">10.0</string>
+    <string name="setting_lat_max_offset">绲屽害銇渶澶с偑銉曘偦銉冦儓璺濋洟 (m)</string>
+    <string name="setting_lon_max_offset">绶害銇渶澶с偑銉曘偦銉冦儓璺濋洟 (m)</string>
+    <string name="setting_group_log">銉偘</string>
+    <string name="setting_log_off">銉偘銈掔劇鍔瑰寲</string>
+    <string name="setting_history_expiration">灞ユ銇湁鍔规湡闄?(鏃?</string>
+    <string name="setting_group_about">姒傝</string>
+    <string name="setting_version">銉愩兗銈搞儳銉?/string>
+    <string name="setting_author">闁嬬櫤鑰?/string>
+
+    <string name="history_expiration">7</string>
+    <string name="history_location_default_name">鍦板洺銇綅缃?/string>
+    <string name="history_idle">灞ユ銇亗銈娿伨銇涖倱</string>
+    <string name="history_delete_ok">鍓婇櫎銇椼伨銇椼仧锛?/string>
+    <string name="history_delete_error">灞ユ銇墛闄ゃ伀澶辨晽銇椼伨銇椼仧</string>
+    <string name="history_error_location">浣嶇疆鍙栧緱銇け鏁椼仐銇俱仐銇熴€傛墜鍕曘仹閬告姙銇椼仸銇忋仩銇曘亜</string>
+    <string name="history_error_search">瑭插綋銇欍倠鍐呭銇岃銇ゃ亱銈娿伨銇涖倱銇с仐銇?/string>
+
+    <string name="note_show">銈搞儳銈ゃ偣銉嗐偅銉冦偗銈掕〃绀?/string>
+    <string name="note_hide">銈搞儳銈ゃ偣銉嗐偅銉冦偗銈掗潪琛ㄧず</string>
+    <string name="joystick_map_tips">鍦板洺涓娿伄浣嶇疆銈掓绱伨銇熴伅銈裤儍銉椼仐銇︺亸銇犮仌銇?/string>
+    <string name="joystick_history_tips">灞ユ銇綅缃倰妞滅储銇俱仧銇偪銉冦儣銇椼仸銇忋仩銇曘亜</string>
+    <string name="joystick_history">灞ユ</string>
+    <string name="joystick_map">鍦板洺</string>
+    <string name="joystick_move">绉诲嫊</string>
+    <string name="joystick_walk">姝╄</string>
+    <string name="joystick_run">璧拌</string>
+    <string name="joystick_bike">鑷虎杌?/string>
+    <string name="nav_drawer_open">銉娿儞銈层兗銈枫儳銉炽儭銉嬨儱銉笺倰闁嬨亸</string>
+    <string name="nav_drawer_close">銉娿儞銈层兗銈枫儳銉炽儭銉嬨儱銉笺倰闁夈仒銈?/string>
+    <string name="nav_menu_history">灞ユ</string>
+    <string name="nav_menu_location_simulation">浣嶇疆銈枫儫銉ャ儸銉笺偡銉с兂</string>
+    <string name="nav_menu_route_simulation">銉兗銉堛偡銉熴儱銉兗銈枫儳銉?/string>
+    <string name="nav_menu_sim_group">銈枫儫銉ャ儸銉笺偡銉с兂</string>
+    <string name="nav_menu_independent_sim">鐙珛銈枫儫銉ャ儸銉笺偡銉с兂</string>
+    <string name="nav_menu_root_app_hide">Root &amp; 銈儣銉潪琛ㄧず</string>
+    <string name="nav_menu_wifi_sim">WiFi 銈枫儫銉ャ儸銉笺偡銉с兂</string>
+    <string name="nav_menu_cell_sim">鍩哄湴灞€銈枫儫銉ャ儸銉笺偡銉с兂</string>
+    <string name="nav_menu_settings">瑷畾</string>
+    <string name="nav_menu_dev">闁嬬櫤鑰呭悜銇戙偑銉椼偡銉с兂</string>
+    <string name="nav_menu_more">銇濄伄浠?/string>
+    <string name="nav_menu_upgrade">鏇存柊銈掔⒑瑾?/string>
+    <string name="nav_menu_feedback">銉曘偅銉笺儔銉愩儍銈?/string>
+    <string name="nav_menu_contact">浣滆€呫伀閫ｇ怠</string>
+    <string name="nav_app_tips">瀛︾繏鐢ㄩ€斻伄銇裤€傝嚜宸辫铂浠汇仹銇斿埄鐢ㄣ亸銇犮仌銇勶紒</string>
+    <string name="nav_menu_github">銈兗銉椼兂銈姐兗銈?/string>
+    <string name="nav_menu_run_mode">瀹熻銉兗銉?/string>
+    <string name="run_mode_dialog_title">瀹熻銉兗銉夈倰閬告姙</string>
+    <string name="run_mode_root">Root 銉兗銉?/string>
+    <string name="run_mode_developer">闁嬬櫤鑰呫儮銉笺儔</string>
+    <string name="run_mode_xposed">Xposed 銉兗銉?/string>
+    <string name="run_mode_sandbox">銈点兂銉夈儨銉冦偗銈?銉兗銉?/string>
+    <string name="xposed_module_not_found">Xposed 銉偢銉ャ兗銉亴瑕嬨仱銇嬨倞銇俱仜銈?/string>
+    <string name="xposed_module_download_hint">Xposed 銉兗銉夈倰浣跨敤銇欍倠銇伅銆並ailLocation Xposed 銉偢銉ャ兗銉倰銈ゃ兂銈广儓銉笺儷銇椼仸銇忋仩銇曘亜銆?/string>
+    <string name="xposed_module_download">銉€銈︺兂銉兗銉?/string>
+    <string name="run_mode_changed">瀹熻銉兗銉夈倰 %s 銇垏銈婃浛銇堛伨銇椼仧</string>
+
+    <string name="label_longitude">绲屽害</string>
+    <string name="label_latitude">绶害</string>
+    <string name="input_position_ok">閫佷俊</string>
+    <string name="input_position_cancel">銈儯銉炽偦銉?/string>
+    <string name="input_position_baidu">BD09 搴ф绯?/string>
+    <string name="input_position_gps">GPS 搴ф绯?/string>
+    <string name="input_button">浣嶇疆銈掑叆鍔?/string>
+    <string name="cur_position">鐝惧湪浣嶇疆銇埢銈?/string>
+    <string name="zoom_in">鎷″ぇ</string>
+    <string name="zoom_out">绺皬</string>
+
+    <string name="map_pic_sate">琛涙槦</string>
+    <string name="map_pic_normal">閫氬父</string>
+
+    <string name="update_title">鏂般仐銇勩儛銉笺偢銉с兂銇屻亗銈娿伨銇?/string>
+    <string name="update_downloading">鏇存柊銉曘偂銈ゃ儷銈掋儉銈︺兂銉兗銉変腑...</string>
+    <string name="update_last">KailLocation 銇渶鏂般仹銇?/string>
+    <string name="update_download">浠娿仚銇愩儉銈︺兂銉兗銉?/string>
+    <string name="update_ignore">浠婂洖銇劇瑕?/string>
+    <string name="update_time">鏇存柊鏃ユ檪锛?/string>
+    <string name="update_commit">鏇存柊鍐呭锛?/string>
+
+    <string name="nav_sim_title">銉娿儞銈层兗銈枫儳銉炽偡銉熴儱銉兗銈枫儳銉?/string>
+    <string name="nav_sim_start">銉娿儞銈层兗銈枫儳銉抽枊濮?/string>
+    <string name="nav_sim_stop">銈枫儫銉ャ儸銉笺偡銉с兂绲備簡</string>
+    <string name="nav_sim_pause">涓€鏅傚仠姝?/string>
+    <string name="nav_sim_resume">鍐嶉枊</string>
+    <string name="nav_sim_planning">瑷堢敾涓?..</string>
+    <string name="nav_sim_start_point">闁嬪锛?/string>
+    <string name="nav_sim_end_point">绲備簡锛?/string>
+    <string name="nav_sim_select_start">闁嬪鍦扮偣銈掗伕鎶炪仐銇︺亸銇犮仌銇?/string>
+    <string name="nav_sim_select_end">绲備簡鍦扮偣銈掗伕鎶炪仐銇︺亸銇犮仌銇?/string>
+    <string name="nav_sim_multi_route">瑜囨暟銉兗銉?/string>
+    <string name="nav_sim_history_title">灞ユ銉囥兗銈匡紙鏈€澶?10 浠讹級</string>
+    <string name="nav_sim_clear">銈儶銈?/string>
+    <string name="nav_sim_switch_route">銉兗銉堝垏銈婃浛銇?/string>
+    <string name="nav_sim_choose_route">銉兗銉堛倰閬告姙</string>
+    <string name="nav_sim_speed_dialog_title">閫熷害銈掕ō瀹?(km/h)</string>
+    <string name="nav_sim_speed">閫熷害</string>
+    <string name="nav_sim_ok">OK</string>
+    <string name="nav_sim_cancel">銈儯銉炽偦銉?/string>
+
+    <string name="route_sim_title">銉兗銉堛偡銉熴儱銉兗銈枫儳銉?/string>
+    <string name="route_sim_target">瀵捐薄銉兗銉?/string>
+    <string name="route_sim_history">灞ユ銉兗銉?/string>
+    <string name="route_sim_no_name">鍚嶇О銇仐</string>
+    <string name="route_sim_start">銈枫儫銉ャ儸銉笺偡銉с兂闁嬪</string>
+    <string name="route_sim_stop">銈枫儫銉ャ儸銉笺偡銉с兂绲備簡</string>
+    <string name="route_sim_pause">涓€鏅傚仠姝?/string>
+    <string name="route_sim_resume">鍐嶉枊</string>
+    <string name="route_sim_speed_btn">閫熷害/闋诲害</string>
+    <string name="route_sim_loop">銉兗銉?/string>
+    <string name="route_sim_rename_title">銉兗銉堝悕銈掑鏇?/string>
+    <string name="route_sim_rename_ok">OK</string>
+    <string name="route_sim_rename_cancel">銈儯銉炽偦銉?/string>
+    <string name="route_sim_need_route">銇俱仛銉兗銉堛倰杩藉姞銇椼仸淇濆瓨銇椼仸銇忋仩銇曘亜</string>
+    <string name="route_sim_start_failed">銈枫儫銉ャ儸銉笺偡銉с兂銇枊濮嬨伀澶辨晽銇椼伨銇椼仧</string>
+
+    <string name="route_plan_search_hint">鍫存墍銈掓绱?/string>
+    <string name="route_plan_map_type">鍦板洺銇ó椤炪倰閬告姙</string>
+    <string name="route_plan_normal">閫氬父鍦板洺</string>
+    <string name="route_plan_satellite">琛涙槦鍦板洺</string>
+    <string name="route_plan_coord_title">搴ф銈掑叆鍔?/string>
+    <string name="route_plan_latitude">绶害</string>
+    <string name="route_plan_longitude">绲屽害</string>
+    <string name="route_plan_coord_type">BD09 搴ф锛堟棦瀹氥伅 WGS84锛?/string>
+    <string name="route_plan_coord_combined">绶害,绲屽害</string>
+    <string name="route_plan_coord_error">鏈夊姽銇矾搴?绲屽害銈掑叆鍔涖仐銇︺亸銇犮仌銇?/string>
+    <string name="route_plan_ok">OK</string>
+    <string name="route_plan_cancel">銈儯銉炽偦銉?/string>
+
+    <string name="setting_sim_scheme">銈汇兂銈点兗銈枫儫銉ャ儸銉笺偡銉с兂鏂瑰紡</string>
+    <string name="setting_sim_fourier">銉曘兗銉偍绱氭暟</string>
+    <string name="setting_sim_sine_noise">姝ｅ鸡 + 銉┿兂銉€銉犮儙銈ゃ偤</string>
+    <string name="setting_step_sim">姝╂暟銈偊銉炽偪銉笺偡銉熴儱銉兗銈枫儳銉?/string>
+    <string name="setting_step_sim_summary">姝╂暟妞滃嚭鍣?(18) 銇ㄦ鏁般偒銈︺兂銈裤兗 (19) 銇偆銉欍兂銉堛倰鍒跺尽銇椼伨銇?/string>
+    <string name="setting_group_satellite_and_signal">琛涙槦銇ㄤ俊鍙枫伄銈枫儫銉ャ儸銉笺偡銉с兂</string>
+    <string name="setting_group_intercept">閬柇銇ㄩ檷鏍?/string>
+    <string name="setting_allow_get_current">GetCurrentLocation 銈掕ū鍙?/string>
+    <string name="setting_allow_get_current_summary">銈儠銇仚銈嬨仺 getCurrentLocation 瑕佹眰銈掗伄鏂仐銇俱仚</string>
+    <string name="setting_allow_register_listener">浣嶇疆銉偣銉娿兗鐧婚尣銈掕ū鍙?/string>
+    <string name="setting_allow_register_listener_summary">銈儠銇仚銈嬨仺 registerLocationListener 銈掗伄鏂仐銇俱仚</string>
+    <string name="setting_allow_geofence">銈搞偑銉曘偋銉炽偣瑕佹眰銈掕ū鍙?/string>
+    <string name="setting_allow_geofence_summary">銈儠銇仚銈嬨仺 addGeofence 銈掗伄鏂仐銇俱仚</string>
+    <string name="setting_allow_get_location">浣嶇疆妞滅储銈掕ū鍙?/string>
+    <string name="setting_allow_get_location_summary">銈儠銇仚銈嬨仺 getFromLocation 銇仼銇€嗗紩銇嶃倰閬柇銇椼伨銇?/string>
+    <string name="setting_disable_fused">Fused Location 銈掔劇鍔瑰寲</string>
+    <string name="setting_disable_fused_summary">銈儣銉伄 fused provider 鍒╃敤銈掗槻銇庛伨銇?/string>
+    <string name="setting_downgrade_cdma">銉嶃儍銉堛儻銉笺偗浣嶇疆銈?CDMA 銇檷鏍?/string>
+    <string name="setting_downgrade_cdma_summary">銉嶃儍銉堛儻銉笺偗浣嶇疆绲愭灉銈掑熀鍦板眬浣嶇疆銇ㄣ仐銇﹀伣瑁呫仐銇俱仚</string>
+    <string name="setting_disable_wifi_scan">Wi鈥慒i 銈广偔銉ｃ兂銈掔劇鍔瑰寲</string>
+    <string name="setting_disable_wifi_scan_summary">銈儣銉亴瀹熼殯銇?Wi鈥慒i 銈广偔銉ｃ兂绲愭灉銈掑彇寰椼仚銈嬨伄銈掗槻銇庛伨銇?/string>
+    <string name="setting_group_anti_detect">妞滅煡鍥為伩銇ㄥ紩銇嶆埢銇楅槻姝?/string>
+    <string name="setting_hide_mock">銉儍銈綅缃倰闅犮仚</string>
+    <string name="setting_hide_mock_summary">Location.isFromMockProvider 銉曘儵銈般倰闄ゅ幓銇椼伨銇?/string>
+    <string name="setting_anti_pullback">浣嶇疆銇紩銇嶆埢銇楅槻姝?/string>
+    <string name="setting_anti_pullback_summary">浣嶇疆銈掔稒缍氱殑銇€佷俊銇椼仸銆併偡銈广儐銉犮伀鎴汇仌銈屻伀銇忋亸銇椼伨銇?/string>
+    <string name="setting_natural_jitter">鑷劧銇?GPS 鎻恒倝銇?/string>
+    <string name="setting_natural_jitter_summary">娉ㄥ叆浣嶇疆銇徍銈夈亷銈掕拷鍔犮仐銇俱仚銆傚浐瀹氫綅缃倓銉兗銉堛倰瀹夊畾銇曘仜銈嬪牬鍚堛伅銈儠銇仐銇︺亸銇犮仌銇勩€?/string>
+    <string name="setting_group_other">銇濄伄浠?/string>
+    <string name="setting_global_mode">銈般儹銉笺儛銉儮銉笺儔 (system_server)</string>
+    <string name="setting_global_mode_summary">鏈夊姽銇仚銈嬨仺 system_server 銈掓敞鍏ャ仐銆併仚銇广仸銇偄銉椼儶銇仼鐢ㄣ仌銈屻伨銇欍€傜劇鍔广伀銇欍倠銇ㄤ互涓嬨伄瀵捐薄銈儣銉伄銇挎敞鍏ャ仐銇俱仚</string>
+    <string name="setting_target_packages">瀵捐薄銈儣銉伄銉戙儍銈便兗銈稿悕</string>
+    <string name="setting_target_packages_summary">銈兂銉炲尯鍒囥倞銆併偘銉兗銉愩儷銉兗銉夈亴銈儠銇牬鍚堛伄銇挎湁鍔广€備緥: com.autonavi.minimap</string>
+    <string name="setting_baidu_key">Baidu Map Key锛堝啀璧峰嫊銇屽繀瑕侊級</string>
+    <string name="setting_selinux_permissive">娉ㄥ叆涓仩銇?SELinux 銈?Permissive 銇?/string>
+    <string name="setting_selinux_permissive_summary">銈兂銇仚銈嬨仺 system_server 銇搞伄娉ㄥ叆涓仩銇?SELinux 銈掍竴鏅傜殑銇?Permissive 銇垏銈婃浛銇堛€佸畬浜嗗緦銇欍亹銇?Enforcing 銇埢銇椼伨銇欍€傘偑銉曘伄銇ㄣ亶銇?SELinux 銈掑鏇淬仐銇俱仜銈撱€侫ndroid 14/15 銇ф敞鍏ュけ鏁椼仚銈嬨仺銇嶃伀鏈夊姽銆?/string>
+    <string name="setting_enable_log">銉偘銈掓湁鍔瑰寲</string>
+    <string name="setting_enable_log_summary">浣庨牷搴︺儹銈般仺閲嶈銇姸鎱嬨儹銈般倰銉兗銈儷銉曘偂銈ゃ儷銇繚瀛樸仐銇俱仚</string>
+    <string name="setting_enable_debug_log">瑭崇窗銉囥儛銉冦偘銉偘銈掓湁鍔瑰寲</string>
+    <string name="setting_enable_debug_log_summary">楂橀牷搴︺伄浣嶇疆銉囥儛銉冦偘銉偘銈掑埗闄愪粯銇嶃仹淇濆瓨銇椼伨銇欍€傛秷璨婚浕鍔涖仺銉曘偂銈ゃ儷銈点偆銈恒亴澧椼亪銈嬪彲鑳芥€с亴銇傘倠銇熴倎銆佸晱椤岃鏌绘檪銇伩浣跨敤銇椼仸銇忋仩銇曘亜銆?/string>
+    <string name="setting_export_log">銉偘銈掋偍銈偣銉濄兗銉?/string>
+    <string name="setting_export_log_summary">淇濆瓨鍏堛倰閬告姙銇椼仸鐝惧湪銇儹銈般儠銈°偆銉倰鏇搞亶鍑恒仐銇俱仚</string>
+    <string name="setting_export_log_success">銉偘銈掋偍銈偣銉濄兗銉堛仐銇俱仐銇?/string>
+    <string name="setting_export_log_failed">銉偘銇偍銈偣銉濄兗銉堛伀澶辨晽銇椼伨銇椼仧</string>
+    <string name="setting_clear_log_cache">銉偘銈儯銉冦偡銉ャ倰鍓婇櫎</string>
+    <string name="setting_clear_log_cache_summary">鐝惧湪銇偔銉ｃ儍銈枫儱銈点偆銈? %s</string>
+    <string name="setting_clear_log_cache_confirm">銉偘銈儯銉冦偡銉ャ倰鍓婇櫎銇椼伨銇欍亱锛熺従鍦ㄣ伄銈点偆銈? %s</string>
+    <string name="setting_clear_log_cache_success">銉偘銈儯銉冦偡銉ャ倰鍓婇櫎銇椼伨銇椼仧</string>
+    <string name="setting_clear_log_cache_failed">銉偘銈儯銉冦偡銉ャ伄鍓婇櫎銇け鏁椼仐銇俱仐銇?/string>
+    <string name="setting_map_zoom">銉曘儹銉笺儐銈ｃ兂銈般偊銈ｃ兂銉夈偊銇湴鍥炽偤銉笺儬</string>
+    <string name="setting_map_zoom_summary">绡勫洸銇?10-21銆佹暟鍊ゃ亴澶с亶銇勩伝銇╄┏绱般伀銇倞銇俱仚</string>
+
+    <!-- 銉囥兗銈裤伄銈ㄣ偗銈广儩銉笺儓 / 銈ゃ兂銉濄兗銉?-->
+    <string name="setting_group_data_transfer">銉囥兗銈裤儛銉冦偗銈儍銉?/string>
+    <string name="data_transfer_group_general">鍏遍€氾紙鍏ㄣ儮銉笺儔锛?/string>
+    <string name="setting_export_data">銉囥兗銈裤倰銈ㄣ偗銈广儩銉笺儓</string>
+    <string name="setting_export_data_summary">閬告姙銇椼仧銉°儖銉ャ兗銇ō瀹氥倰 .bak 銉愩儍銈偄銉冦儣銉曘偂銈ゃ儷銇偍銈偣銉濄兗銉堛仐銇俱仚</string>
+    <string name="setting_import_data">銉囥兗銈裤倰銈ゃ兂銉濄兗銉?/string>
+    <string name="setting_import_data_summary">.bak 銉愩儍銈偄銉冦儣銉曘偂銈ゃ儷銇嬨倝銉°儖銉ャ兗瑷畾銈掗伕鎶炪仐銇﹀京鍏冦仐銇俱仚</string>
+    <string name="data_transfer_export_title">銉囥兗銈裤倰銈ㄣ偗銈广儩銉笺儓</string>
+    <string name="data_transfer_import_title">銉囥兗銈裤倰銈ゃ兂銉濄兗銉?/string>
+    <string name="data_transfer_select_categories">銈ㄣ偗銈广儩銉笺儓銇欍倠銉囥兗銈裤倰閬告姙</string>
+    <string name="data_transfer_select_import_categories">銈ゃ兂銉濄兗銉堛仚銈嬨儑銉笺偪銈掗伕鎶?/string>
+    <string name="data_transfer_category_count">%1$s锛?2$d 浠讹級</string>
+    <string name="data_transfer_category_empty">%1$s锛堛儑銉笺偪銇仐锛?/string>
+    <string name="data_transfer_filename_label">銉愩儍銈偄銉冦儣銉曘偂銈ゃ儷鍚?/string>
+    <string name="data_transfer_export_button">銈ㄣ偗銈广儩銉笺儓</string>
+    <string name="data_transfer_import_button">銈ゃ兂銉濄兗銉?/string>
+    <string name="data_transfer_export_success">銉囥兗銈裤倰銈ㄣ偗銈广儩銉笺儓銇椼伨銇椼仧</string>
+    <string name="data_transfer_export_failed">銉囥兗銈裤伄銈ㄣ偗銈广儩銉笺儓銇け鏁椼仐銇俱仐銇?/string>
+    <string name="data_transfer_import_success">%1$d 浠躲伄銉°儖銉ャ兗銉囥兗銈裤倰銈ゃ兂銉濄兗銉堛仐銇俱仐銇熴€傘偄銉椼儶銈掑啀璧峰嫊銇欍倠銇ㄥ弽鏄犮仌銈屻伨銇?/string>
+    <string name="data_transfer_import_failed">銉囥兗銈裤伄銈ゃ兂銉濄兗銉堛伀澶辨晽銇椼伨銇椼仧</string>
+    <string name="data_transfer_invalid_file">鐒″姽銇儛銉冦偗銈儍銉椼儠銈°偆銉仹銇?/string>
+    <string name="data_transfer_none_selected">灏戙仾銇忋仺銈?1 銇ら伕鎶炪仐銇︺亸銇犮仌銇?/string>
+    <string name="data_transfer_default_filename">kail_location_backup</string>
+
+    <string name="setting_current_version">鐝惧湪銇儛銉笺偢銉с兂</string>
+    <string name="setting_not_set">鏈ō瀹?/string>
+    <string name="setting_ok">OK</string>
+    <string name="setting_cancel">銈儯銉炽偦銉?/string>
+
+    <string name="nfc_sim_title">NFC 銈枫儫銉ャ儸銉笺偡銉с兂</string>
+    <string name="nfc_sim_status">NFC 鐘舵厠</string>
+    <string name="nfc_sim_enabled">鏈夊姽</string>
+    <string name="nfc_sim_disabled">鐒″姽</string>
+    <string name="nfc_sim_read_success">瑾伩鍙栥倞鎴愬姛</string>
+    <string name="nfc_sim_clear">銈儶銈?/string>
+    <string name="nfc_sim_tag_id">銈裤偘 ID: %s</string>
+    <string name="nfc_sim_tag_type">銈裤偘绋: %s</string>
+    <string name="nfc_sim_content">鍐呭: %s</string>
+    <string name="nfc_sim_send_title">NFC 閫佷俊銈掋偡銉熴儱銉兗銉?/string>
+    <string name="nfc_sim_url">URL</string>
+    <string name="nfc_sim_package">銈儣銉伄銉戙儍銈便兗銈稿悕</string>
+    <string name="nfc_sim_send">閫佷俊</string>
+    <string name="nfc_sim_history">灞ユ</string>
+    <string name="nfc_sim_clear_history">銈儶銈?/string>
+    <string name="nfc_sim_no_history">灞ユ銇亗銈娿伨銇涖倱</string>
+    <string name="nfc_sim_rename_dialog_title">鍚嶅墠銈掑鏇?/string>
+    <string name="nfc_sim_rename_name">鍚嶅墠</string>
+    <string name="nfc_sim_rename_ok">OK</string>
+    <string name="nfc_sim_rename_cancel">銈儯銉炽偦銉?/string>
+    <string name="nfc_sim_rename_content_desc">鍚嶅墠銈掑鏇?/string>
+    <string name="nfc_sim_delete_content_desc">鍓婇櫎</string>
+    <string name="nfc_sim_help_title">浣裤亜鏂?/string>
+    <string name="nfc_sim_help_content">1. 銈广偔銉ｃ兂: NFC 銈裤偘銇繎銇ャ亼銈嬨仺鑷嫊銇ц銇垮彇銈娿伨銇橽n2. 閫佷俊: URL/銉戙儍銈便兗銈稿悕銈掑叆鍔涖仐銇﹂€佷俊銈掓娂銇椼伨銇橽n3. 灞ユ: 銈裤儍銉椼仹鑷嫊鍏ュ姏銆侀暦鎶笺仐銇у悕鍓嶅鏇?/string>
+    <string name="nfc_sim_read_failed">瑾伩鍙栥倞銇け鏁椼仐銇俱仐銇? %s</string>
+    <string name="nfc_sim_input_hint">URL 銇俱仧銇儜銉冦偙銉笺偢鍚嶃倰鍏ュ姏銇椼仸銇忋仩銇曘亜</string>
+    <string name="nfc_sim_send_failed">閫佷俊銇け鏁椼仐銇俱仐銇? %s</string>
+    <string name="nfc_sim_sent">閫佷俊娓堛伩: %s</string>
+    <string name="nfc_sim_opened">闁嬨亶銇俱仐銇? %s</string>
+    <string name="nfc_sim_need_nfc">鍏堛伀 NFC 銈掓湁鍔广伀銇椼仸銇忋仩銇曘亜</string>
+
+    <string name="common_warning">璀﹀憡</string>
+    <string name="common_delete_all_confirm">灞ユ銈掋仚銇广仸鍓婇櫎銇椼伨銇欍亱锛?/string>
+    <string name="common_delete_item_confirm">銇撱伄灞ユ銈掑墛闄ゃ仐銇俱仚銇嬶紵</string>
+    <string name="common_confirm">纰鸿獚</string>
+    <string name="common_edit">绶ㄩ泦</string>
+    <string name="common_delete">鍓婇櫎</string>
+    <string name="common_cancel">銈儯銉炽偦銉?/string>
+    <string name="common_ok">OK</string>
+
+    <string name="drawer_env_check">鐠板銉併偋銉冦偗</string>
+    <string name="drawer_ok">OK</string>
+    <string name="drawer_nav_sim">銉娿儞銈层兗銈枫儳銉炽偡銉熴儱銉兗銈枫儳銉?/string>
+    <string name="drawer_nfc_sim">NFC 銈枫儫銉ャ儸銉笺偡銉с兂</string>
+    <string name="drawer_run_mode">瀹熻銉兗銉?/string>
+    <string name="drawer_sandbox">銈点兂銉夈儨銉冦偗銈?銈ㄣ兂銈搞兂</string>
+    <string name="drawer_xposed_settings">Xposed 瑷畾</string>
+
+
+    <string name="welcome_read">瑾伩銇俱仐銇?/string>
+    <string name="welcome_and">銇?/string>
+    <string name="welcome_agreement_text">鍒╃敤瑕忕磩</string>
+    <string name="welcome_privacy_text">銉椼儵銈ゃ儛銈枫兗銉濄儶銈枫兗</string>
+
+    <string name="joystick_speed">銈搞儳銈ゃ偣銉嗐偅銉冦偗閫熷害: %s km/h</string>
+    <string name="joystick_progress">閫茶鐘舵硜: %s</string>
+    <string name="joystick_speed_label">閫熷害:</string>
+    <string name="joystick_modify">澶夋洿</string>
+    <string name="joystick_route_progress">鐝惧湪銇€茶鐘舵硜: %s</string>
+
+    <string name="goutils_enable_mock_title">銉儍銈綅缃倰鏈夊姽銇仚銈?/string>
+    <string name="goutils_enable_mock_msg">闁嬬櫤鑰呭悜銇戙偑銉椼偡銉с兂銇€屻儮銉冦偗浣嶇疆銈儣銉倰閬告姙銆嶃仹銇撱伄銈儣銉倰瑷畾銇椼仸銇忋仩銇曘亜</string>
+    <string name="goutils_settings">瑷畾</string>
+    <string name="goutils_cancel">銈儯銉炽偦銉?/string>
+    <string name="goutils_enable_overlay_title">銉曘儹銉笺儐銈ｃ兂銈般偊銈ｃ兂銉夈偊銈掓湁鍔广伀銇欍倠</string>
+    <string name="goutils_enable_overlay_msg">銈枫儫銉ャ儸銉笺偡銉с兂銈掑畨瀹氥仌銇涖倠銇熴倎銆併儠銉兗銉嗐偅銉炽偘銈︺偅銉炽儔銈︺倰鏈夊姽銇仚銈嬨亾銇ㄣ倰鎺ㄥエ銇椼伨銇?/string>
+    <string name="goutils_enable_gps_title">GPS 銈掓湁鍔广伀銇欍倠</string>
+    <string name="goutils_enable_gps_msg">GPS 浣嶇疆鎯呭牨銈点兗銉撱偣銈掓湁鍔广伀銇椼伨銇欍亱锛?/string>
+    <string name="goutils_ok">OK</string>
+    <string name="goutils_warning">璀﹀憡</string>
+    <string name="goutils_wifi_warning">Wi鈥慒i 銈掓湁鍔广伀銇欍倠銇ㄣ€佹帴缍氥仐銇︺亜銇亸銇︺倐浣嶇疆銇屽疅浣嶇疆銇埢銈嬨亾銇ㄣ亴銇傘倞銇俱仚銆俉i鈥慒i 銈掑垏銇ｃ仸銉儛銈ゃ儷閫氫俊銈掍娇銇嗐亾銇ㄣ倰銇娿仚銇欍倎銇椼伨銇欙紒</string>
+    <string name="goutils_turn_off">銈儠銇仚銈?/string>
+    <string name="goutils_ignore">鐒¤</string>
+
+    <string name="vm_update_failed">鏇存柊纰鸿獚銇け鏁椼仐銇俱仐銇? %s</string>
+    <string name="vm_up_to_date">銇欍仹銇渶鏂般儛銉笺偢銉с兂銇с仚</string>
+    <string name="vm_search_city">鍏ㄥ浗</string>
+    <string name="vm_need_location_permission">銈枫儫銉ャ儸銉笺偡銉с兂銈掗枊濮嬨仚銈嬨伀銇綅缃儏鍫辨ī闄愩亴蹇呰銇с仚</string>
+    <string name="vm_unknown_location">涓嶆槑銇牬鎵€</string>
+    <string name="vm_step_root_required">姝╂暟銈枫儫銉ャ儸銉笺偡銉с兂銇伅 ROOT 銉兗銉夈亴蹇呰銇с仚</string>
+
+    <string name="history_vm_coord_wgs84">[绲屽害:%1$s 绶害:%2$s]</string>
+    <string name="history_vm_coord_bd09">[绲屽害:%1$s 绶害:%2$s]</string>
+    <string name="history_vm_offset">绲屽害銈儠銈汇儍銉? %.2f m\n绶害銈儠銈汇儍銉? %.2f m</string>
+
+    <string name="service_grant_overlay">銉曘儹銉笺儐銈ｃ兂銈般偊銈ｃ兂銉夈偊妯╅檺銈掕ū鍙仐銇︺亸銇犮仌銇?/string>
+    <string name="service_overlay_failed">銉曘儹銉笺儐銈ｃ兂銈般偊銈ｃ兂銉夈偊銇垵鏈熷寲銇け鏁椼仐銇俱仐銇? %s</string>
+    <string name="service_set_mock_app">闁嬬櫤鑰呭悜銇戙偑銉椼偡銉с兂銇с亾銇偄銉椼儶銈掋儮銉冦偗浣嶇疆銈儣銉仺銇椼仸瑷畾銇椼仸銇忋仩銇曘亜</string>
+    <string name="route_sim_speed_text">绉诲嫊閫熷害</string>
+    <string name="route_sim_speed_fluctuation">閫熷害銇鍕?/string>
+    <string name="route_sim_step_text">姝╂暟銈枫儫銉ャ儸銉笺偡銉с兂</string>
+    <string name="route_sim_cadence_text">姝╄</string>
+    <string name="route_sim_cadence_format">%d 姝?鍒?銉?绱?%.1f km/h</string>
+    <string name="route_sim_step_root_required">姝╂暟銈枫儫銉ャ儸銉笺偡銉с兂銇伅 ROOT 銉兗銉夈亴蹇呰銇с仚</string>
+
+    <string name="error_cannot_open_email">銉°兗銉偄銉椼儶銈掗枊銇戙伨銇涖倱</string>
+    <string name="error_cannot_open_browser">銉栥儵銈︺偠銈掗枊銇戙伨銇涖倱</string>
+    <string name="error_under_development">姗熻兘銇枊鐧轰腑銇с仚...</string>
+    <string name="download_progress">銉€銈︺兂銉兗銉変腑... %d%%</string>
+
+    <string name="setting_mock_speed">銈枫儫銉ャ儸銉笺儓绉诲嫊閫熷害 (m/s)</string>
+    <string name="setting_accuracy_title">浣嶇疆绮惧害/鎻恒倝銇庣瘎鍥?(m)</string>
+    <string name="setting_accuracy_summary">鏃㈠畾鍊ゃ伅 2.5銆傝嚜鐒躲仾 GPS 鎻恒倝銇庛亴銈儠銇牬鍚堛伅浣嶇疆绮惧害銆併偑銉炽伄鍫村悎銇徍銈夈亷绡勫洸銇ㄣ仐銇︿娇鐢ㄣ仐銇俱仚銆?/string>
+    <string name="setting_min_satellites">鏈€灏忋偡銉熴儱銉兗銉堣鏄熸暟</string>
+    <string name="setting_min_satellites_summary">BeiDou 琛涙槦銇伩瀵惧繙</string>
+    <string name="setting_report_interval">鍫卞憡闁撻殧 (ms)</string>
+    <string name="setting_report_interval_summary">銉熴儶绉掑崢浣嶃€佹棦瀹氥伅 200ms銆傚€ゃ倰灏忋仌銇忋仚銈嬨仺鍫卞憡闋诲害銇屼笂銇屻倞銆佹秷璨婚浕鍔涖仺璨犺嵎銇屽銇堛伨銇?/string>
+    <string name="setting_gps_satellite_title">GPS 琛涙槦淇″彿銈掋偡銉熴儱銉兗銉?/string>
+    <string name="setting_gps_satellite_summary">BeiDou 琛涙槦鏁般仺淇″彿寮峰害銈掑伣瑁呫仐銇俱仚</string>
+    <string name="setting_agps_title">AGPS 銉偢銉ャ兗銉倰鏈夊姽銇仚銈?/string>
+    <string name="setting_agps_summary">瑁滃姪娓綅闁㈤€ｏ紙瀹熼〒鐨勶級</string>
+    <string name="setting_nmea_title">NMEA 銉偢銉ャ兗銉倰鏈夊姽銇仚銈?/string>
+    <string name="setting_nmea_summary">NMEA 銉囥兗銈垮嚭鍔涖倰鍋借銇椼伨銇?/string>
+    <string name="setting_wlan_title">WLAN 銉囥兗銈裤倰銈枫儫銉ャ儸銉笺儓</string>
+    <string name="setting_wlan_summary">Wi鈥慒i 娓綅銉囥兗銈裤倰鍋借銇椼伨銇?/string>
+
+
+    <!-- API Errors -->
+    <string name="api_error_notices">銇婄煡銈夈仜銇彇寰椼伀澶辨晽銇椼伨銇椼仧</string>
+
+
+
+
+
+    <!-- Cell Simulation Screen -->
+    <string name="cell_sim_empty_text">妯℃摤鍩哄湴灞€銇屻亗銈娿伨銇涖倱</string>
+    <string name="cell_sim_scan_hint">浠ヤ笅銇儨銈裤兂銇у熀鍦板眬銈掋偣銈儯銉炽伨銇熴伅杩藉姞</string>
+    <string name="cell_sim_deselect_all">鍏ㄩ伕鎶炶В闄?/string>
+    <string name="cell_sim_select_all">鍏ㄩ伕鎶?/string>
+    <string name="cell_sim_running_title">鍩哄湴灞€妯℃摤瀹熻涓?/string>
+    <string name="cell_sim_title_short">鍩哄湴灞€妯℃摤</string>
+    <string name="cell_sim_more_fmt">+ %d 浠?..</string>
+    <string name="cell_sim_start">妯℃摤闁嬪</string>
+    <string name="cell_sim_stop">妯℃摤鍋滄</string>
+    <string name="cell_sim_status_running">瀹熻涓?/string>
+    <string name="cell_sim_scan_count_fmt">%d 鍊嬨伄鍩哄湴灞€銈掋偣銈儯銉炽仐銇俱仐銇?/string>
+    <string name="cell_sim_location_fmt">浣嶇疆: %s</string>
+
+    <!-- WiFi Simulation Screen -->
+    <string name="wifi_sim_empty_text">妯℃摤 WiFi 銇屻亗銈娿伨銇涖倱</string>
+    <string name="wifi_sim_scan_hint">浠ヤ笅銇儨銈裤兂銇?WiFi 銈掋偣銈儯銉?/string>
+    <string name="wifi_sim_deselect_all">鍏ㄩ伕鎶炶В闄?/string>
+    <string name="wifi_sim_select_all">鍏ㄩ伕鎶?/string>
+    <string name="wifi_sim_running_title">WiFi 妯℃摤瀹熻涓?/string>
+    <string name="wifi_sim_title_short">WiFi 妯℃摤</string>
+    <string name="wifi_sim_start">妯℃摤闁嬪</string>
+    <string name="wifi_sim_stop">妯℃摤鍋滄</string>
+    <string name="wifi_sim_status_running">瀹熻涓?/string>
+    <string name="wifi_sim_scan_count_fmt">%d 鍊嬨伄 WiFi 銈掋偣銈儯銉炽仐銇俱仐銇?/string>
+    <string name="wifi_sim_add_label">杩藉姞</string>
+
+    <!-- Announcement Dialog -->
+    <string name="announcement_default_title">銇婄煡銈夈仜</string>
+    <string name="announcement_previous">鍓嶃伕</string>
+    <string name="announcement_next">娆°伕</string>
+    <string name="announcement_got_it">纰鸿獚銇椼伨銇椼仧</string>
+
+    <!-- Independent Simulation -->
+    <string name="ind_sim_running">鐙珛妯℃摤瀹熻涓?/string>
+    <string name="ind_sim_stopped">鐙珛妯℃摤鍋滄涓?/string>
+    <string name="ind_sim_description">瀵捐薄銈儣銉倰閬告姙銇椼仸鏈夊姽鍖栥仚銈嬨仺銆佷綅缃?銉兗銉?WiFi/鍩哄湴灞€/姝╂暟銉氥兗銈搞伄銆屾ā鎿枊濮嬨€嶃亴閬告姙銇椼仧銈儣銉伀銇伩閬╃敤銇曘倢銇俱仚銆?/string>
+    <string name="ind_sim_stop_btn">鐙珛妯℃摤銈掑仠姝?/string>
+    <string name="ind_sim_start_btn">鐙珛妯℃摤銈掗枊濮?/string>
+
+
+    <!-- Location Picker -->
+    <string name="picker_map_init_failed">鍦板洺銇垵鏈熷寲銇け鏁椼仐銇俱仐銇? %s</string>
+    <string name="picker_search_no_results">绲愭灉銇岃銇ゃ亱銈娿伨銇涖倱銇с仐銇?/string>
+
+    <!-- Update -->
+    <string name="update_found_title">鏂般仐銇勩儛銉笺偢銉с兂銈掔櫤瑕? %s</string>
+
+    <!-- Location Simulation -->
+    <string name="location_rename_title">浣嶇疆鍚嶃倰澶夋洿</string>
+
+    <!-- Sandbox Manager/Activity/Screen -->
+    <string name="sandbox_install_success">銈ゃ兂銈广儓銉笺儷鎴愬姛</string>
+    <string name="sandbox_install_failed">銈ゃ兂銈广儓銉笺儷澶辨晽: %s</string>
+    <string name="sandbox_uninstall_success">銈兂銈ゃ兂銈广儓銉笺儷鎴愬姛</string>
+    <string name="sandbox_uninstall_failed">銈兂銈ゃ兂銈广儓銉笺儷澶辨晽: %s</string>
+    <string name="sandbox_launch_failed">璧峰嫊澶辨晽</string>
+    <string name="sandbox_launch_failed_msg">璧峰嫊澶辨晽: %s</string>
+    <string name="sandbox_clear_success">銈儶銈㈡垚鍔?/string>
+    <string name="sandbox_clear_failed">銈儶銈㈠け鏁? %s</string>
+    <string name="sandbox_stopped">鍋滄銇椼伨銇椼仧</string>
+    <string name="sandbox_stop_failed">鍋滄澶辨晽: %s</string>
+    <string name="sandbox_loading_failed">銈点兂銉夈儨銉冦偗銈广偄銉椼儶銇銇胯炯銇裤伀澶辨晽: %s</string>
+    <string name="sandbox_system_apps_failed">銈枫偣銉嗐儬銈儣銉伄瑾伩杈笺伩銇け鏁? %s</string>
+    <string name="sandbox_title_fmt">銈点兂銉夈儨銉冦偗銈?- %s</string>
+    <string name="sandbox_creating_shortcut">銈枫儳銉笺儓銈儍銉堛倰浣滄垚涓?..</string>
+    <string name="sandbox_shortcut_failed">銈枫儳銉笺儓銈儍銉堜綔鎴愬け鏁? %s</string>
+    <string name="sandbox_invalid_shortcut">鐒″姽銇偡銉с兗銉堛偒銉冦儓</string>
+    <string name="sandbox_empty">銈点兂銉夈儨銉冦偗銈广伀銈儣銉亴銇傘倞銇俱仜銈?/string>
+    <string name="sandbox_empty_hint">鍙充笅銇?+ 銉溿偪銉炽仹銈儣銉倰銈儹銉笺兂</string>
+    <string name="sandbox_launch_app">銈儣銉倰璧峰嫊</string>
+    <string name="sandbox_clear_data">銉囥兗銈裤倰銈儶銈?/string>
+    <string name="sandbox_stop_running">鍋滄</string>
+    <string name="sandbox_uninstall_app">銈儣銉倰銈兂銈ゃ兂銈广儓銉笺儷</string>
+    <string name="sandbox_create_shortcut">銈枫儳銉笺儓銈儍銉堛倰浣滄垚</string>
+    <string name="sandbox_clear_data_btn">銉囥兗銈裤倰銈儶銈?/string>
+    <string name="sandbox_uninstall_btn">銈兂銈ゃ兂銈广儓銉笺儷</string>
+    <string name="sandbox_clone_title">銈儣銉倰銈儹銉笺兂</string>
+    <string name="sandbox_search_placeholder">銈儣銉倰妞滅储...</string>
+    <string name="sandbox_load_system_apps">銈枫偣銉嗐儬銈儣銉竴瑕с倰瑾伩杈笺伩涓?/string>
+    <string name="sandbox_settings_title">銈点兂銉夈儨銉冦偗銈硅ō瀹?/string>
+    <string name="sandbox_hide_root">Root 銈掗殸銇?/string>
+    <string name="sandbox_hide_root_desc">銈点兂銉夈儨銉冦偗銈广偄銉椼儶銇嬨倝 Root 妯╅檺銈掗殸銇?/string>
+    <string name="sandbox_restart_to_apply">銈儣銉倰鍐嶈捣鍕曘仐銇﹂仼鐢?/string>
+    <string name="sandbox_daemon">銉囥兗銉兂</string>
+    <string name="sandbox_daemon_desc">銈点兂銉夈儨銉冦偗銈广偟銉笺儞銈广倰銉愩儍銈偘銉┿偊銉炽儔銇х董鎸?/string>
+    <string name="sandbox_vpn">VPN 銈掍娇鐢?/string>
+    <string name="sandbox_vpn_desc">銈点兂銉夈儨銉冦偗銈广儓銉┿儠銈ｃ儍銈倰 VPN 绲岀敱銇?/string>
+    <string name="sandbox_disable_secure">FLAG_SECURE 銈掔劇鍔瑰寲</string>
+    <string name="sandbox_disable_secure_desc">銈点兂銉夈儨銉冦偗銈广偄銉椼儶銇с伄銈广偗銉兗銉炽偡銉с儍銉堛倰瑷卞彲</string>
+    <string name="sandbox_step_sim">姝╂暟妯℃摤</string>
+    <string name="sandbox_step_sim_desc">銈点兂銉夈儨銉冦偗銈广偄銉椼儶銇鏁般偦銉炽偟銉笺儑銉笺偪銈掓ā鎿?/string>
+    <string name="sandbox_step_fmt">姝╂暟: %d 姝?鍒?/string>
+    <string name="sandbox_step_adjust">銈裤儍銉椼仐銇﹁鏁?/string>
+    <string name="sandbox_gms">GMS 绠＄悊</string>
+    <string name="sandbox_gms_desc">Google 銈点兗銉撱偣銉曘儸銉笺儬銉兗銈倰绠＄悊</string>
+    <string name="sandbox_gms_coming">闁嬬櫤涓?/string>
+    <string name="sandbox_gms_unsupported">銇撱伄銉囥儛銈ゃ偣銇?GMS 銈掋偟銉濄兗銉堛仐銇︺亜銇俱仜銈?/string>
+    <string name="sandbox_send_log">銉偘銈掗€佷俊</string>
+    <string name="sandbox_send_log_desc">銉囥儛銉冦偘銉偘銈掗枊鐧鸿€呫伀閫佷俊</string>
+    <string name="sandbox_log_sent">銉偘銈掗€佷俊銇椼伨銇椼仧</string>
+    <string name="sandbox_log_failed">銉偘閫佷俊澶辨晽: %s</string>
+    <string name="sandbox_log_sending">銉偘銈掗€佷俊涓?..</string>
+    <string name="sandbox_adjust_cadence">姝╂暟瑾挎暣</string>
+    <string name="sandbox_cadence_fmt">%d 姝?鍒?/string>
+    <string name="sandbox_cadence_range">绡勫洸: 30 - 240 姝?鍒?/string>
+
+    <!-- Settings -->
+    <string name="settings_step_sim">姝╂暟妯℃摤</string>
+    <string name="settings_step_sim_enable">姝╂暟妯℃摤銈掓湁鍔广伀銇欍倠</string>
+    <string name="settings_step_sim_summary">姝╂暟瑷堛偄銉椼儶鍚戙亼銇鏁般儑銉笺偪銈掓ā鎿?/string>
+    <string name="settings_step_type">姝╂暟銉囥兗銈裤偪銈ゃ儣</string>
+
+    <!-- Cell ViewModel -->
+    <string name="cell_fetch_no_location">鐝惧湪鍦般倰鍙栧緱銇с亶銇俱仜銈撱€傛ā鎿綅缃倰瑷畾銇欍倠銇?GPS 銈掓湁鍔广伀銇椼仸銇忋仩銇曘亜銆?/string>
+    <string name="cell_fetch_no_key">瑷畾銇?OpenCellID API Key 銈掕ō瀹氥仐銇︺亸銇犮仌銇?/string>
+    <string name="cell_fetch_no_data">鍩哄湴灞€銉囥兗銈裤亴瑕嬨仱銇嬨倞銇俱仜銈撱仹銇椼仧</string>
+    <string name="cell_fetch_failed">銉嶃儍銉堛儻銉笺偗銉偗銈ㄣ偣銉堝け鏁? %s</string>
+
+    <!-- NFC -->
+    <string name="nfc_read_failed">瑾伩鍙栥倞澶辨晽: %s</string>
+
+    <!-- Xposed Settings -->
+    <string name="xposed_not_set">鏈ō瀹?/string>
+
+    <!-- Welcome -->
+    <string name="welcome_cannot_open_settings">瑷畾鐢婚潰銈掗枊銇戙伨銇涖倱銆傛墜鍕曘仹鏈夊姽銇仐銇︺亸銇犮仌銇勩€?/string>
+
+
+    <string name="loc_sim_title">浣嶇疆銈枫儫銉ャ儸銉笺偡銉с兂</string>
+    <string name="loc_sim_target">銈裤兗銈层儍銉堜綅缃?/string>
+    <string name="loc_sim_none">NONE</string>
+    <string name="loc_sim_lat_lng">绲屽害/绶害: %1$s,%2$s</string>
+    <string name="loc_sim_start">妯℃摤闁嬪</string>
+    <string name="sim_starting">璧峰嫊涓?..</string>
+    <string name="loc_sim_stop">妯℃摤鍋滄</string>
+    <string name="loc_sim_base_station">鍩哄湴灞€</string>
+    <string name="loc_sim_joystick">銈搞儳銈ゃ偣銉嗐偅銉冦偗</string>
+    <string name="loc_sim_history_title">灞ユ</string>
+    <string name="loc_sim_add_tips">鍙充笂銇€?銆嶃倰銈裤儍銉椼仐銇﹁拷鍔?/string>
+
+    <string name="root_hide_title">Root &amp; 銈儣銉潪琛ㄧず</string>
+    <string name="root_hide_status_running">闈炶〃绀哄疅琛屼腑</string>
+    <string name="root_hide_status_stopped">闈炶〃绀哄仠姝腑</string>
+    <string name="root_hide_desc">瀵捐薄銈儣銉倰閬告姙銇椼仸鏈夊姽鍖栥仚銈嬨仺銆丷oot/銉曘儸銉笺儬銉兗銈伄鐥曡贰銇ㄣ偆銉炽偣銉堛兗銉笀銇裤偄銉椼儶涓€瑕с亴瀵捐薄銈儣銉亱銈夐殸銇曘倢銇俱仚銆?/string>
+    <string name="root_hide_hide_root">Root 銈掗殸銇?/string>
+    <string name="root_hide_hide_root_summary">瀵捐薄銈儣銉亱銈?Root銆丮agisk銆乆posed 銇棔璺°倰闅犮仚</string>
+    <string name="root_hide_hide_applist">銈儣銉竴瑕с倰闅犮仚</string>
+    <string name="root_hide_hide_applist_summary">瀵捐薄銈儣銉亱銈夈偆銉炽偣銉堛兗銉笀銇裤偄銉椼儶涓€瑕с倰闅犮仚锛圧oot闈炶〃绀恒亴蹇呰锛?/string>
+    <string name="root_hide_target_apps">瀵捐薄銈儣銉?/string>
+    <string name="root_hide_target_apps_hint">銈裤儍銉椼仐銇︺偄銉椼儶銈掗伕鎶?/string>
+    <string name="root_hide_start">闈炶〃绀洪枊濮?/string>
+    <string name="root_hide_stop">闈炶〃绀哄仠姝?/string>
+    <string name="root_hide_no_apps">瀵捐薄銈儣銉倰閬告姙銇椼€佸皯銇亸銇ㄣ倐1銇ゃ伄闈炶〃绀恒偑銉椼偡銉с兂銈掓湁鍔广伀銇椼仸銇忋仩銇曘亜</string>
+    <string name="root_hide_select_apps">瀵捐薄銈儣銉倰閬告姙</string>
+
+
+    <string name="app_name">KailLocation</string>
+    <string name="app_author">kail</string>
+    <string name="app_email">kailkali23143@gmail.com</string>
+    <string name="app_statement">瀛︾繏鐩殑銇伩銆傝嚜宸辫铂浠汇仹銇斿埄鐢ㄣ亸銇犮仌銇勶紒</string>
+    <string name="app_agreement_content">"1. 鏈偨銉曘儓銈︺偋銈伅 Android 闁嬬櫤瀛︾繏灏傜敤銇с亗銈娿€併儲銉笺偠銉笺儑銉笺偪銈掑弾闆嗐仚銈嬨亾銇ㄣ伅銇傘倞銇俱仜銈撱€?"    "2. 鏈偨銉曘儓銈︺偋銈倰銉椼儵銈ゃ儛銈枫兗渚靛銈勩偛銉笺儬銇с伄涓嶆鍒╃敤銇娇鐢ㄣ仚銈嬨亾銇ㄣ倰鍥恒亸绂併仒銇俱仚銆傞伒瀹堛仹銇嶃仾銇勫牬鍚堛伅鐩淬仭銇墛闄ゃ仐銇︺亸銇犮仌銇勩€?"    "3. 鏈偨銉曘儓銈︺偋銈伄浣跨敤銇倛銈婄敓銇樸仧銉椼儵銈ゃ儛銈枫兗婕忔穿銈掑惈銈€涓€鍒囥伄涓嶅埄鐩娿伅銆併儲銉笺偠銉艰嚜韬亴璨犮亞銈傘伄銇ㄣ仐銆佷綔鑰呫伅涓€鍒囥伄璨换銈掕矤銇勩伨銇涖倱銆?"    "4. 銉︺兗銈躲兗銇湰銈姐儠銉堛偊銈с偄銇儶銉愩兗銈广偍銉炽偢銉嬨偄銉兂銈般€侀€嗐偝銉炽儜銈ゃ儷銆侀€嗐偄銈汇兂銉栥儷銈掕銇ｃ仸銇仾銈娿伨銇涖倱銆傞仌鍙嶈€呫伅钁椾綔妯╀镜瀹炽仺銇倞銆佷笉鍒┿仾绲愭灉銈掕嚜銈夎矤銇嗐倐銇仺銇椼伨銇欍€?"    "5. 鏈偨銉曘儓銈︺偋銈伀銇偊銈ゃ儷銈广€併儓銉偆銇湪棣仾銇┿伄鎮剰銇亗銈嬨偝銉笺儔銇惈銇俱倢銇︺亜銇俱仜銈撱亴銆併儘銉冦儓銉兗銈祵鐢便仹銇儉銈︺兂銉兗銉夈兓閰嶅竷銇亰銇勩仸銆佷綔鑰呮寚瀹氫互澶栥伄銈点偆銉堛亱銈夊叆鎵嬨仐銇熴儛銉笺偢銉с兂銇畨鍏ㄦ€с伅淇濊銇с亶銇俱仜銈撱€?"    "6. 鏈偨銉曘儓銈︺偋銈伅缍欑稓鐨勩伀鏇存柊銇曘倢銆佹柊姗熻兘銇彁渚涖仺銉愩偘淇銇岃銈忋倢銇俱仚銆傘偄銉冦儣銉囥兗銉堛儣銉偦銈广伀鎮剰銇亗銈嬨偝銉笺儔銇惈銇俱倢銇︺亜銇俱仜銈撱€?"    "7. 銉︺兗銈躲兗銇偝銉炽償銉ャ兗銈跨挵澧冦伄宸暟銇倛銈娿€佹湰銈姐儠銉堛偊銈с偄銇鑳姐亴銇欍伖銇︺伄鐘舵硜銇ф甯搞伀鍕曚綔銇欍倠銇撱仺銈掍繚瑷笺仹銇嶃伨銇涖倱銆?"    "8. 鏈偨銉曘儓銈︺偋銈倰銈ゃ兂銈广儓銉笺儷銇椼仧鍫村悎銆佹湰濂戠磩銇潯闋呫伀鍚屾剰銇椼仧銈傘伄銇ㄣ伩銇仐銇俱仚銆傚悓鎰忋仐銇亜鍫村悎銇洿銇°伀鍓婇櫎銇椼仸銇忋仩銇曘亜銆?"    </string>
+    <string name="app_privacy_content">"1. 鏈偨銉曘儓銈︺偋銈伅 Android 闁嬬櫤瀛︾繏灏傜敤銇с亗銈娿€併儲銉笺偠銉笺儑銉笺偪銈掑弾闆嗐仚銈嬨亾銇ㄣ伅銇傘倞銇俱仜銈撱€?"    "2. 銉︺兗銈躲兗銇湰銈姐儠銉堛偊銈с偄銇儶銉愩兗銈广偍銉炽偢銉嬨偄銉兂銈般€侀€嗐偝銉炽儜銈ゃ儷銆侀€嗐偄銈汇兂銉栥儷銈掕銇ｃ仸銇仾銈娿伨銇涖倱銆?"    "3. 鏈偨銉曘儓銈︺偋銈伀銇偊銈ゃ儷銈广€併儓銉偆銇湪棣仾銇┿伄鎮剰銇亗銈嬨偝銉笺儔銇惈銇俱倢銇︺亜銇俱仜銈撱亴銆佷綔鑰呮寚瀹氫互澶栥伄銈点偆銉堛亱銈夊叆鎵嬨仐銇熴儛銉笺偢銉с兂銇畨鍏ㄦ€с伅淇濊銇с亶銇俱仜銈撱€?"    "4. 鏈偨銉曘儓銈︺偋銈伅缍欑稓鐨勩伀鏇存柊銇曘倢銇俱仚銆傘偄銉冦儣銉囥兗銉堛儣銉偦銈广伀鎮剰銇亗銈嬨偝銉笺儔銇惈銇俱倢銇︺亜銇俱仜銈撱€?"    "5. 銉︺兗銈躲兗銇偝銉炽償銉ャ兗銈跨挵澧冦伄宸暟銇倛銈娿€併仚銇广仸銇姸娉併仹姝ｅ父銇嫊浣溿仚銈嬨亾銇ㄣ倰淇濊銇с亶銇俱仜銈撱€?"    "6. 鏈偨銉曘儓銈︺偋銈倰銈ゃ兂銈广儓銉笺儷銇椼仧鍫村悎銆佹湰濂戠磩銇悓鎰忋仐銇熴倐銇仺銇裤仾銇椼伨銇欍€傚悓鎰忋仐銇亜鍫村悎銇洿銇°伀鍓婇櫎銇椼仸銇忋仩銇曘亜銆?"    </string>
+    <string name="setting_opencellid_key">OpenCellID API Key</string>
+    <string name="setting_opencellid_key_summary">缁忕含搴︺亱銈夊懆杈哄熀鍦板眬銈掓绱仚銈嬨仧銈併伀浣跨敤銆俹pencellid.org 銇х櫥閷层亴蹇呰</string>
+    <string name="vm_system_not_ready">銈枫偣銉嗐儬銇簴鍌欍亴銇с亶銇︺亜銇俱仜銈撱€?1$d 绉掑緦銇亰瑭︺仐銇忋仩銇曘亜锛堟畫銈婄磩 %2$d 绉掞級</string>
+    <string name="service_root_fallback_noroot">ROOT 娉ㄥ叆銇け鏁椼仐銇俱仐銇熴€俁oot 銉炪儘銉笺偢銉ｃ兗銇?KailLocation 銈掓壙瑾嶃仐銇︺亱銈夊啀瑭﹁銇椼仸銇忋仩銇曘亜</string>
+    <string name="service_root_fallback_binder">娉ㄥ叆銇岄仼鐢ㄣ仌銈屻伨銇涖倱銇с仐銇熴€傚緦銇у啀瑭﹁銇欍倠銇嬨€併儑銉愩偆銈广倰鍐嶈捣鍕曘仐銇︺亸銇犮仌銇?/string>
+    <string name="cell_type_gsm">GSM</string>
+    <string name="cell_type_cdma">CDMA</string>
+    <string name="cell_type_lte">LTE</string>
+    <string name="cell_type_wcdma">WCDMA</string>
+    <string name="ind_sim_title">鐙珛銈枫儫銉ャ儸銉笺偡銉с兂</string>
+    <string name="ind_sim_target_apps">瀵捐薄銈儣銉?/string>
+    <string name="ind_sim_target_apps_hint">銈裤儍銉椼仐銇︺偡銉熴儱銉兗銉堛仚銈嬨偄銉椼儶銈掗伕鎶?/string>
+    <string name="ind_sim_sim_type">銈枫儫銉ャ儸銉笺偡銉с兂绋</string>
+    <string name="ind_sim_location">浣嶇疆銈枫儫銉ャ儸銉笺偡銉с兂</string>
+    <string name="ind_sim_route">銉兗銉堛偡銉熴儱銉兗銈枫儳銉?/string>
+    <string name="ind_sim_wifi_mock">WiFi 銈枫儫銉ャ儸銉笺偡銉с兂</string>
+    <string name="ind_sim_cell_mock">鍩哄湴灞€銈枫儫銉ャ儸銉笺偡銉с兂</string>
+    <string name="ind_sim_gnss_mock">GPS 琛涙槦鐘舵厠銈枫儫銉ャ儸銉笺偡銉с兂</string>
+    <string name="ind_sim_gnss_mock_summary">GnssStatus 琛涙槦銉囥兗銈裤倰鍋借锛堟鍑洪槻姝級</string>
+    <string name="ind_sim_jitter_mock">浣嶇疆銈搞儍銈裤兗</string>
+    <string name="ind_sim_jitter_mock_summary">銈枫儫銉ャ儸銉笺儓浣嶇疆銇儵銉炽儉銉犮偑銉曘偦銉冦儓銈掕拷鍔?/string>
+    <string name="ind_sim_start">鐙珛銈枫儫銉ャ儸銉笺偡銉с兂銈掗枊濮?/string>
+    <string name="ind_sim_stop">鐙珛銈枫儫銉ャ儸銉笺偡銉с兂銈掑仠姝?/string>
+    <string name="ind_sim_no_apps">鍏堛伀瀵捐薄銈儣銉倰閬告姙銇椼仸銇忋仩銇曘亜</string>
+    <string name="ind_sim_select_apps">瀵捐薄銈儣銉倰閬告姙</string>
+    <string name="ind_sim_search_apps">銈儣銉倰妞滅储</string>
+    <string name="ind_sim_selected_count">%d 鍊嬨伄銈儣銉倰閬告姙</string>
+    <string name="wifi_sim_title">WiFi 銈枫儫銉ャ儸銉笺偡銉с兂</string>
+    <string name="wifi_sim_enable">WiFi 銈枫儫銉ャ儸銉笺偡銉с兂銈掓湁鍔广伀銇欍倠</string>
+    <string name="wifi_sim_enable_summary">WiFi 銈广偔銉ｃ兂绲愭灉銇ㄦ帴缍氭儏鍫便倰鍋借</string>
+    <string name="wifi_sim_add">WiFi 銈掕拷鍔?/string>
+    <string name="wifi_sim_list">WiFi 銉偣銉?/string>
+    <string name="wifi_sim_empty">WiFi 銉囥兗銈裤亴銇傘倞銇俱仜銈撱€傘偪銉冦儣銇椼仸杩藉姞</string>
+    <string name="wifi_sim_ssid">SSID</string>
+    <string name="wifi_sim_bssid">BSSID (MAC)</string>
+    <string name="wifi_sim_rssi">淇″彿寮峰害 (dBm)</string>
+    <string name="wifi_sim_frequency">鍛ㄦ尝鏁?(MHz)</string>
+    <string name="wifi_sim_capabilities">鏆楀彿鍖栨柟寮?/string>
+    <string name="wifi_sim_delete">鍓婇櫎</string>
+    <string name="wifi_sim_edit">绶ㄩ泦</string>
+    <string name="wifi_sim_name">鍚嶅墠</string>
+    <string name="wifi_sim_history">灞ユ</string>
+    <string name="wifi_sim_current_target">鐝惧湪銇璞?WiFi</string>
+    <string name="wifi_sim_select_prompt">浠ヤ笅銇?WiFi 銈掋偪銉冦儣銇椼仸閬告姙</string>
+    <string name="wifi_sim_rename">鍚嶅墠銈掑鏇?/string>
+    <string name="wifi_sim_rename_title">WiFi 銇悕鍓嶃倰澶夋洿</string>
+    <string name="wifi_sim_picker_title">WiFi 銈掗伕鎶?/string>
+    <string name="wifi_sim_scan_nearby">杩戙亸銇?WiFi 銈掋偣銈儯銉?/string>
+    <string name="wifi_sim_scanning">銈广偔銉ｃ兂涓?..</string>
+    <string name="wifi_sim_scan_prompt">涓娿伄銉溿偪銉炽倰銈裤儍銉椼仐銇﹁繎銇忋伄 WiFi 銈掋偣銈儯銉?/string>
+    <string name="wifi_sim_scan_prompt2">銇俱仧銇彸涓嬨伄 + 銈掋偪銉冦儣銇椼仸鎵嬪嫊杩藉姞</string>
+    <string name="wifi_sim_manual_add">WiFi 銈掓墜鍕曡拷鍔?/string>
+    <string name="wifi_sim_use">浣跨敤</string>
+    <string name="wifi_sim_scan_result_title">銈广偔銉ｃ兂绲愭灉銇?WiFi</string>
+    <string name="wifi_sim_scan_empty">WiFi 銇岃銇ゃ亱銈娿伨銇涖倱銇с仐銇熴€俉iFi 銇屻偑銉炽仹闆绘尝绡勫洸鍐呫仹銇傘倠銇撱仺銈掔⒑瑾嶃仐銇︺亸銇犮仌銇?/string>
+    <string name="cell_sim_title">鍩哄湴灞€銈枫儫銉ャ儸銉笺偡銉с兂</string>
+    <string name="cell_sim_enable">鍩哄湴灞€銈枫儫銉ャ儸銉笺偡銉с兂銈掓湁鍔广伀銇欍倠</string>
+    <string name="cell_sim_enable_summary">鍩哄湴灞€銇綅缃仺淇″彿鎯呭牨銈掑伣瑁?/string>
+    <string name="cell_sim_add">鍩哄湴灞€銈掕拷鍔?/string>
+    <string name="cell_sim_list">鍩哄湴灞€銉偣銉?/string>
+    <string name="cell_sim_empty">鍩哄湴灞€銉囥兗銈裤亴銇傘倞銇俱仜銈撱€傘偪銉冦儣銇椼仸杩藉姞</string>
+    <string name="cell_sim_type">銉嶃儍銉堛儻銉笺偗绋</string>
+    <string name="cell_sim_mcc">MCC</string>
+    <string name="cell_sim_mnc">MNC</string>
+    <string name="cell_sim_lac">LAC/TAC</string>
+    <string name="cell_sim_cid">CID/CellId</string>
+    <string name="cell_sim_psc">PSC/PCI</string>
+    <string name="cell_sim_lat">绶害</string>
+    <string name="cell_sim_lon">绲屽害</string>
+    <string name="cell_sim_radius">銈儛銉儍銈稿崐寰?(m)</string>
+    <string name="cell_sim_delete">鍓婇櫎</string>
+    <string name="cell_sim_edit">绶ㄩ泦</string>
+    <string name="cell_sim_scan_current">鐝惧湪鍦般伄鍩哄湴灞€銈掑彇寰?/string>
+    <string name="cell_sim_scanning">鍩哄湴灞€銈掋偣銈儯銉充腑...</string>
+    <string name="cell_sim_scan_result_title">銈广偔銉ｃ兂绲愭灉銇熀鍦板眬</string>
+    <string name="cell_sim_scan_empty">鍩哄湴灞€銇岃銇ゃ亱銈娿伨銇涖倱銇с仐銇熴€備綅缃儏鍫辨ī闄愩亴浠樹笌銇曘倢銇︺亜銇﹂浕娉㈢瘎鍥插唴銇с亗銈嬨亾銇ㄣ倰纰鸿獚銇椼仸銇忋仩銇曘亜</string>
+    <string name="cell_sim_scan_add_all">銇欍伖銇﹁拷鍔?/string>
+    <string name="cell_sim_fetch_network">銉嶃儍銉堛儻銉笺偗銇嬨倝鍩哄湴灞€銈掑彇寰?/string>
+    <string name="cell_sim_fetching_network">鍙栧緱涓?..</string>
+    <string name="cell_sim_history">灞ユ</string>
+    <string-array name="array_sim_scheme">
+        <item>@string/setting_sim_fourier</item>
+        <item>@string/setting_sim_sine_noise</item>
+    </string-array>
+    <string-array name="array_sim_scheme_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+    <string name="setting_group_personalization">銉戙兗銈姐儕銉┿偆銈?/string>
+    <string name="setting_floating_window_size">銉曘儹銉笺儐銈ｃ兂銈般偊銈ｃ兂銉夈偊銈点偆銈?/string>
+    <string name="setting_floating_window_width">骞?/string>
+    <string name="setting_floating_window_height">楂樸仌</string>
+</resources>
