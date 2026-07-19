@@ -12,7 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -26,30 +27,40 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      # Accept every Android SDK license up front so neither sdkmanager nor
+      # Gradle's auto-install step ever blocks on an interactive prompt.
       - name: Accept Android SDK licenses
-        run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses 2>&1 | tail -3
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$ANDROID_HOME" --licenses
 
-      - name: Install Android SDK platform 36
+      # Pre-install every component the build needs. Doing this explicitly
+      # (instead of relying on Gradle's auto-download) avoids the NDK/CMake
+      # license prompts that previously failed the build.
+      #   - platform-tools        : adb / general tooling
+      #   - platforms;android-36  : compileSdk = 36
+      #   - build-tools;35.0.0    : required by AGP 8.13.2
+      #   - ndk;29.0.13846066     : Bcore ndkVersion
+      #   - cmake;3.22.1          : app externalNativeBuild cmake
+      - name: Install Android SDK components
         run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          ls "$ANDROID_HOME/platforms/" 2>/dev/null || echo "No platforms dir"
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "platforms;android-36" 2>&1 | tail -5 || echo "sdkmanager done"
-          ls "$ANDROID_HOME/platforms/" 2>/dev/null
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$ANDROID_HOME" \
+            "platform-tools" \
+            "platforms;android-36" \
+            "build-tools;35.0.0" \
+            "ndk;29.0.13846066" \
+            "cmake;3.22.1"
+          echo "Installed SDK components:"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$ANDROID_HOME" --list_installed
 
-      - name: 📦 Build APK
+      - name: Build Release APK
         shell: bash
         run: |
           set +o pipefail
-          ./gradlew assembleRelease --stacktrace 2>&1 | tee gradle.log; rc=${PIPESTATUS[0]}
+          ./gradlew assembleRelease --no-daemon --stacktrace 2>&1 | tee gradle.log
+          rc=${PIPESTATUS[0]}
           echo "GRADLE_EXIT_CODE=$rc" >> "$GITHUB_ENV"
           if [ $rc -ne 0 ]; then
             echo "### Build failed" >> "$GITHUB_STEP_SUMMARY"
-            tail -50 gradle.log >> "$GITHUB_STEP_SUMMARY"
-            # Emit the full "What went wrong" section as annotations
-            awk '/What went wrong/{f=1} f{print} /BUILD FAILED/{if(f) exit}' gradle.log | head -40 | while read line; do
-              echo "::error title=Gradle Err::$line"
-            done
+            tail -60 gradle.log >> "$GITHUB_STEP_SUMMARY"
           fi
           exit $rc
 

@@ -1,41 +1,41 @@
 ﻿<resources>
     <string name="app_settings">瑷畾</string>
-    <string name="app_history">姝峰彶绱€閷?/string>
-    <string name="history_title">姝峰彶绱€閷?/string>
-    <string name="history_search_hint">鎼滃皨姝峰彶绱€閷?/string>
-    <string name="history_no_record">鏆劇姝峰彶绱€閷?/string>
+    <string name="app_history">姝峰彶绱€閷</string>
+    <string name="history_title">姝峰彶绱€閷</string>
+    <string name="history_search_hint">鎼滃皨姝峰彶绱€閷</string>
+    <string name="history_no_record">鏆劇姝峰彶绱€閷</string>
     <string name="app_statement">鍍呬緵瀛哥繏浣跨敤锛屽惁鍓囧緦鏋滆嚜璨狅紒</string>
     <string name="app_service_tips">KailLocation 鏈嶅嫏姝ｅ湪鍩疯</string>
-    <string name="app_agreement">浣跨敤鑰呭崝璀?/string>
+    <string name="app_agreement">浣跨敤鑰呭崝璀</string>
     <string name="app_agreement_content">1. 鏈粺楂斿儏渚涘缈?Android 闁嬬櫦浣跨敤锛屼笉鏈冩敹闆嗕换浣曚娇鐢ㄨ€呰硣鏂欍€俓n2. 鍤寸鍒╃敤鏈粺楂斾镜鐘粬浜洪毐绉佹垨鐢ㄦ柤閬婃埐鐗熷埄锛涜嫢鐒℃硶閬靛畧锛岃珛绔嬪嵆鍒櫎銆俓n3. 鍥犱娇鐢ㄦ湰杌熼珨鎵€閫犳垚鐨勪竴鍒囦笉鑹緦鏋滐紝鍖呮嫭闅辩澶栨穿绛夛紝鍧囩敱浣跨敤鑰呰嚜琛屾壙鎿旓紝浣滆€呬笉璨犱换浣曡铂浠汇€俓n4. 浣跨敤鑰呬笉寰楀皪鏈粺楂旈€茶鍙嶅悜宸ョ▼銆佸弽绶ㄨ鎴栧弽褰欑法锛岄仌鑰呭皣鎵挎摂渚垫瑠璨换鑸囩浉闂滃緦鏋溿€俓n5. 鏈粺楂斾笉淇濊瓑绲曞皪鐒＄梾姣掋€佹湪棣垨鍏朵粬鎯℃剰绋嬪紡纰硷紱鐢辨柤杌熼珨鍙兘缍撶敱缍茶矾绛夐€斿緫涓嬭級鑸囨暎甯冿紝浣滆€呯劇娉曚繚璀夊緸闈炴寚瀹氱恫绔欏彇寰楃殑鐗堟湰瀹屽叏瀹夊叏锛屼害涓嶆壙鎿斾换浣曠洿鎺ユ垨闁撴帴鎼嶅璨换銆俓n6. 鏈粺楂旀渻鎸佺簩鏇存柊锛屾彁渚涙柊鍔熻兘涓︿慨姝?BUG锛涗綔鑰呬繚璀夊崌绱氭祦绋嬩笉鍚换浣曟儭鎰忕▼寮忕⒓銆俓n7. 鐢辨柤涓嶅悓浣跨敤鑰呯殑纭珨鑸囪粺楂旂挵澧冨樊鐣帮紝鏈粺楂旀彁渚涚殑鍚勯爡鍔熻兘涓嶄繚璀夊湪鎵€鏈夋儏娉佷笅閮借兘姝ｅ父閬嬩綔鎴栫鍚堥爯鏈燂紱浣跨敤鑰呬娇鐢ㄦ湰杌熼珨鎵€鐢㈢敓鐨勪竴鍒囧緦鏋滐紝浣滆€呮涓嶈矤璨€俓n8. 鑻ヤ娇鐢ㄨ€呰嚜琛屽畨瑁濇湰杌熼珨锛屽嵆琛ㄧず宸蹭俊浠讳綔鑰呬甫鑷鎺ュ彈鏈崝璀板叏閮ㄦ娆撅紱鑻ヤ笉鍚屾剰锛岃珛绔嬪嵆鍒櫎鏈粺楂斻€俓n</string>
     <string name="app_privacy">闅辩鏀跨瓥</string>
     <string name="app_privacy_content">1. 鏈粺楂斿儏渚涘缈?Android 闁嬬櫦浣跨敤锛屼笉鏈冩敹闆嗕换浣曚娇鐢ㄨ€呰硣鏂欍€俓n2. 浣跨敤鑰呬笉寰楀皪鏈粺楂旈€茶鍙嶅悜宸ョ▼銆佸弽绶ㄨ鎴栧弽褰欑法锛岄仌鑰呭皣鎵挎摂渚垫瑠璨换鑸囩浉闂滃緦鏋溿€俓n3. 鏈粺楂斾笉淇濊瓑绲曞皪鐒＄梾姣掋€佹湪棣垨鍏朵粬鎯℃剰绋嬪紡纰硷紱鐢辨柤杌熼珨鍙兘缍撶敱缍茶矾绛夐€斿緫涓嬭級鑸囨暎甯冿紝浣滆€呯劇娉曚繚璀夊緸闈炴寚瀹氱恫绔欏彇寰楃殑鐗堟湰瀹屽叏瀹夊叏锛屼害涓嶆壙鎿斾换浣曠洿鎺ユ垨闁撴帴鎼嶅璨换銆俓n4. 鏈粺楂旀渻鎸佺簩鏇存柊锛屾彁渚涙柊鍔熻兘涓︿慨姝?BUG锛涗綔鑰呬繚璀夊崌绱氭祦绋嬩笉鍚换浣曟儭鎰忕▼寮忕⒓銆俓n5. 鐢辨柤涓嶅悓浣跨敤鑰呯殑纭珨鑸囪粺楂旂挵澧冨樊鐣帮紝鏈粺楂旀彁渚涚殑鍚勯爡鍔熻兘涓嶄繚璀夊湪鎵€鏈夋儏娉佷笅閮借兘姝ｅ父閬嬩綔鎴栫鍚堥爯鏈燂紱浣跨敤鑰呬娇鐢ㄦ湰杌熼珨鎵€鐢㈢敓鐨勪竴鍒囧緦鏋滐紝浣滆€呮涓嶈矤璨€俓n6. 鑻ヤ娇鐢ㄨ€呰嚜琛屽畨瑁濇湰杌熼珨锛屽嵆琛ㄧず宸蹭俊浠讳綔鑰呬甫鑷鎺ュ彈鏈崝璀板叏閮ㄦ娆撅紱鑻ヤ笉鍚屾剰锛岃珛绔嬪嵆鍒櫎鏈粺楂斻€俓n</string>
-    <string name="app_agreement_privacy">鎴戝凡闁辫畝涓﹀悓鎰忋€婁娇鐢ㄨ€呭崝璀般€嬪拰銆婇毐绉佹斂绛栥€?/string>
-    <string name="app_error_agreement">蹇呴爤鍏堟帴鍙椼€婁娇鐢ㄨ€呭崝璀般€嬪拰銆婇毐绉佹斂绛栥€?/string>
-    <string name="app_error_read">璜嬪厛闁辫畝涓︽帴鍙椼€婁娇鐢ㄨ€呭崝璀般€嬪拰銆婇毐绉佹斂绛栥€?/string>
-    <string name="app_error_gps">瀹氫綅涓嶅彲鐢紝璜嬫鏌?GPS 鏄惁宸查枊鍟?/string>
+    <string name="app_agreement_privacy">鎴戝凡闁辫畝涓﹀悓鎰忋€婁娇鐢ㄨ€呭崝璀般€嬪拰銆婇毐绉佹斂绛栥€</string>
+    <string name="app_error_agreement">蹇呴爤鍏堟帴鍙椼€婁娇鐢ㄨ€呭崝璀般€嬪拰銆婇毐绉佹斂绛栥€</string>
+    <string name="app_error_read">璜嬪厛闁辫畝涓︽帴鍙椼€婁娇鐢ㄨ€呭崝璀般€嬪拰銆婇毐绉佹斂绛栥€</string>
+    <string name="app_error_gps">瀹氫綅涓嶅彲鐢紝璜嬫鏌?GPS 鏄惁宸查枊鍟</string>
     <string name="app_error_network">缍茶矾涓嶅彲鐢紝璜嬫鏌ラ€ｇ窔</string>
     <string name="app_error_permission">娆婇檺涓嶈冻锛岃珛鎺堜簣鐩搁棞娆婇檺</string>
     <string name="app_error_input">杓稿叆鏈夎锛岃珛妾㈡煡杓稿叆鏄惁姝ｇ⒑</string>
     <string name="app_error_input_null">杓稿叆涓嶈兘鐐虹┖锛岃珛閲嶆柊杓稿叆鍏у</string>
-    <string name="app_error_search">鎼滃皨澶辨晽锛岃珛妾㈡煡缍茶矾鎴栧畾浣?/string>
+    <string name="app_error_search">鎼滃皨澶辨晽锛岃珛妾㈡煡缍茶矾鎴栧畾浣</string>
     <string name="app_error_location">璜嬪厛閬告搰浣嶇疆</string>
-    <string name="app_error_dev">闁嬬櫦鑰呴伕闋呮湭闁嬪暉锛岀劇娉曡烦杞夛紒璜嬭嚜琛屾悳灏嬮枊鍟熸柟寮?/string>
+    <string name="app_error_dev">闁嬬櫦鑰呴伕闋呮湭闁嬪暉锛岀劇娉曡烦杞夛紒璜嬭嚜琛屾悳灏嬮枊鍟熸柟寮</string>
     <string name="app_error_param">闈炴硶鍙冩暩</string>
-    <string name="app_error_protocol">璜嬪厛闁辫畝涓︽帴鍙椾娇鐢ㄨ€呭崝璀?/string>
+    <string name="app_error_protocol">璜嬪厛闁辫畝涓︽帴鍙椾娇鐢ㄨ€呭崝璀</string>
     <string name="app_error_username">浣跨敤鑰呭悕绋变笉鍚堟硶</string>
-    <string name="app_error_code">瑷诲唺纰间笉鑳界偤绌?/string>
+    <string name="app_error_code">瑷诲唺纰间笉鑳界偤绌</string>
     <string name="app_error_longitude">缍撳害瓒呭嚭绡勫湇锛乗n鍙栧€硷細-180.0 ~ 180.0</string>
     <string name="app_error_latitude">绶害瓒呭嚭绡勫湇锛乗n鍙栧€硷細-90.0 ~ 90.0</string>
-    <string name="app_search_null">娌掓湁绗﹀悎鐨勭祼鏋滐紝璜嬮噸鏂版悳灏?/string>
-    <string name="app_search_tips">璜嬭几鍏ユ煡瑭㈠収瀹?/string>
-    <string name="app_location_ok">浣嶇疆宸插偝閫?/string>
-    <string name="app_location_copy">浣嶇疆宸茶瑁藉埌鍓布绨?/string>
-    <string name="app_location_save">浣嶇疆宸插劜瀛?/string>
+    <string name="app_search_null">娌掓湁绗﹀悎鐨勭祼鏋滐紝璜嬮噸鏂版悳灏</string>
+    <string name="app_search_tips">璜嬭几鍏ユ煡瑭㈠収瀹</string>
+    <string name="app_location_ok">浣嶇疆宸插偝閫</string>
+    <string name="app_location_copy">浣嶇疆宸茶瑁藉埌鍓布绨</string>
+    <string name="app_location_save">浣嶇疆宸插劜瀛</string>
 
     <string name="welcome_btn_txt">閫插叆鎳夌敤绋嬪紡</string>
-    <string name="app_btn_agree">鍚屾剰涓︾辜绾?/string>
-    <string name="app_btn_disagree">涓嶅悓鎰?/string>
+    <string name="app_btn_agree">鍚屾剰涓︾辜绾</string>
+    <string name="app_btn_disagree">涓嶅悓鎰</string>
 
     <string name="setting_group_move">绉诲嫊</string>
     <string name="setting_joystick_type">鎼栨】椤炲瀷</string>
@@ -52,7 +52,7 @@
 
     <string name="setting_group_location_offset">浣嶇疆鍋忕Щ</string>
     <string name="setting_random_offset">闅ㄦ鍋忕Щ</string>
-    <string name="setting_random_offset_summary">鍍呭湪浣跨敤姝峰彶浣嶇疆鏅傜敓鏁?/string>
+    <string name="setting_random_offset_summary">鍍呭湪浣跨敤姝峰彶浣嶇疆鏅傜敓鏁</string>
     <string name="setting_random_offset_default">10.0</string>
     <string name="setting_lat_max_offset">缍撳害鏈€澶у亸绉昏窛闆?(m)</string>
     <string name="setting_lon_max_offset">绶害鏈€澶у亸绉昏窛闆?(m)</string>
@@ -60,22 +60,22 @@
     <string name="setting_log_off">闂滈枆鏃ヨ獙</string>
     <string name="setting_history_expiration">姝峰彶绱€閷勬湁鏁堟湡 (澶?</string>
     <string name="setting_group_about">闂滄柤</string>
-    <string name="setting_version">鐗堟湰铏?/string>
-    <string name="setting_author">闁嬬櫦鑰?/string>
+    <string name="setting_version">鐗堟湰铏</string>
+    <string name="setting_author">闁嬬櫦鑰</string>
 
     <string name="history_expiration">7</string>
     <string name="history_location_default_name">鍦板湒浣嶇疆</string>
-    <string name="history_idle">鏆劇姝峰彶绱€閷?/string>
-    <string name="history_delete_ok">鍒櫎鎴愬姛锛?/string>
+    <string name="history_idle">鏆劇姝峰彶绱€閷</string>
+    <string name="history_delete_ok">鍒櫎鎴愬姛锛</string>
     <string name="history_delete_error">鍒櫎瑷橀寗澶辨晽</string>
-    <string name="history_error_location">瀹氫綅澶辨晽锛岃珛鎵嬪嫊閬稿彇瀹氫綅榛?/string>
+    <string name="history_error_location">瀹氫綅澶辨晽锛岃珛鎵嬪嫊閬稿彇瀹氫綅榛</string>
     <string name="history_error_search">鏈悳灏嬪埌鎸囧畾鍏у</string>
 
     <string name="note_show">椤ず鎼栨】</string>
     <string name="note_hide">闅辫棌鎼栨】</string>
-    <string name="joystick_map_tips">鎼滃皨鎴栭粸鎿婂湴鍦栦綅缃?/string>
-    <string name="joystick_history_tips">鎼滃皨鎴栭粸鎿婃鍙蹭綅缃?/string>
-    <string name="joystick_history">姝峰彶绱€閷?/string>
+    <string name="joystick_map_tips">鎼滃皨鎴栭粸鎿婂湴鍦栦綅缃</string>
+    <string name="joystick_history_tips">鎼滃皨鎴栭粸鎿婃鍙蹭綅缃</string>
+    <string name="joystick_history">姝峰彶绱€閷</string>
     <string name="joystick_map">鍦板湒</string>
     <string name="joystick_move">绉诲嫊</string>
     <string name="joystick_walk">姝ヨ</string>
@@ -83,54 +83,54 @@
     <string name="joystick_bike">楱庝箻</string>
     <string name="nav_drawer_open">闁嬪暉灏庤閬稿柈</string>
     <string name="nav_drawer_close">闂滈枆灏庤閬稿柈</string>
-    <string name="nav_menu_history">姝峰彶绱€閷?/string>
+    <string name="nav_menu_history">姝峰彶绱€閷</string>
     <string name="nav_menu_location_simulation">浣嶇疆妯℃摤</string>
     <string name="nav_menu_route_simulation">璺窔妯℃摤</string>
     <string name="nav_menu_sim_group">妯℃摤</string>
     <string name="nav_menu_independent_sim">鐛ㄧ珛妯℃摤</string>
-    <string name="nav_menu_root_app_hide">Root 鑸囨噳鐢ㄩ毐钘?/string>
+    <string name="nav_menu_root_app_hide">Root 鑸囨噳鐢ㄩ毐钘</string>
     <string name="nav_menu_wifi_sim">WiFi 妯℃摤</string>
-    <string name="nav_menu_cell_sim">鍩哄湴鍙版ā鎿?/string>
+    <string name="nav_menu_cell_sim">鍩哄湴鍙版ā鎿</string>
     <string name="nav_menu_settings">瑷畾</string>
-    <string name="nav_menu_dev">闁嬬櫦鑰呴伕闋?/string>
+    <string name="nav_menu_dev">闁嬬櫦鑰呴伕闋</string>
     <string name="nav_menu_more">鏇村</string>
     <string name="nav_menu_upgrade">妾㈡煡鏇存柊</string>
     <string name="nav_menu_feedback">鍟忛鍥為</string>
-    <string name="nav_menu_contact">鑱怠浣滆€?/string>
+    <string name="nav_menu_contact">鑱怠浣滆€</string>
     <string name="nav_app_tips">鍍呬緵瀛哥繏浣跨敤锛屽惁鍓囧緦鏋滆嚜璨狅紒</string>
     <string name="nav_menu_github">闁嬫簮鍊夊韩</string>
     <string name="nav_menu_run_mode">閬嬭妯″紡</string>
     <string name="run_mode_dialog_title">閬告搰閬嬭妯″紡</string>
     <string name="run_mode_root">Root 妯″紡</string>
-    <string name="run_mode_developer">闁嬬櫦鑰呮ā寮?/string>
+    <string name="run_mode_developer">闁嬬櫦鑰呮ā寮</string>
     <string name="run_mode_xposed">Xposed 妯″紡</string>
     <string name="run_mode_sandbox">娌欑洅妯″紡</string>
     <string name="xposed_module_not_found">鏈伒娓埌 Xposed 妯＄祫</string>
-    <string name="xposed_module_download_hint">璜嬪厛瀹夎 KailLocation Xposed 妯＄祫鎵嶈兘浣跨敤 Xposed 妯″紡銆?/string>
+    <string name="xposed_module_download_hint">璜嬪厛瀹夎 KailLocation Xposed 妯＄祫鎵嶈兘浣跨敤 Xposed 妯″紡銆</string>
     <string name="xposed_module_download">鍓嶅線涓嬭級</string>
     <string name="run_mode_changed">閬嬭妯″紡宸插垏鎻涚偤 %s</string>
 
     <string name="label_longitude">缍撳害</string>
     <string name="label_latitude">绶害</string>
-    <string name="input_position_ok">鍌抽€?/string>
+    <string name="input_position_ok">鍌抽€</string>
     <string name="input_position_cancel">鍙栨秷</string>
-    <string name="input_position_baidu">BD09 鍧愭绯?/string>
-    <string name="input_position_gps">GPS 鍧愭绯?/string>
+    <string name="input_position_baidu">BD09 鍧愭绯</string>
+    <string name="input_position_gps">GPS 鍧愭绯</string>
     <string name="input_button">杓稿叆浣嶇疆</string>
     <string name="cur_position">杩斿洖鐩墠浣嶇疆</string>
     <string name="zoom_in">鏀惧ぇ</string>
     <string name="zoom_out">绺皬</string>
 
-    <string name="map_pic_sate">琛涙槦鍦?/string>
-    <string name="map_pic_normal">涓€鑸湴鍦?/string>
+    <string name="map_pic_sate">琛涙槦鍦</string>
+    <string name="map_pic_normal">涓€鑸湴鍦</string>
 
     <string name="update_title">鏈夋柊鐗堟湰鍙敤</string>
     <string name="update_downloading">姝ｅ湪涓嬭級鍗囩礆妾?..</string>
     <string name="update_last">鎭枩锛孠ailLocation 宸叉槸鏈€鏂扮増</string>
     <string name="update_download">绔嬪嵆涓嬭級</string>
-    <string name="update_ignore">蹇界暐涓€娆?/string>
-    <string name="update_time">鏇存柊鏅傞枔锛?/string>
-    <string name="update_commit">璁婃洿璩囪▕锛?/string>
+    <string name="update_ignore">蹇界暐涓€娆</string>
+    <string name="update_time">鏇存柊鏅傞枔锛</string>
+    <string name="update_commit">璁婃洿璩囪▕锛</string>
 
     <string name="nav_sim_title">灏庤埅妯℃摤</string>
     <string name="nav_sim_start">闁嬪灏庤埅</string>
@@ -138,10 +138,10 @@
     <string name="nav_sim_pause">鏆仠</string>
     <string name="nav_sim_resume">绻肩簩</string>
     <string name="nav_sim_planning">瑕忓妰涓?..</string>
-    <string name="nav_sim_start_point">璧烽粸锛?/string>
-    <string name="nav_sim_end_point">绲傞粸锛?/string>
-    <string name="nav_sim_select_start">璜嬮伕鎿囪捣榛?/string>
-    <string name="nav_sim_select_end">璜嬮伕鎿囩祩榛?/string>
+    <string name="nav_sim_start_point">璧烽粸锛</string>
+    <string name="nav_sim_end_point">绲傞粸锛</string>
+    <string name="nav_sim_select_start">璜嬮伕鎿囪捣榛</string>
+    <string name="nav_sim_select_end">璜嬮伕鎿囩祩榛</string>
     <string name="nav_sim_multi_route">澶氭璺窔</string>
     <string name="nav_sim_history_title">姝峰彶璩囨枡锛堟渶澶氶’绀?10 绛嗭級</string>
     <string name="nav_sim_clear">娓呴櫎</string>
@@ -155,7 +155,7 @@
     <string name="route_sim_title">璺窔妯℃摤</string>
     <string name="route_sim_target">鐩璺窔</string>
     <string name="route_sim_history">姝峰彶璺窔</string>
-    <string name="route_sim_no_name">鐒″悕绋?/string>
+    <string name="route_sim_no_name">鐒″悕绋</string>
     <string name="route_sim_start">闁嬪妯℃摤</string>
     <string name="route_sim_stop">绲愭潫妯℃摤</string>
     <string name="route_sim_pause">鏆仠</string>
@@ -165,47 +165,47 @@
     <string name="route_sim_rename_title">閲嶆柊鍛藉悕璺窔</string>
     <string name="route_sim_rename_ok">纰哄畾</string>
     <string name="route_sim_rename_cancel">鍙栨秷</string>
-    <string name="route_sim_need_route">璜嬪厛鏂板涓﹀劜瀛樿矾绶?/string>
+    <string name="route_sim_need_route">璜嬪厛鏂板涓﹀劜瀛樿矾绶</string>
     <string name="route_sim_start_failed">鍟熷嫊妯℃摤澶辨晽</string>
 
     <string name="route_plan_search_hint">鎼滃皨鍦伴粸</string>
     <string name="route_plan_map_type">閬告搰鍦板湒椤炲瀷</string>
-    <string name="route_plan_normal">涓€鑸湴鍦?/string>
+    <string name="route_plan_normal">涓€鑸湴鍦</string>
     <string name="route_plan_satellite">琛涙槦鍦板湒</string>
     <string name="route_plan_coord_title">杓稿叆搴ф</string>
     <string name="route_plan_latitude">绶害</string>
     <string name="route_plan_longitude">缍撳害</string>
-    <string name="route_plan_coord_type">BD09 搴ф锛堥爯瑷?WGS84锛?/string>
+    <string name="route_plan_coord_type">BD09 搴ф锛堥爯瑷?WGS84锛</string>
     <string name="route_plan_coord_combined">绶害,缍撳害</string>
     <string name="route_plan_coord_error">璜嬭几鍏ユ湁鏁堢殑绶害,缍撳害</string>
     <string name="route_plan_ok">纰哄畾</string>
     <string name="route_plan_cancel">鍙栨秷</string>
 
-    <string name="setting_sim_scheme">鎰熸脯鍣ㄦā鎿柟妗?/string>
-    <string name="setting_sim_fourier">鍌呯珛钁夌礆鏁?/string>
+    <string name="setting_sim_scheme">鎰熸脯鍣ㄦā鎿柟妗</string>
+    <string name="setting_sim_fourier">鍌呯珛钁夌礆鏁</string>
     <string name="setting_sim_sine_noise">姝ｅ鸡 + 闅ㄦ闆滆▕</string>
-    <string name="setting_step_sim">姝ユ暩瑷堟暩鍣ㄦā鎿?/string>
+    <string name="setting_step_sim">姝ユ暩瑷堟暩鍣ㄦā鎿</string>
     <string name="setting_step_sim_summary">鎺у埗姝ユ暩鍋垫脯鍣?(18) 鑸囪▓姝ュ櫒 (19) 浜嬩欢妯℃摤</string>
-    <string name="setting_group_intercept">鏀旀埅鑸囬檷绱?/string>
+    <string name="setting_group_intercept">鏀旀埅鑸囬檷绱</string>
     <string name="setting_allow_get_current">鍏佽ū GetCurrentLocation</string>
     <string name="setting_allow_get_current_summary">闂滈枆寰屽皣鏀旀埅 getCurrentLocation 璜嬫眰</string>
-    <string name="setting_allow_register_listener">鍏佽ū瑷诲唺浣嶇疆鐩ｈ伣鍣?/string>
+    <string name="setting_allow_register_listener">鍏佽ū瑷诲唺浣嶇疆鐩ｈ伣鍣</string>
     <string name="setting_allow_register_listener_summary">闂滈枆寰屽皣鏀旀埅 registerLocationListener</string>
     <string name="setting_allow_geofence">鍏佽ū鍦扮悊鍦嶆瑒璜嬫眰</string>
     <string name="setting_allow_geofence_summary">闂滈枆寰屽皣鏀旀埅 addGeofence</string>
     <string name="setting_allow_get_location">鍏佽ū浣嶇疆鏌ヨ</string>
-    <string name="setting_allow_get_location_summary">闂滈枆寰屽皣鏀旀埅 getFromLocation 绛夊弽鏌?/string>
+    <string name="setting_allow_get_location_summary">闂滈枆寰屽皣鏀旀埅 getFromLocation 绛夊弽鏌</string>
     <string name="setting_disable_fused">鍋滅敤铻嶅悎瀹氫綅</string>
     <string name="setting_disable_fused_summary">闃绘鎳夌敤绋嬪紡浣跨敤 fused provider</string>
     <string name="setting_downgrade_cdma">灏囩恫璺畾浣嶉檷绱氱偤 CDMA</string>
-    <string name="setting_downgrade_cdma_summary">灏囩恫璺畾浣嶇祼鏋滃伣瑁濈偤鍩哄湴鍙板畾浣?/string>
+    <string name="setting_downgrade_cdma_summary">灏囩恫璺畾浣嶇祼鏋滃伣瑁濈偤鍩哄湴鍙板畾浣</string>
     <string name="setting_disable_wifi_scan">鍋滅敤 Wi鈥慒i 鎺冩弿</string>
     <string name="setting_disable_wifi_scan_summary">闃绘鎳夌敤绋嬪紡鍙栧緱鐪熷 Wi鈥慒i 鎺冩弿绲愭灉</string>
-    <string name="setting_group_anti_detect">鍙嶅伒娓垏闃插洖鎷?/string>
+    <string name="setting_group_anti_detect">鍙嶅伒娓垏闃插洖鎷</string>
     <string name="setting_hide_mock">闅辫棌妯℃摤浣嶇疆</string>
     <string name="setting_hide_mock_summary">绉婚櫎 Location.isFromMockProvider 妯欒</string>
     <string name="setting_anti_pullback">闃叉瀹氫綅鍥炴媺</string>
-    <string name="setting_anti_pullback_summary">鎸佺簩寤ｆ挱浣嶇疆锛岄檷浣庤绯荤当鎷夊洖鐨勬鐜?/string>
+    <string name="setting_anti_pullback_summary">鎸佺簩寤ｆ挱浣嶇疆锛岄檷浣庤绯荤当鎷夊洖鐨勬鐜</string>
     <string name="setting_natural_jitter">鑷劧 GPS 鎶栧嫊</string>
     <string name="setting_natural_jitter_summary">鍦ㄦ敞鍏ヤ綅缃笂鍔犲叆婕傜Щ锛岄棞闁夊緦鍥哄畾榛炲拰璺窔鏈冩洿绌╁畾</string>
     <string name="setting_group_other">鍏朵粬</string>
@@ -213,70 +213,70 @@
     <string name="setting_global_mode_summary">闁嬪暉鍓囨敞鍏?system_server锛屽皪鎵€鏈夋噳鐢ㄧ▼寮忕敓鏁堬紱闂滈枆鍓囧儏娉ㄥ叆涓嬫柟鎸囧畾鎳夌敤绋嬪紡</string>
     <string name="setting_target_packages">鐩鎳夌敤绋嬪紡鍖呭悕</string>
     <string name="setting_target_packages_summary">閫楄櫉鍒嗛殧锛屽儏鍦ㄥ叏鍩熸ā寮忛棞闁夋檪鐢熸晥銆備緥锛歝om.autonavi.minimap</string>
-    <string name="setting_baidu_key">鐧惧害鍦板湒 Key锛堥渶閲嶆柊鍟熷嫊鎵嶆渻鐢熸晥锛?/string>
+    <string name="setting_baidu_key">鐧惧害鍦板湒 Key锛堥渶閲嶆柊鍟熷嫊鎵嶆渻鐢熸晥锛</string>
     <string name="setting_selinux_permissive">娉ㄥ叆鏅傛毇鏅傞棞闁?SELinux</string>
-    <string name="setting_selinux_permissive_summary">闁嬪暉寰屾敞鍏?system_server 鏅傜煭鏆垏鍒板瀹规ā寮忥紝瀹屾垚寰岀珛鍗虫仮寰╁挤鍒舵ā寮忥紱闂滈枆鍓囧畬鍏ㄤ笉鏀瑰嫊 SELinux銆侫ndroid 14/15 涓婃敞鍏ュけ鏁楁檪鍙墦闁嬫闋呰В姹?/string>
+    <string name="setting_selinux_permissive_summary">闁嬪暉寰屾敞鍏?system_server 鏅傜煭鏆垏鍒板瀹规ā寮忥紝瀹屾垚寰岀珛鍗虫仮寰╁挤鍒舵ā寮忥紱闂滈枆鍓囧畬鍏ㄤ笉鏀瑰嫊 SELinux銆侫ndroid 14/15 涓婃敞鍏ュけ鏁楁檪鍙墦闁嬫闋呰В姹</string>
     <string name="setting_enable_log">鍟熺敤鏃ヨ獙</string>
-    <string name="setting_enable_log_summary">灏囦綆闋绘棩瑾岃垏闂滈嵉鐙€鎱嬫棩瑾屽鍏ユ湰姗熸獢妗?/string>
+    <string name="setting_enable_log_summary">灏囦綆闋绘棩瑾岃垏闂滈嵉鐙€鎱嬫棩瑾屽鍏ユ湰姗熸獢妗</string>
     <string name="setting_enable_debug_log">鍟熺敤瑭崇窗闄ら尟鏃ヨ獙</string>
-    <string name="setting_enable_debug_log_summary">闄愭祦瀵叆楂橀牷瀹氫綅闄ら尟鏃ヨ獙锛屽彲鑳藉鍔犺€楅浕鑸囨獢妗堝ぇ灏忥紝鍍呭缓璀扮敤鏂兼帓鏌ュ晱椤?/string>
+    <string name="setting_enable_debug_log_summary">闄愭祦瀵叆楂橀牷瀹氫綅闄ら尟鏃ヨ獙锛屽彲鑳藉鍔犺€楅浕鑸囨獢妗堝ぇ灏忥紝鍍呭缓璀扮敤鏂兼帓鏌ュ晱椤</string>
     <string name="setting_export_log">鍖嚭鏃ヨ獙</string>
     <string name="setting_export_log_summary">閬告搰鍎插瓨浣嶇疆涓﹀尟鍑虹洰鍓嶆棩瑾屾獢</string>
-    <string name="setting_export_log_success">鏃ヨ獙宸插尟鍑?/string>
+    <string name="setting_export_log_success">鏃ヨ獙宸插尟鍑</string>
     <string name="setting_export_log_failed">鏃ヨ獙鍖嚭澶辨晽</string>
     <string name="setting_clear_log_cache">娓呴櫎鏃ヨ獙蹇彇</string>
     <string name="setting_clear_log_cache_summary">鐩墠蹇彇澶у皬锛?s</string>
     <string name="setting_clear_log_cache_confirm">纰鸿獚娓呴櫎鏃ヨ獙蹇彇锛熺洰鍓嶅ぇ灏忥細%s</string>
-    <string name="setting_clear_log_cache_success">鏃ヨ獙蹇彇宸叉竻闄?/string>
+    <string name="setting_clear_log_cache_success">鏃ヨ獙蹇彇宸叉竻闄</string>
     <string name="setting_clear_log_cache_failed">鏃ヨ獙蹇彇娓呴櫎澶辨晽</string>
-    <string name="setting_map_zoom">鎳告诞绐楀湴鍦栫府鏀炬瘮渚?/string>
+    <string name="setting_map_zoom">鎳告诞绐楀湴鍦栫府鏀炬瘮渚</string>
     <string name="setting_map_zoom_summary">绡勫湇 10-21锛屾暩鍊艰秺澶у湴鍦栬秺瑭崇窗</string>
 
     <!-- 璩囨枡鍖嚭 / 鍖叆 -->
     <string name="setting_group_data_transfer">璩囨枡鍌欎唤</string>
     <string name="data_transfer_group_general">閫氱敤锛堟墍鏈夋ā寮忥級</string>
     <string name="setting_export_data">鍖嚭璩囨枡</string>
-    <string name="setting_export_data_summary">灏囨墍閬搁伕鍠殑瑷畾鍖嚭鐐?.bak 鍌欎唤妾?/string>
+    <string name="setting_export_data_summary">灏囨墍閬搁伕鍠殑瑷畾鍖嚭鐐?.bak 鍌欎唤妾</string>
     <string name="setting_import_data">鍖叆璩囨枡</string>
-    <string name="setting_import_data_summary">寰?.bak 鍌欎唤妾斾腑閬告搰鎬ч倓鍘熼伕鍠ō瀹?/string>
+    <string name="setting_import_data_summary">寰?.bak 鍌欎唤妾斾腑閬告搰鎬ч倓鍘熼伕鍠ō瀹</string>
     <string name="data_transfer_export_title">鍖嚭璩囨枡</string>
     <string name="data_transfer_import_title">鍖叆璩囨枡</string>
     <string name="data_transfer_select_categories">閬告搰瑕佸尟鍑虹殑璩囨枡</string>
     <string name="data_transfer_select_import_categories">閬告搰瑕佸尟鍏ョ殑璩囨枡</string>
     <string name="data_transfer_category_count">%1$s锛?2$d 闋咃級</string>
-    <string name="data_transfer_category_empty">%1$s锛堢劇璩囨枡锛?/string>
-    <string name="data_transfer_filename_label">鍌欎唤妾斿悕绋?/string>
+    <string name="data_transfer_category_empty">%1$s锛堢劇璩囨枡锛</string>
+    <string name="data_transfer_filename_label">鍌欎唤妾斿悕绋</string>
     <string name="data_transfer_export_button">鍖嚭</string>
     <string name="data_transfer_import_button">鍖叆</string>
     <string name="data_transfer_export_success">璩囨枡鍖嚭鎴愬姛</string>
     <string name="data_transfer_export_failed">璩囨枡鍖嚭澶辨晽</string>
-    <string name="data_transfer_import_success">宸插尟鍏?%1$d 闋呴伕鍠硣鏂欙紝閲嶆柊鍟熷嫊鎳夌敤绋嬪紡寰岀敓鏁?/string>
+    <string name="data_transfer_import_success">宸插尟鍏?%1$d 闋呴伕鍠硣鏂欙紝閲嶆柊鍟熷嫊鎳夌敤绋嬪紡寰岀敓鏁</string>
     <string name="data_transfer_import_failed">璩囨枡鍖叆澶辨晽</string>
     <string name="data_transfer_invalid_file">鐒℃晥鐨勫倷浠芥獢</string>
-    <string name="data_transfer_none_selected">璜嬭嚦灏戦伕鎿囦竴闋?/string>
+    <string name="data_transfer_none_selected">璜嬭嚦灏戦伕鎿囦竴闋</string>
     <string name="data_transfer_default_filename">kail_location_backup</string>
 
     <string name="setting_current_version">鐩墠鐗堟湰</string>
-    <string name="setting_not_set">鏈ō瀹?/string>
+    <string name="setting_not_set">鏈ō瀹</string>
     <string name="setting_ok">纰哄畾</string>
     <string name="setting_cancel">鍙栨秷</string>
 
     <string name="nfc_sim_title">NFC 妯℃摤</string>
-    <string name="nfc_sim_status">NFC 鐙€鎱?/string>
-    <string name="nfc_sim_enabled">宸插暉鐢?/string>
-    <string name="nfc_sim_disabled">宸插仠鐢?/string>
-    <string name="nfc_sim_read_success">璁€鍙栨垚鍔?/string>
+    <string name="nfc_sim_status">NFC 鐙€鎱</string>
+    <string name="nfc_sim_enabled">宸插暉鐢</string>
+    <string name="nfc_sim_disabled">宸插仠鐢</string>
+    <string name="nfc_sim_read_success">璁€鍙栨垚鍔</string>
     <string name="nfc_sim_clear">娓呴櫎</string>
     <string name="nfc_sim_tag_id">妯欑堡 ID: %s</string>
     <string name="nfc_sim_tag_type">妯欑堡椤炲瀷: %s</string>
     <string name="nfc_sim_content">鍏у: %s</string>
-    <string name="nfc_sim_send_title">妯℃摤 NFC 鍌抽€?/string>
+    <string name="nfc_sim_send_title">妯℃摤 NFC 鍌抽€</string>
     <string name="nfc_sim_url">URL</string>
     <string name="nfc_sim_package">鎳夌敤绋嬪紡濂椾欢鍚嶇ū</string>
-    <string name="nfc_sim_send">鍌抽€?/string>
-    <string name="nfc_sim_history">姝峰彶绱€閷?/string>
+    <string name="nfc_sim_send">鍌抽€</string>
+    <string name="nfc_sim_history">姝峰彶绱€閷</string>
     <string name="nfc_sim_clear_history">娓呴櫎</string>
-    <string name="nfc_sim_no_history">鏆劇姝峰彶绱€閷?/string>
+    <string name="nfc_sim_no_history">鏆劇姝峰彶绱€閷</string>
     <string name="nfc_sim_rename_dialog_title">閲嶆柊鍛藉悕</string>
     <string name="nfc_sim_rename_name">鍚嶇ū</string>
     <string name="nfc_sim_rename_ok">纰哄畾</string>
@@ -284,17 +284,17 @@
     <string name="nfc_sim_rename_content_desc">閲嶆柊鍛藉悕</string>
     <string name="nfc_sim_delete_content_desc">鍒櫎</string>
     <string name="nfc_sim_help_title">浣跨敤瑾槑</string>
-    <string name="nfc_sim_help_content">1. 鎺冩弿锛氶潬杩?NFC 妯欑堡鍗冲彲鑷嫊璁€鍙朶n2. 鍌抽€侊細杓稿叆 URL/濂椾欢鍚嶅緦榛炴搳鍌抽€乗n3. 姝峰彶锛氶粸鎿婅嚜鍕曞付鍏ワ紝闀锋寜鍙噸鏂板懡鍚?/string>
+    <string name="nfc_sim_help_content">1. 鎺冩弿锛氶潬杩?NFC 妯欑堡鍗冲彲鑷嫊璁€鍙朶n2. 鍌抽€侊細杓稿叆 URL/濂椾欢鍚嶅緦榛炴搳鍌抽€乗n3. 姝峰彶锛氶粸鎿婅嚜鍕曞付鍏ワ紝闀锋寜鍙噸鏂板懡鍚</string>
     <string name="nfc_sim_read_failed">璁€鍙栧け鏁楋細%s</string>
-    <string name="nfc_sim_input_hint">璜嬭几鍏?URL 鎴栧浠跺悕绋?/string>
+    <string name="nfc_sim_input_hint">璜嬭几鍏?URL 鎴栧浠跺悕绋</string>
     <string name="nfc_sim_send_failed">鍌抽€佸け鏁楋細%s</string>
     <string name="nfc_sim_sent">宸插偝閫侊細%s</string>
     <string name="nfc_sim_opened">宸查枊鍟燂細%s</string>
     <string name="nfc_sim_need_nfc">璜嬪厛闁嬪暉 NFC</string>
 
     <string name="common_warning">璀﹀憡</string>
-    <string name="common_delete_all_confirm">纰哄畾瑕佸埅闄ゅ叏閮ㄦ鍙茬磤閷勫棊锛?/string>
-    <string name="common_delete_item_confirm">纰哄畾瑕佸埅闄ら€欑瓎姝峰彶绱€閷勫棊锛?/string>
+    <string name="common_delete_all_confirm">纰哄畾瑕佸埅闄ゅ叏閮ㄦ鍙茬磤閷勫棊锛</string>
+    <string name="common_delete_item_confirm">纰哄畾瑕佸埅闄ら€欑瓎姝峰彶绱€閷勫棊锛</string>
     <string name="common_confirm">纰鸿獚</string>
     <string name="common_edit">绶ㄨ集</string>
     <string name="common_delete">鍒櫎</string>
@@ -311,13 +311,13 @@
 
 
     <string name="welcome_read">宸查柋璁€</string>
-    <string name="welcome_and">鍜?/string>
-    <string name="welcome_agreement_text">浣跨敤鑰呭崝璀?/string>
+    <string name="welcome_and">鍜</string>
+    <string name="welcome_agreement_text">浣跨敤鑰呭崝璀</string>
     <string name="welcome_privacy_text">闅辩鏀跨瓥</string>
 
     <string name="joystick_speed">鎼栨】閫熷害锛?s km/h</string>
     <string name="joystick_progress">閫插害锛?s</string>
-    <string name="joystick_speed_label">閫熷害锛?/string>
+    <string name="joystick_speed_label">閫熷害锛</string>
     <string name="joystick_modify">淇敼</string>
     <string name="joystick_route_progress">鐩墠閫插害锛?s</string>
 
@@ -326,9 +326,9 @@
     <string name="goutils_settings">瑷畾</string>
     <string name="goutils_cancel">鍙栨秷</string>
     <string name="goutils_enable_overlay_title">鍟熺敤鎳告诞瑕栫獥</string>
-    <string name="goutils_enable_overlay_msg">鐐轰簡妯℃摤瀹氫綅鐨勭┅瀹氭€э紝寤鸿闁嬪暉銆岄’绀烘嚫娴绐椼€嶉伕闋?/string>
+    <string name="goutils_enable_overlay_msg">鐐轰簡妯℃摤瀹氫綅鐨勭┅瀹氭€э紝寤鸿闁嬪暉銆岄’绀烘嚫娴绐椼€嶉伕闋</string>
     <string name="goutils_enable_gps_title">鍟熺敤瀹氫綅鏈嶅嫏</string>
-    <string name="goutils_enable_gps_msg">鏄惁闁嬪暉 GPS 瀹氫綅鏈嶅嫏锛?/string>
+    <string name="goutils_enable_gps_msg">鏄惁闁嬪暉 GPS 瀹氫綅鏈嶅嫏锛</string>
     <string name="goutils_ok">纰哄畾</string>
     <string name="goutils_warning">璀﹀憡</string>
     <string name="goutils_wifi_warning">闁嬪暉 Wi鈥慒i 寰岋紙鍗充娇鏈€ｄ笂鐔遍粸锛夊彲鑳藉皫鑷村畾浣嶈烦鍥炵湡瀵︿綅缃€傚缓璀伴棞闁?Wi鈥慒i锛屾敼鐢ㄨ鍕曠恫璺亰鐜╋紒</string>
@@ -336,9 +336,9 @@
     <string name="goutils_ignore">蹇界暐</string>
 
     <string name="vm_update_failed">妾㈡煡鏇存柊澶辨晽锛?s</string>
-    <string name="vm_up_to_date">鐩墠宸叉槸鏈€鏂扮増鏈?/string>
+    <string name="vm_up_to_date">鐩墠宸叉槸鏈€鏂扮増鏈</string>
     <string name="vm_search_city">鍏ㄥ湅</string>
-    <string name="vm_need_location_permission">闇€瑕佷綅缃瑠闄愭墠鑳藉暉鍕曟ā鎿?/string>
+    <string name="vm_need_location_permission">闇€瑕佷綅缃瑠闄愭墠鑳藉暉鍕曟ā鎿</string>
     <string name="vm_unknown_location">鏈煡鍦伴粸</string>
     <string name="vm_step_root_required">姝ユ暩妯℃摤闇€瑕?ROOT 妯″紡</string>
 
@@ -346,7 +346,7 @@
     <string name="history_vm_coord_bd09">[缍撳害:%1$s 绶害:%2$s]</string>
     <string name="history_vm_offset">缍撳害鍋忕Щ: %.2f 鍏昂\n绶害鍋忕Щ: %.2f 鍏昂</string>
 
-    <string name="service_grant_overlay">璜嬫巿浜堟嚫娴绐楁瑠闄?/string>
+    <string name="service_grant_overlay">璜嬫巿浜堟嚫娴绐楁瑠闄</string>
     <string name="service_overlay_failed">鎳告诞瑕栫獥鍒濆鍖栧け鏁楋細%s</string>
     <string name="service_set_mock_app">璜嬪湪闁嬬櫦鑰呴伕闋呬腑灏囨鎳夌敤瑷偤妯℃摤浣嶇疆鎳夌敤绋嬪紡</string>
     <string name="route_sim_speed_text">绉诲嫊閫熷害</string>
@@ -357,18 +357,18 @@
     <string name="route_sim_step_root_required">姝ユ暩妯℃摤闇€瑕?ROOT 妯″紡</string>
 
     <string name="error_cannot_open_email">鐒℃硶闁嬪暉闆诲瓙閮典欢鎳夌敤绋嬪紡</string>
-    <string name="error_cannot_open_browser">鐒℃硶闁嬪暉鐎忚鍣?/string>
+    <string name="error_cannot_open_browser">鐒℃硶闁嬪暉鐎忚鍣</string>
     <string name="error_under_development">鍔熻兘闁嬬櫦涓?..</string>
     <string name="download_progress">涓嬭級涓?.. %d%%</string>
 
-    <string name="setting_group_satellite_and_signal">琛涙槦鑸囪▕铏熸ā鎿?/string>
+    <string name="setting_group_satellite_and_signal">琛涙槦鑸囪▕铏熸ā鎿</string>
     <string name="setting_mock_speed">妯℃摤绉诲嫊閫熷害 (m/s)</string>
     <string name="setting_accuracy_title">瀹氫綅绮惧害/浣嶇疆鎶栧嫊绡勫湇 (m)</string>
-    <string name="setting_accuracy_summary">闋愯ō 2.5銆傝嚜鐒?GPS 鎶栧嫊闂滈枆鏅備綔鐐哄畾浣嶇簿搴︼紱闁嬪暉寰屼綔鐐鸿嚜鐒?GPS 鎶栧嫊绡勫湇銆?/string>
-    <string name="setting_min_satellites">鏈€灏戞ā鎿鏄熸暩閲?/string>
-    <string name="setting_min_satellites_summary">鍍呮敮鎻村寳鏂楄鏄?/string>
+    <string name="setting_accuracy_summary">闋愯ō 2.5銆傝嚜鐒?GPS 鎶栧嫊闂滈枆鏅備綔鐐哄畾浣嶇簿搴︼紱闁嬪暉寰屼綔鐐鸿嚜鐒?GPS 鎶栧嫊绡勫湇銆</string>
+    <string name="setting_min_satellites">鏈€灏戞ā鎿鏄熸暩閲</string>
+    <string name="setting_min_satellites_summary">鍍呮敮鎻村寳鏂楄鏄</string>
     <string name="setting_report_interval">鍥炲牨闁撻殧 (ms)</string>
-    <string name="setting_report_interval_summary">浠ユ绉掔偤鍠綅锛岄爯瑷?200ms锛涙暩鍊艰秺浣庯紝涓婂牨瓒婇牷绻侊紝鑰楅浕鍜岃矤杓夎秺楂?/string>
+    <string name="setting_report_interval_summary">浠ユ绉掔偤鍠綅锛岄爯瑷?200ms锛涙暩鍊艰秺浣庯紝涓婂牨瓒婇牷绻侊紝鑰楅浕鍜岃矤杓夎秺楂</string>
     <string name="setting_gps_satellite_title">妯℃摤 GPS 琛涙槦瑷婅櫉</string>
     <string name="setting_gps_satellite_summary">鍋介€犲寳鏂楄鏄熸暩閲忚垏瑷婅櫉寮峰害</string>
     <string name="setting_agps_title">鍟熺敤 AGPS 妯＄祫</string>
@@ -387,16 +387,16 @@
 
 
     <!-- Cell Simulation Screen -->
-    <string name="cell_sim_empty_text">鏆劇妯℃摤鍩哄湴鍙?/string>
+    <string name="cell_sim_empty_text">鏆劇妯℃摤鍩哄湴鍙</string>
     <string name="cell_sim_scan_hint">榛炴搳涓嬫柟鎸夐垥鎺冩弿鎴栨柊澧炲熀鍦板彴</string>
     <string name="cell_sim_deselect_all">鍙栨秷鍏ㄩ伕</string>
     <string name="cell_sim_select_all">鍏ㄩ伕</string>
     <string name="cell_sim_running_title">鍩哄湴鍙版ā鎿煼琛屼腑</string>
-    <string name="cell_sim_title_short">鍩哄湴鍙版ā鎿?/string>
+    <string name="cell_sim_title_short">鍩哄湴鍙版ā鎿</string>
     <string name="cell_sim_more_fmt">+ %d 鏇村...</string>
     <string name="cell_sim_start">闁嬪妯℃摤</string>
     <string name="cell_sim_stop">鍋滄妯℃摤</string>
-    <string name="cell_sim_status_running">鍩疯涓?/string>
+    <string name="cell_sim_status_running">鍩疯涓</string>
     <string name="cell_sim_scan_count_fmt">鎺冩弿鍒?%d 鍊嬪熀鍦板彴</string>
     <string name="cell_sim_location_fmt">浣嶇疆: %s</string>
 
@@ -405,31 +405,31 @@
     <string name="wifi_sim_scan_hint">榛炴搳涓嬫柟鎸夐垥鎺冩弿闄勮繎WiFi</string>
     <string name="wifi_sim_deselect_all">鍙栨秷鍏ㄩ伕</string>
     <string name="wifi_sim_select_all">鍏ㄩ伕</string>
-    <string name="wifi_sim_running_title">WiFi妯℃摤鍩疯涓?/string>
+    <string name="wifi_sim_running_title">WiFi妯℃摤鍩疯涓</string>
     <string name="wifi_sim_title_short">WiFi妯℃摤</string>
     <string name="wifi_sim_start">闁嬪妯℃摤</string>
     <string name="wifi_sim_stop">鍋滄妯℃摤</string>
-    <string name="wifi_sim_status_running">鍩疯涓?/string>
+    <string name="wifi_sim_status_running">鍩疯涓</string>
     <string name="wifi_sim_scan_count_fmt">鎺冩弿鍒?%d 鍊媁iFi</string>
     <string name="wifi_sim_add_label">鏂板</string>
 
     <!-- Announcement Dialog -->
     <string name="announcement_default_title">鍏憡</string>
-    <string name="announcement_previous">涓婁竴姊?/string>
-    <string name="announcement_next">涓嬩竴姊?/string>
+    <string name="announcement_previous">涓婁竴姊</string>
+    <string name="announcement_next">涓嬩竴姊</string>
     <string name="announcement_got_it">鎴戠煡閬撲簡</string>
 
     <!-- Independent Simulation -->
-    <string name="ind_sim_running">鐛ㄧ珛妯℃摤鍩疯涓?/string>
-    <string name="ind_sim_stopped">鐛ㄧ珛妯℃摤宸插仠姝?/string>
-    <string name="ind_sim_description">閬告搰鐩鎳夌敤寰岄枊鍟熴€傞枊鍟熷緦锛屽湪浣嶇疆/璺窔/WiFi/鍩哄湴鍙?姝ラ牷闋侀潰榛炪€岄枊濮嬫ā鎿€嶏紝閮藉彧灏嶉€欒！閬告搰鐨勬噳鐢ㄧ敓鏁堬紝鍏跺畠鎳夌敤璁€鍒扮湡瀵﹁硣鏂欍€?/string>
+    <string name="ind_sim_running">鐛ㄧ珛妯℃摤鍩疯涓</string>
+    <string name="ind_sim_stopped">鐛ㄧ珛妯℃摤宸插仠姝</string>
+    <string name="ind_sim_description">閬告搰鐩鎳夌敤寰岄枊鍟熴€傞枊鍟熷緦锛屽湪浣嶇疆/璺窔/WiFi/鍩哄湴鍙?姝ラ牷闋侀潰榛炪€岄枊濮嬫ā鎿€嶏紝閮藉彧灏嶉€欒！閬告搰鐨勬噳鐢ㄧ敓鏁堬紝鍏跺畠鎳夌敤璁€鍒扮湡瀵﹁硣鏂欍€</string>
     <string name="ind_sim_stop_btn">鍋滄鐛ㄧ珛妯℃摤</string>
     <string name="ind_sim_start_btn">闁嬪鐛ㄧ珛妯℃摤</string>
 
 
     <!-- Location Picker -->
     <string name="picker_map_init_failed">鍦板湒鍒濆鍖栧け鏁? %s</string>
-    <string name="picker_search_no_results">鎶辨瓑锛屾湭鑳芥壘鍒扮祼鏋?/string>
+    <string name="picker_search_no_results">鎶辨瓑锛屾湭鑳芥壘鍒扮祼鏋</string>
 
     <!-- Update -->
     <string name="update_found_title">鐧肩従鏂扮増鏈? %s</string>
@@ -446,15 +446,15 @@
     <string name="sandbox_launch_failed_msg">鍟熷嫊澶辨晽: %s</string>
     <string name="sandbox_clear_success">娓呴櫎鎴愬姛</string>
     <string name="sandbox_clear_failed">娓呴櫎澶辨晽: %s</string>
-    <string name="sandbox_stopped">宸插仠姝㈠煼琛?/string>
+    <string name="sandbox_stopped">宸插仠姝㈠煼琛</string>
     <string name="sandbox_stop_failed">鍋滄澶辨晽: %s</string>
     <string name="sandbox_loading_failed">杓夊叆娌欑洅鎳夌敤澶辨晽: %s</string>
     <string name="sandbox_system_apps_failed">杓夊叆绯荤当鎳夌敤澶辨晽: %s</string>
     <string name="sandbox_title_fmt">娌欑洅 - %s</string>
     <string name="sandbox_creating_shortcut">姝ｅ湪寤虹珛鎹峰緫...</string>
     <string name="sandbox_shortcut_failed">寤虹珛鎹峰緫澶辨晽: %s</string>
-    <string name="sandbox_invalid_shortcut">鐒℃晥鐨勬嵎寰?/string>
-    <string name="sandbox_empty">娌欑洅涓毇鐒℃噳鐢?/string>
+    <string name="sandbox_invalid_shortcut">鐒℃晥鐨勬嵎寰</string>
+    <string name="sandbox_empty">娌欑洅涓毇鐒℃噳鐢</string>
     <string name="sandbox_empty_hint">榛炴搳鍙充笅瑙?+ 鎸夐垥鍏嬮殕鎳夌敤</string>
     <string name="sandbox_launch_app">鍟熷嫊鎳夌敤</string>
     <string name="sandbox_clear_data">娓呴櫎璩囨枡</string>
@@ -471,22 +471,22 @@
     <string name="sandbox_hide_root_desc">灏嶆矙鐩掓噳鐢ㄩ毐钘?Root 娆婇檺</string>
     <string name="sandbox_restart_to_apply">閲嶆柊鍟熷嫊鎳夌敤鐢熸晥</string>
     <string name="sandbox_daemon">瀹堣绋嬪簭</string>
-    <string name="sandbox_daemon_desc">淇濇寔娌欑洅鏈嶅嫏鍦ㄨ儗鏅煼琛?/string>
+    <string name="sandbox_daemon_desc">淇濇寔娌欑洅鏈嶅嫏鍦ㄨ儗鏅煼琛</string>
     <string name="sandbox_vpn">浣跨敤 VPN 缍茶矾</string>
-    <string name="sandbox_vpn_desc">閫忛亷 VPN 璺敱娌欑洅鎳夌敤娴侀噺锛屽彲鑳芥敼鍠勭恫璺瓨鍙?/string>
+    <string name="sandbox_vpn_desc">閫忛亷 VPN 璺敱娌欑洅鎳夌敤娴侀噺锛屽彲鑳芥敼鍠勭恫璺瓨鍙</string>
     <string name="sandbox_disable_secure">鍋滅敤 FLAG_SECURE</string>
-    <string name="sandbox_disable_secure_desc">鍏佽ū鍦ㄦ矙鐩掓噳鐢ㄤ腑鎴湒鍜岄寗褰?/string>
+    <string name="sandbox_disable_secure_desc">鍏佽ū鍦ㄦ矙鐩掓噳鐢ㄤ腑鎴湒鍜岄寗褰</string>
     <string name="sandbox_step_sim">姝ラ牷妯℃摤</string>
     <string name="sandbox_step_sim_desc">鐐烘矙鐩掓噳鐢ㄦā鎿闋绘劅娓櫒璩囨枡</string>
     <string name="sandbox_step_fmt">姝ラ牷: %d 姝?鍒嗛悩</string>
     <string name="sandbox_step_adjust">榛炴搳瑾挎暣姝ラ牷</string>
     <string name="sandbox_gms">GMS 绠＄悊</string>
     <string name="sandbox_gms_desc">绠＄悊 Google 鏈嶅嫏妗嗘灦</string>
-    <string name="sandbox_gms_coming">鍔熻兘闁嬬櫦涓?/string>
+    <string name="sandbox_gms_coming">鍔熻兘闁嬬櫦涓</string>
     <string name="sandbox_gms_unsupported">鐩墠瑁濈疆涓嶆敮鎻?GMS</string>
-    <string name="sandbox_send_log">鍌抽€佽閷?/string>
-    <string name="sandbox_send_log_desc">涓婂偝鍋甸尟瑷橀寗鍒伴枊鐧艰€?/string>
-    <string name="sandbox_log_sent">瑷橀寗鍌抽€佹垚鍔?/string>
+    <string name="sandbox_send_log">鍌抽€佽閷</string>
+    <string name="sandbox_send_log_desc">涓婂偝鍋甸尟瑷橀寗鍒伴枊鐧艰€</string>
+    <string name="sandbox_log_sent">瑷橀寗鍌抽€佹垚鍔</string>
     <string name="sandbox_log_failed">瑷橀寗鍌抽€佸け鏁? %s</string>
     <string name="sandbox_log_sending">姝ｅ湪鍌抽€佽閷?..</string>
     <string name="sandbox_adjust_cadence">瑾挎暣姝ラ牷</string>
@@ -496,7 +496,7 @@
     <!-- Settings -->
     <string name="settings_step_sim">姝ラ牷妯℃摤</string>
     <string name="settings_step_sim_enable">鍟熺敤姝ラ牷妯℃摤</string>
-    <string name="settings_step_sim_summary">妯℃摤姝ラ牷璩囨枡鐢ㄦ柤瑷堟椤炴噳鐢?/string>
+    <string name="settings_step_sim_summary">妯℃摤姝ラ牷璩囨枡鐢ㄦ柤瑷堟椤炴噳鐢</string>
     <string name="settings_step_type">姝ラ牷璩囨枡椤炲瀷</string>
 
     <!-- Cell ViewModel -->
@@ -509,7 +509,7 @@
     <string name="nfc_read_failed">璁€鍙栧け鏁? %s</string>
 
     <!-- Xposed Settings -->
-    <string name="xposed_not_set">鏈ō瀹?/string>
+    <string name="xposed_not_set">鏈ō瀹</string>
 
     <!-- Welcome -->
     <string name="welcome_cannot_open_settings">鐒℃硶闁嬪暉瑷畾闋侀潰锛岃珛鎵嬪嫊闁嬪暉</string>
@@ -522,24 +522,24 @@
     <string name="loc_sim_start">鍟熷嫊妯℃摤</string>
     <string name="sim_starting">鍟熷嫊涓?..</string>
     <string name="loc_sim_stop">鍋滄妯℃摤</string>
-    <string name="loc_sim_base_station">鍩哄湴鍙?/string>
+    <string name="loc_sim_base_station">鍩哄湴鍙</string>
     <string name="loc_sim_joystick">鎼栨】</string>
     <string name="loc_sim_history_title">姝峰彶浣嶇疆</string>
     <string name="loc_sim_add_tips">榛炴搳鍙充笂瑙掋€?銆嶆寜閳曢€茶鏂板</string>
 
-    <string name="root_hide_title">Root 鑸囨噳鐢ㄩ毐钘?/string>
-    <string name="root_hide_status_running">闅辫棌鍩疯涓?/string>
-    <string name="root_hide_status_stopped">闅辫棌宸插仠姝?/string>
-    <string name="root_hide_desc">閬告搰鐩鎳夌敤寰岄枊鍟熴€傞枊鍟熷緦锛屽皪閬镐腑鐨勬噳鐢ㄩ毐钘?Root/妗嗘灦鐥曡贰鑸囧凡瀹夎鎳夌敤鍒楄〃銆?/string>
+    <string name="root_hide_title">Root 鑸囨噳鐢ㄩ毐钘</string>
+    <string name="root_hide_status_running">闅辫棌鍩疯涓</string>
+    <string name="root_hide_status_stopped">闅辫棌宸插仠姝</string>
+    <string name="root_hide_desc">閬告搰鐩鎳夌敤寰岄枊鍟熴€傞枊鍟熷緦锛屽皪閬镐腑鐨勬噳鐢ㄩ毐钘?Root/妗嗘灦鐥曡贰鑸囧凡瀹夎鎳夌敤鍒楄〃銆</string>
     <string name="root_hide_hide_root">闅辫棌 Root</string>
-    <string name="root_hide_hide_root_summary">灏嶇洰妯欐噳鐢ㄩ毐钘?Root銆丮agisk銆乆posed 绛夌棔璺?/string>
+    <string name="root_hide_hide_root_summary">灏嶇洰妯欐噳鐢ㄩ毐钘?Root銆丮agisk銆乆posed 绛夌棔璺</string>
     <string name="root_hide_hide_applist">闅辫棌鎳夌敤鍒楄〃</string>
-    <string name="root_hide_hide_applist_summary">灏嶇洰妯欐噳鐢ㄩ毐钘忔湰姗熷凡瀹夎鐨勫叾瀹冩噳鐢紙闇€闁嬪暉闅辫棌 Root锛?/string>
+    <string name="root_hide_hide_applist_summary">灏嶇洰妯欐噳鐢ㄩ毐钘忔湰姗熷凡瀹夎鐨勫叾瀹冩噳鐢紙闇€闁嬪暉闅辫棌 Root锛</string>
     <string name="root_hide_target_apps">鐩鎳夌敤</string>
     <string name="root_hide_target_apps_hint">榛炴搳閬告搰瑕侀毐钘忕殑鎳夌敤</string>
     <string name="root_hide_start">闁嬪闅辫棌</string>
     <string name="root_hide_stop">鍋滄闅辫棌</string>
-    <string name="root_hide_no_apps">璜嬪厛閬告搰鐩鎳夌敤涓﹁嚦灏戦枊鍟熶竴闋呴毐钘?/string>
+    <string name="root_hide_no_apps">璜嬪厛閬告搰鐩鎳夌敤涓﹁嚦灏戦枊鍟熶竴闋呴毐钘</string>
     <string name="root_hide_select_apps">閬告搰鐩鎳夌敤</string>
 
 
@@ -549,8 +549,8 @@
     <string name="setting_opencellid_key">OpenCellID API Key</string>
     <string name="setting_opencellid_key_summary">鐢ㄦ柤閫忛亷缍撶矾搴︽煡瑭㈠懆閭婂熀鍦板彴锛岄渶鍏堝湪 opencellid.org 瑷诲唺鐛插彇</string>
     <string name="vm_system_not_ready">绯荤当鏈氨绶掞紝璜嬮枊姗?%1$d 绉掑緦鍐嶈│锛堝墿椁樼磩 %2$d 绉掞級</string>
-    <string name="service_root_fallback_noroot">ROOT 娉ㄥ叆澶辨晽锛岃珛纰鸿獚宸插湪 ROOT 绠＄悊鍣ㄨ！鎺堟瑠 KailLocation 寰屽啀瑭?/string>
-    <string name="service_root_fallback_binder">娉ㄥ叆鏈敓鏁堬紝璜嬬◢鍊欓噸瑭︼紝鎴栭噸鏂板暉鍕曡缃緦鍐嶉枊濮嬫ā鎿?/string>
+    <string name="service_root_fallback_noroot">ROOT 娉ㄥ叆澶辨晽锛岃珛纰鸿獚宸插湪 ROOT 绠＄悊鍣ㄨ！鎺堟瑠 KailLocation 寰屽啀瑭</string>
+    <string name="service_root_fallback_binder">娉ㄥ叆鏈敓鏁堬紝璜嬬◢鍊欓噸瑭︼紝鎴栭噸鏂板暉鍕曡缃緦鍐嶉枊濮嬫ā鎿</string>
     <string name="cell_type_gsm">GSM</string>
     <string name="cell_type_cdma">CDMA</string>
     <string name="cell_type_lte">LTE</string>
@@ -562,17 +562,17 @@
     <string name="ind_sim_location">浣嶇疆妯℃摤</string>
     <string name="ind_sim_route">璺窔妯℃摤</string>
     <string name="ind_sim_wifi_mock">WiFi 妯℃摤</string>
-    <string name="ind_sim_cell_mock">鍩哄湴鍙版ā鎿?/string>
-    <string name="ind_sim_gnss_mock">GPS 琛涙槦鐙€鎱嬫ā鎿?/string>
-    <string name="ind_sim_gnss_mock_summary">鍋介€?GnssStatus 琛涙槦鏁告摎锛堥槻鍋垫脯锛?/string>
+    <string name="ind_sim_cell_mock">鍩哄湴鍙版ā鎿</string>
+    <string name="ind_sim_gnss_mock">GPS 琛涙槦鐙€鎱嬫ā鎿</string>
+    <string name="ind_sim_gnss_mock_summary">鍋介€?GnssStatus 琛涙槦鏁告摎锛堥槻鍋垫脯锛</string>
     <string name="ind_sim_jitter_mock">浣嶇疆鎶栧嫊</string>
-    <string name="ind_sim_jitter_mock_summary">鐐烘ā鎿綅缃坊鍔犻毃姗熷亸绉?/string>
+    <string name="ind_sim_jitter_mock_summary">鐐烘ā鎿綅缃坊鍔犻毃姗熷亸绉</string>
     <string name="ind_sim_start">鍟熷嫊鐛ㄧ珛妯℃摤</string>
     <string name="ind_sim_stop">鍋滄鐛ㄧ珛妯℃摤</string>
     <string name="ind_sim_no_apps">璜嬪厛閬告搰鐩鎳夌敤</string>
     <string name="ind_sim_select_apps">閬告搰鐩鎳夌敤</string>
     <string name="ind_sim_search_apps">鎼滃皨鎳夌敤</string>
-    <string name="ind_sim_selected_count">宸查伕鎿?%d 鍊嬫噳鐢?/string>
+    <string name="ind_sim_selected_count">宸查伕鎿?%d 鍊嬫噳鐢</string>
     <string name="wifi_sim_title">WiFi 妯℃摤</string>
     <string name="wifi_sim_enable">鍟熺敤 WiFi 妯℃摤</string>
     <string name="wifi_sim_enable_summary">鍋介€?WiFi 鎺冩弿绲愭灉鑸囬€ｇ窔璩囪▕</string>
@@ -587,7 +587,7 @@
     <string name="wifi_sim_delete">鍒櫎</string>
     <string name="wifi_sim_edit">绶ㄨ集</string>
     <string name="wifi_sim_name">鍚嶇ū</string>
-    <string name="wifi_sim_history">姝峰彶绱€閷?/string>
+    <string name="wifi_sim_history">姝峰彶绱€閷</string>
     <string name="wifi_sim_current_target">鐩墠鐩 WiFi</string>
     <string name="wifi_sim_select_prompt">璜嬮粸鎿婁笅鏂?WiFi 閫茶閬告搰</string>
     <string name="wifi_sim_rename">閲嶆柊鍛藉悕</string>
@@ -600,13 +600,13 @@
     <string name="wifi_sim_manual_add">鎵嬪嫊鏂板 WiFi</string>
     <string name="wifi_sim_use">浣跨敤</string>
     <string name="wifi_sim_scan_result_title">鎺冩弿鍒扮殑 WiFi</string>
-    <string name="wifi_sim_scan_empty">鏈巸鎻忓埌 WiFi锛岃珛纰轰繚 WiFi 宸查枊鍟熶甫铏曟柤瑷婅櫉瑕嗚搵鍗€鍩?/string>
-    <string name="cell_sim_title">鍩哄湴鍙版ā鎿?/string>
-    <string name="cell_sim_enable">鍟熺敤鍩哄湴鍙版ā鎿?/string>
-    <string name="cell_sim_enable_summary">鍋介€犲熀鍦板彴浣嶇疆鑸囪▕铏熻硣瑷?/string>
-    <string name="cell_sim_add">鏂板鍩哄湴鍙?/string>
-    <string name="cell_sim_list">鍩哄湴鍙版竻鍠?/string>
-    <string name="cell_sim_empty">鏆劇鍩哄湴鍙拌硣鏂欙紝璜嬮粸鎿婃柊澧?/string>
+    <string name="wifi_sim_scan_empty">鏈巸鎻忓埌 WiFi锛岃珛纰轰繚 WiFi 宸查枊鍟熶甫铏曟柤瑷婅櫉瑕嗚搵鍗€鍩</string>
+    <string name="cell_sim_title">鍩哄湴鍙版ā鎿</string>
+    <string name="cell_sim_enable">鍟熺敤鍩哄湴鍙版ā鎿</string>
+    <string name="cell_sim_enable_summary">鍋介€犲熀鍦板彴浣嶇疆鑸囪▕铏熻硣瑷</string>
+    <string name="cell_sim_add">鏂板鍩哄湴鍙</string>
+    <string name="cell_sim_list">鍩哄湴鍙版竻鍠</string>
+    <string name="cell_sim_empty">鏆劇鍩哄湴鍙拌硣鏂欙紝璜嬮粸鎿婃柊澧</string>
     <string name="cell_sim_type">缍茶矾椤炲瀷</string>
     <string name="cell_sim_mcc">MCC</string>
     <string name="cell_sim_mnc">MNC</string>
@@ -618,14 +618,14 @@
     <string name="cell_sim_radius">瑕嗚搵鍗婂緫 (鍏昂)</string>
     <string name="cell_sim_delete">鍒櫎</string>
     <string name="cell_sim_edit">绶ㄨ集</string>
-    <string name="cell_sim_scan_current">鍙栧緱鐩墠浣嶇疆鍩哄湴鍙?/string>
+    <string name="cell_sim_scan_current">鍙栧緱鐩墠浣嶇疆鍩哄湴鍙</string>
     <string name="cell_sim_scanning">姝ｅ湪鎺冩弿鍩哄湴鍙?..</string>
-    <string name="cell_sim_scan_result_title">鎺冩弿鍒扮殑鍩哄湴鍙?/string>
-    <string name="cell_sim_scan_empty">鏈巸鎻忓埌鍩哄湴鍙拌硣瑷婏紝璜嬬⒑淇濆凡鎺堜簣瀹氫綅娆婇檺涓﹁檿鏂艰▕铏熻钃嬪崁鍩?/string>
+    <string name="cell_sim_scan_result_title">鎺冩弿鍒扮殑鍩哄湴鍙</string>
+    <string name="cell_sim_scan_empty">鏈巸鎻忓埌鍩哄湴鍙拌硣瑷婏紝璜嬬⒑淇濆凡鎺堜簣瀹氫綅娆婇檺涓﹁檿鏂艰▕铏熻钃嬪崁鍩</string>
     <string name="cell_sim_scan_add_all">鍏ㄩ儴鏂板</string>
     <string name="cell_sim_fetch_network">寰炵恫璺彇寰楀熀鍦板彴</string>
     <string name="cell_sim_fetching_network">姝ｅ湪鍙栧緱...</string>
-    <string name="cell_sim_history">姝峰彶绱€閷?/string>
+    <string name="cell_sim_history">姝峰彶绱€閷</string>
     <string-array name="array_sim_scheme">
         <item>@string/setting_sim_fourier</item>
         <item>@string/setting_sim_sine_noise</item>
