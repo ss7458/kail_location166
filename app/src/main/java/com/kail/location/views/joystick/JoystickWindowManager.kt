@@ -1,10 +1,11 @@
 package com.kail.location.views.joystick
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.PixelFormat
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.view.Gravity
 import android.view.WindowManager
 import androidx.compose.ui.platform.ComposeView
@@ -16,9 +17,7 @@ import com.baidu.mapapi.map.MapStatusUpdateFactory
 import com.baidu.mapapi.map.MapView
 import com.baidu.mapapi.map.MyLocationData
 import com.baidu.mapapi.model.LatLng
-import com.kail.location.utils.GoUtils
 import com.kail.location.utils.KailLog
-import com.kail.location.utils.MapUtils
 import com.kail.location.viewmodels.JoystickViewModel
 import com.kail.location.viewmodels.SettingsViewModel
 import kotlin.math.cos
@@ -40,10 +39,26 @@ class JoystickWindowManager(
     private var mapView: MapView? = null
     private var routeMapView: MapView? = null
     
-    private val timer: GoUtils.TimeCount = GoUtils.TimeCount(DIV_GO, DIV_GO)
+    private val moveHandler = Handler(Looper.getMainLooper())
     private var isMove = false
     private var mAngle = 0.0
     private var mR = 0.0
+
+    private val moveRunnable = object : Runnable {
+        override fun run() {
+            try {
+                val speed = viewModel.speed.value
+                val disLng = speed * (DIV_GO / 1000.0) * mR * cos(mAngle * 2.0 * Math.PI / 360) / 1000
+                val disLat = speed * (DIV_GO / 1000.0) * mR * sin(mAngle * 2.0 * Math.PI / 360) / 1000
+                listener.onMoveInfo(speed, disLng, disLat, 90.0 - mAngle)
+            } catch (e: Exception) {
+                KailLog.e(context, "JoystickWindowManager", "moveRunnable error: ${e.message}")
+            }
+            if (isMove) {
+                moveHandler.postDelayed(this, DIV_GO)
+            }
+        }
+    }
 
     // Custom Lifecycle for floating windows
     private val lifecycleOwner = FloatingLifecycleOwner()
@@ -52,7 +67,6 @@ class JoystickWindowManager(
         initWindowParams()
         initComposeView()
         initMapViews()
-        initTimer()
         
         lifecycleOwner.onCreate()
         lifecycleOwner.onResume()
@@ -156,19 +170,6 @@ class JoystickWindowManager(
         }
     }
 
-    private fun initTimer() {
-        timer.setListener(object : GoUtils.TimeCount.TimeCountListener {
-            override fun onTick(millisUntilFinished: Long) {}
-            override fun onFinish() {
-                val speed = viewModel.speed.value
-                val disLng = speed * (DIV_GO / 1000.0) * mR * cos(mAngle * 2.0 * Math.PI / 360) / 1000
-                val disLat = speed * (DIV_GO / 1000.0) * mR * sin(mAngle * 2.0 * Math.PI / 360) / 1000
-                listener.onMoveInfo(speed, disLng, disLat, 90.0 - mAngle)
-                timer.start()
-            }
-        })
-    }
-
     fun show() {
         if (rootComposeView.parent == null) {
             try {
@@ -191,7 +192,7 @@ class JoystickWindowManager(
         mapView = null
         routeMapView = null
 
-        runCatching { timer.cancel() }
+        runCatching { moveHandler.removeCallbacks(moveRunnable) }
         runCatching { hide() }
         runCatching { rootComposeView.disposeComposition() }
         runCatching { lifecycleOwner.onDestroy() }
@@ -243,19 +244,19 @@ class JoystickWindowManager(
 
     private fun processDirection(auto: Boolean, angle: Double, r: Double) {
         if (r <= 0) {
-            timer.cancel()
             isMove = false
+            moveHandler.removeCallbacks(moveRunnable)
         } else {
             mAngle = angle
             mR = r
             if (auto) {
                 if (!isMove) {
-                    timer.start()
                     isMove = true
+                    moveHandler.post(moveRunnable)
                 }
             } else {
-                timer.cancel()
                 isMove = false
+                moveHandler.removeCallbacks(moveRunnable)
                 val speed = viewModel.speed.value
                 val disLng = speed * (DIV_GO / 1000.0) * mR * cos(mAngle * 2.0 * Math.PI / 360) / 1000
                 val disLat = speed * (DIV_GO / 1000.0) * mR * sin(mAngle * 2.0 * Math.PI / 360) / 1000
