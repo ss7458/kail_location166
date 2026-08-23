@@ -3,7 +3,7 @@
 > A spatial control deck for developers and professionals — route simulation, location simulation, navigation simulation, cadence simulation, virtual location, and NFC simulation.
 
 <p align="center">
-  <a href="https://github.com/noellegazelle6/kail_location/releases">Download app</a>
+  <a href="https://www.kaillocation.xyz/">Download app</a>
   ·
   <a href="README.md">中文说明</a>
 </p>
@@ -32,7 +32,7 @@
 
 ## Download
 
-[app](https://github.com/noellegazelle6/kail_location/releases)
+[app](https://www.kaillocation.xyz)
 
 ---
 
@@ -112,6 +112,7 @@ Solution: Install KailLocation 1.6.5 and KailLocationXposed, then start simulati
 - https://github.com/Hilaver/MockGPS
 - https://github.com/Acooldog/fuckschoolrun
 - https://github.com/ALEX5402/NewBlackbox
+- https://github.com/zensu357/Android-CamSwap-OpenSource
 
 ---
 

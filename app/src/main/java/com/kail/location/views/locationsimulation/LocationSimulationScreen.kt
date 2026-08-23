@@ -16,8 +16,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.border
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -38,6 +44,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.window.Dialog
 import com.kail.location.views.common.DrawerHeader
 import androidx.compose.ui.platform.LocalContext
+import androidx.preference.PreferenceManager
 import android.content.Intent
 import android.net.Uri
 import com.kail.location.views.common.UpdateDialog
@@ -100,6 +107,7 @@ fun LocationSimulationScreen(
     var renameTarget by remember { mutableStateOf<HistoryRecord?>(null) }
     var renameText by remember { mutableStateOf("") }
     var showSettingsDialog by remember { mutableStateOf(false) }
+    var isCardExpanded by remember { mutableStateOf(true) }
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -173,89 +181,129 @@ fun LocationSimulationScreen(
                             .padding(top = 16.dp),
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.loc_sim_target),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = locationInfo.name,
-                                style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = locationInfo.address,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.Gray
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = stringResource(
-                                    R.string.loc_sim_lat_lng,
-                                    String.format("%.2f", locationInfo.longitude),
-                                    String.format("%.2f", locationInfo.latitude)
-                                ),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            // Collapsible header row (always visible, tap to expand)
                             Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { isCardExpanded = !isCardExpanded },
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Button(
-                                    onClick = onToggleSimulation,
-                                    enabled = !isStarting,
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (isSimulating) Color.Red else MaterialTheme.colorScheme.primary,
-                                        disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.72f),
-                                        disabledContentColor = Color.White
-                                    ),
-                                    shape = RoundedCornerShape(24.dp)
-                                ) {
-                                    if (isStarting) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.size(18.dp),
-                                            strokeWidth = 2.dp,
-                                            color = Color.White
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(stringResource(R.string.sim_starting))
-                                    } else {
-                                        Text(
-                                            if (isSimulating) stringResource(R.string.loc_sim_stop) else stringResource(
-                                                R.string.loc_sim_start
-                                            )
-                                        )
-                                    }
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = locationInfo.name,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = stringResource(
+                                            R.string.loc_sim_lat_lng,
+                                            String.format("%.2f", locationInfo.longitude),
+                                            String.format("%.2f", locationInfo.latitude)
+                                        ),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
                                 }
-                                Spacer(modifier = Modifier.weight(1f))
+                            }
 
-                                // Joystick Toggle
+                            // Expanded content
+                            if (isCardExpanded) {
                                 Text(
-                                    text = stringResource(R.string.loc_sim_joystick),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.primary,
+                                    text = stringResource(R.string.loc_sim_target),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Text(
+                                    text = locationInfo.name,
+                                    style = MaterialTheme.typography.headlineSmall,
                                     fontWeight = FontWeight.Bold
                                 )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Switch(
-                                    checked = isJoystickEnabled,
-                                    onCheckedChange = onJoystickToggle,
-                                    modifier = Modifier.scale(0.8f)
+                                Text(
+                                    text = locationInfo.address,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.Gray
                                 )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                IconButton(onClick = { showSettingsDialog = true }) {
-                                    Icon(
-                                        Icons.Default.Settings,
-                                        contentDescription = "Settings",
-                                        tint = MaterialTheme.colorScheme.primary
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = stringResource(
+                                        R.string.loc_sim_lat_lng,
+                                        String.format("%.2f", locationInfo.longitude),
+                                        String.format("%.2f", locationInfo.latitude)
+                                    ),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Button(
+                                        onClick = onToggleSimulation,
+                                        enabled = !isStarting,
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = if (isSimulating) Color.Red else MaterialTheme.colorScheme.primary,
+                                            disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.72f),
+                                            disabledContentColor = Color.White
+                                        ),
+                                        shape = RoundedCornerShape(24.dp)
+                                    ) {
+                                        if (isStarting) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.size(18.dp),
+                                                strokeWidth = 2.dp,
+                                                color = Color.White
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(stringResource(R.string.sim_starting))
+                                        } else {
+                                            Text(
+                                                if (isSimulating) stringResource(R.string.loc_sim_stop) else stringResource(
+                                                    R.string.loc_sim_start
+                                                )
+                                            )
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.weight(0.5f))
+
+                                    IconButton(
+                                        onClick = { isCardExpanded = !isCardExpanded },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(
+                                            if (isCardExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                            contentDescription = if (isCardExpanded) "Collapse" else "Expand",
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.weight(0.5f))
+
+                                    // Joystick Toggle
+                                    Text(
+                                        text = stringResource(R.string.loc_sim_joystick),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.Bold
                                     )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Switch(
+                                        checked = isJoystickEnabled,
+                                        onCheckedChange = onJoystickToggle,
+                                        modifier = Modifier.scale(0.8f)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    IconButton(onClick = { showSettingsDialog = true }) {
+                                        Icon(
+                                            Icons.Default.Settings,
+                                            contentDescription = "Settings",
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -278,10 +326,53 @@ fun LocationSimulationScreen(
                 val favRecords = historyRecords.filter { it.isFavorite }
                     .sortedWith(compareBy<com.kail.location.models.HistoryRecord> { it.favoriteOrder }.thenByDescending { it.favoriteTime })
                 var selectedTab by remember { mutableStateOf(0) }
+                var searchQuery by remember { mutableStateOf("") }
+                var isSearchVisible by remember { mutableStateOf(false) }
 
-                TabRow(selectedTabIndex = selectedTab, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-                    Tab(selected = selectedTab == 0, onClick = { selectedTab = 0 }, text = { Text(stringResource(R.string.joystick_history_favorites), fontSize = 14.sp) })
-                    Tab(selected = selectedTab == 1, onClick = { selectedTab = 1 }, text = { Text(stringResource(R.string.joystick_history_normal), fontSize = 14.sp) })
+                val filteredFavRecords = if (searchQuery.isBlank()) favRecords
+                    else favRecords.filter { it.name.contains(searchQuery, ignoreCase = true) || it.displayTime.contains(searchQuery, ignoreCase = true) }
+
+                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    TabRow(selectedTabIndex = selectedTab, modifier = Modifier.weight(1f)) {
+                        Tab(selected = selectedTab == 0, onClick = { selectedTab = 0 }, text = { Text(stringResource(R.string.joystick_history_favorites), fontSize = 14.sp) })
+                        Tab(selected = selectedTab == 1, onClick = { selectedTab = 1 }, text = { Text(stringResource(R.string.joystick_history_normal), fontSize = 14.sp) })
+                    }
+                    IconButton(onClick = { isSearchVisible = !isSearchVisible }) {
+                        Icon(Icons.Default.Search, contentDescription = "Search")
+                    }
+                }
+
+                if (isSearchVisible) {
+                    val searchTextStyle = MaterialTheme.typography.bodySmall
+                    BasicTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        singleLine = true,
+                        textStyle = searchTextStyle,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .height(32.dp)
+                            .border(1.dp, Color.LightGray, RoundedCornerShape(6.dp))
+                            .padding(horizontal = 8.dp, vertical = 6.dp),
+                        decorationBox = { innerTextField ->
+                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxHeight()) {
+                                Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.size(14.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Box(modifier = Modifier.weight(1f)) {
+                                    if (searchQuery.isEmpty()) {
+                                        Text(stringResource(R.string.app_search_tips), style = searchTextStyle, color = Color.Gray)
+                                    }
+                                    innerTextField()
+                                }
+                                if (searchQuery.isNotEmpty()) {
+                                    IconButton(onClick = { searchQuery = ""; isSearchVisible = false }, modifier = Modifier.size(18.dp)) {
+                                        Icon(Icons.Default.Close, contentDescription = "Clear", modifier = Modifier.size(14.dp))
+                                    }
+                                }
+                            }
+                        }
+                    )
                 }
 
                 if (selectedTab == 0) {
@@ -289,10 +380,10 @@ fun LocationSimulationScreen(
                     var dragOffset by remember { mutableStateOf(0f) }
                     val localFavList = remember { mutableStateListOf<HistoryRecord>() }
 
-                    LaunchedEffect(favRecords) {
+                    LaunchedEffect(filteredFavRecords) {
                         if (draggedId == null) {
                             localFavList.clear()
-                            localFavList.addAll(favRecords)
+                            localFavList.addAll(filteredFavRecords)
                         }
                     }
 
@@ -317,7 +408,7 @@ fun LocationSimulationScreen(
                                             val contentY = offset.y + scrollState.value
                                             val idx = (contentY / itemUnitPx).toInt().coerceIn(0, localFavList.lastIndex)
                                             localFavList.clear()
-                                            localFavList.addAll(favRecords)
+                                            localFavList.addAll(filteredFavRecords)
                                             draggedId = localFavList.getOrNull(idx)?.id
                                             dragOffset = 0f
                                         },
@@ -380,8 +471,10 @@ fun LocationSimulationScreen(
                         }
                     }
                 } else {
-                    LazyColumn(modifier = Modifier.weight(1f), contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)) {
-                        items(historyRecords.sortedByDescending { it.timestamp }, key = { "all_${it.id}" }) { record ->
+                    val src = if (searchQuery.isBlank()) historyRecords
+                        else historyRecords.filter { it.name.contains(searchQuery, ignoreCase = true) || it.displayTime.contains(searchQuery, ignoreCase = true) }
+                    LazyColumn(modifier = Modifier.weight(1f), contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        items(src.sortedByDescending { it.timestamp }, key = { "all_${it.id}" }) { record ->
                             historyRecordCard(record = record, isFav = record.isFavorite, showMoveButtons = false, onToggleFavorite = onToggleFavorite, onRename = { renameTarget = it; renameText = it.name }, onRecordSelect = onRecordSelect, onRecordDelete = onRecordDelete)
                         }
                     }
@@ -474,8 +567,50 @@ fun historyRecordCard(
                 IconButton(onClick = { onRename(record) }) {
                     Icon(Icons.Default.Edit, contentDescription = "Rename", tint = MaterialTheme.colorScheme.primary)
                 }
-                IconButton(onClick = { onRecordDelete(record.id) }) {
+                val context = LocalContext.current
+                val prefs = remember { PreferenceManager.getDefaultSharedPreferences(context) }
+                val showDeleteConfirm = remember { mutableStateOf(false) }
+                var dontRemind by remember { mutableStateOf(false) }
+                IconButton(onClick = {
+                    if (System.currentTimeMillis() < prefs.getLong("delete_dont_remind_until", 0L)) {
+                        onRecordDelete(record.id)
+                    } else {
+                        showDeleteConfirm.value = true
+                        dontRemind = false
+                    }
+                }) {
                     Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+                }
+                if (showDeleteConfirm.value) {
+                    AlertDialog(
+                        onDismissRequest = { showDeleteConfirm.value = false },
+                        title = { Text(stringResource(R.string.common_warning)) },
+                        text = {
+                            Column {
+                                Text(stringResource(R.string.common_delete_item_confirm))
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Checkbox(checked = dontRemind, onCheckedChange = { dontRemind = it })
+                                    Text(stringResource(R.string.delete_dont_remind_10min), fontSize = 14.sp)
+                                }
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                if (dontRemind) {
+                                    prefs.edit().putLong("delete_dont_remind_until", System.currentTimeMillis() + 10 * 60 * 1000).apply()
+                                }
+                                showDeleteConfirm.value = false; onRecordDelete(record.id)
+                            }) {
+                                Text(stringResource(R.string.common_confirm))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showDeleteConfirm.value = false }) {
+                                Text(stringResource(R.string.common_cancel))
+                            }
+                        }
+                    )
                 }
             }
         }

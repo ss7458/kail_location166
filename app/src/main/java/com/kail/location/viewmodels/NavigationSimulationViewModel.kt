@@ -25,6 +25,7 @@ import com.kail.location.R
 import com.kail.location.service.Root.ServiceGoRoot
 import com.kail.location.service.Developer.ServiceGoDeveloper
 import com.kail.location.service.Xposed.ServiceGoXposed
+import com.kail.location.utils.service.ServiceConstants
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -45,6 +46,8 @@ import kotlinx.coroutines.delay
 
 import com.kail.location.data.local.AppDatabase
 import com.kail.location.repositories.HistoryRepository
+import org.json.JSONArray
+import org.json.JSONObject
 
 class NavigationSimulationViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -114,6 +117,19 @@ class NavigationSimulationViewModel(application: Application) : AndroidViewModel
     private val _candidateRoutes = MutableStateFlow<List<List<LatLng>>>(emptyList())
     val candidateRoutes: StateFlow<List<List<LatLng>>> = _candidateRoutes.asStateFlow()
 
+    private val _plannedRoute = MutableStateFlow<List<LatLng>?>(null)
+    /**
+     * 规划完成后选定的路线（百度 API 规划出的途经点）。非空表示已规划好，
+     * 主界面的"开始模拟"按钮才会真正启动模拟。
+     */
+    val plannedRoute: StateFlow<List<LatLng>?> = _plannedRoute.asStateFlow()
+
+    private val _routeWaits = MutableStateFlow<Map<Int, Int>>(emptyMap())
+    /**
+     * 已规划路线上各途经点的等待秒数（下标 → 秒，0 表示不停留）。
+     */
+    val routeWaits: StateFlow<Map<Int, Int>> = _routeWaits.asStateFlow()
+
     private val _currentLatLng = MutableStateFlow<LatLng?>(null)
     val currentLatLng: StateFlow<LatLng?> = _currentLatLng.asStateFlow()
     private var monitorJob: kotlinx.coroutines.Job? = null
@@ -123,7 +139,7 @@ class NavigationSimulationViewModel(application: Application) : AndroidViewModel
             if (intent?.action == "com.kail.location.service.STATUS_CHANGED") {
                 val isSim = intent.getBooleanExtra("is_simulating", false)
                 val isPau = intent.getBooleanExtra("is_paused", false)
-                _isSimulating.value = isSim
+                _isSimulating.value = isSim || isPau
                 _isPaused.value = isPau
                 if (isSim) {
                     startLocationMonitor()
@@ -144,6 +160,7 @@ class NavigationSimulationViewModel(application: Application) : AndroidViewModel
     }
 
     init {
+        loadFavOrders()
         viewModelScope.launch {
             historyRepository.recentRoutes.collect { entities ->
                 _historyList.value = entities.map { entity ->
@@ -306,28 +323,63 @@ class NavigationSimulationViewModel(application: Application) : AndroidViewModel
         )
     }
 
+    fun clearSearchResults() {
+        _searchResults.value = emptyList()
+    }
+
+    /** 清除起点、终点与已规划路线。 */
+    fun clearPoints() {
+        _startPoint.value = ""
+        _startLatLng.value = null
+        _endPoint.value = ""
+        _endLatLng.value = null
+        _plannedRoute.value = null
+        _routeWaits.value = emptyMap()
+    }
+
     fun selectStartPoint(name: String, lat: Double, lng: Double) {
+        val changed = _startLatLng.value?.let { it.latitude != lat || it.longitude != lng } ?: true
         _startPoint.value = name
         _startLatLng.value = LatLng(lat, lng)
+        if (changed) {
+            _plannedRoute.value = null
+            _routeWaits.value = emptyMap()
+        }
         _searchResults.value = emptyList()
     }
 
     fun selectEndPoint(name: String, lat: Double, lng: Double) {
+        val changed = _endLatLng.value?.let { it.latitude != lat || it.longitude != lng } ?: true
         _endPoint.value = name
         _endLatLng.value = LatLng(lat, lng)
+        if (changed) {
+            _plannedRoute.value = null
+            _routeWaits.value = emptyMap()
+        }
         _searchResults.value = emptyList()
+    }
+
+    /** 设置已规划路线上的等待点（下标 → 秒）。 */
+    fun setRouteWaits(waits: Map<Int, Int>) {
+        _routeWaits.value = waits
     }
 
     fun setMultiRoute(enabled: Boolean) {
         _isMultiRoute.value = enabled
     }
 
-    fun startSimulation() {
+    /**
+     * 第一步：开始规划。用百度驾车路线 API 规划起终点之间的路线，结果放在
+     * candidateRoutes 里由界面弹窗展示（标识路线），此时并不开始模拟。
+     */
+    fun planRoute() {
         val start = _startLatLng.value
         val end = _endLatLng.value
         if (start == null || end == null) return
 
         _isLoading.value = true
+        _plannedRoute.value = null
+        _routeWaits.value = emptyMap()
         val stNode = PlanNode.withLocation(start)
         val enNode = PlanNode.withLocation(end)
 
@@ -336,6 +388,43 @@ class NavigationSimulationViewModel(application: Application) : AndroidViewModel
                 .from(stNode)
                 .to(enNode)
         )
+    }
+
+    /**
+     * 规划弹窗里选定一条路线：只确认规划（标记），不开始模拟。
+     */
+    fun chooseCandidate(index: Int) {
+        val routes = _candidateRoutes.value
+        if (index in routes.indices) {
+            _plannedRoute.value = routes[index]
+            _candidateRoutes.value = emptyList()
+            _isLoading.value = false
+        }
+    }
+
+    /** 取消当前规划（关闭弹窗，不保留规划结果）。 */
+    fun cancelPlan() {
+        _candidateRoutes.value = emptyList()
+        _isLoading.value = false
+        _plannedRoute.value = null
+    }
+
+    /**
+     * 第二步：开始模拟。在已规划好的路线上真正启动模拟服务。
+     */
+    fun startSimulation() {
+        val route = _plannedRoute.value ?: return
+        val app = getApplication<Application>()
+        viewModelScope.launch {
+            if (!UsageManager.canStartSimulation(app)) {
+                return@launch
+            }
+            if (!UsageManager.consumeSimulation(app)) {
+                return@launch
+            }
+            addToHistory(_startPoint.value, _endPoint.value)
+            startSimulationService(route)
+        }
     }
 
     private fun startSimulationService(points: List<LatLng>) {
@@ -361,6 +450,16 @@ class NavigationSimulationViewModel(application: Application) : AndroidViewModel
         intent.putExtra(extraJoystickEnabled, true)
         intent.putExtra(extraRouteSpeed, _speed.value.toFloat())
         intent.putExtra(extraCoordType, "BD09")
+
+        // 已规划路线上的等待点（下标 → 秒），按路线点对齐下发
+        val waits = _routeWaits.value
+        if (waits.isNotEmpty()) {
+            val waitArr = DoubleArray(points.size) { 0.0 }
+            waits.forEach { (idx, sec) ->
+                if (idx in waitArr.indices) waitArr[idx] = sec.toDouble()
+            }
+            intent.putExtra(ServiceConstants.EXTRA_ROUTE_WAIT_TIMES, waitArr)
+        }
         
         if (ContextCompat.checkSelfPermission(app, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             ContextCompat.startForegroundService(app, intent)
@@ -456,6 +555,33 @@ class NavigationSimulationViewModel(application: Application) : AndroidViewModel
         val map = mutableMapOf<Long, Int>()
         ids.forEachIndexed { index, id -> map[id] = index }
         _favOrders.value = map
+        saveFavOrders()
+    }
+
+    private fun loadFavOrders() {
+        val json = sharedPreferences.getString("nav_fav_orders", null) ?: return
+        try {
+            val map = mutableMapOf<Long, Int>()
+            val arr = JSONArray(json)
+            for (i in 0 until arr.length()) {
+                val obj = arr.getJSONObject(i)
+                map[obj.getLong("id")] = obj.getInt("order")
+            }
+            _favOrders.value = map
+        } catch (_: Exception) {}
+    }
+
+    private fun saveFavOrders() {
+        try {
+            val arr = JSONArray()
+            _favOrders.value.forEach { (id, order) ->
+                arr.put(JSONObject().apply {
+                    put("id", id)
+                    put("order", order)
+                })
+            }
+            sharedPreferences.edit().putString("nav_fav_orders", arr.toString()).apply()
+        } catch (_: Exception) {}
     }
 
     fun clearHistory() {
@@ -518,7 +644,7 @@ class NavigationSimulationViewModel(application: Application) : AndroidViewModel
 
     private fun startLocationMonitor() {
         stopLocationMonitor()
-        val points = _candidateRoutes.value.getOrNull(0) ?: return
+        val points = _plannedRoute.value ?: return
         if (points.size < 2) return
         val speedMs = _speed.value / 3.6
         if (speedMs <= 0) return

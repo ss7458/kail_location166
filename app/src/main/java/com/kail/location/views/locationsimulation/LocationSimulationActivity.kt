@@ -76,6 +76,7 @@ class LocationSimulationActivity : BaseActivity() {
                 val updateInfo by viewModel.updateInfo.collectAsState()
                 val isDownloading by viewModel.isDownloading.collectAsState()
                 val downloadProgress by viewModel.downloadProgress.collectAsState()
+                val downloadDeterminate by viewModel.downloadDeterminate.collectAsState()
                 val installUri by viewModel.installUri.collectAsState()
 
                 val version = packageManager.getPackageInfo(packageName, 0).versionName ?: ""
@@ -149,11 +150,17 @@ class LocationSimulationActivity : BaseActivity() {
                             R.id.nav_cell_simulation -> {
                                 startActivity(Intent(this, com.kail.location.views.cellsimulation.CellSimulationActivity::class.java))
                             }
+                            R.id.nav_camera_simulation -> {
+                                startActivity(Intent(this, com.kail.location.views.camerasimulation.CameraSimulationActivity::class.java))
+                            }
                             R.id.nav_sandbox -> {
                                 startActivity(Intent(this, com.kail.location.views.sandbox.SandboxActivity::class.java))
                             }
                             R.id.nav_settings -> {
                                 startActivity(Intent(this, SettingsActivity::class.java))
+                            }
+                            R.id.nav_faq -> {
+                                startActivity(Intent(this, com.kail.location.views.faq.FaqActivity::class.java))
                             }
                             R.id.nav_contact -> {
                                 try {
@@ -204,6 +211,7 @@ class LocationSimulationActivity : BaseActivity() {
                         info = updateInfo!!,
                         downloading = isDownloading,
                         progress = downloadProgress,
+                        progressIndeterminate = !downloadDeterminate,
                         onDismiss = { viewModel.dismissUpdateDialog() },
                         onStartDownload = { viewModel.startUpdateDownload(this@LocationSimulationActivity) }
                     )

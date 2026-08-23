@@ -38,6 +38,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Tab
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.TabRow
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -102,6 +103,7 @@ fun JoyStickHistoryOverlay(
     val winH = remember {
         (prefs.getString(SettingsViewModel.KEY_FLOATING_WINDOW_HEIGHT, "500") ?: "500").toIntOrNull() ?: 500
     }.dp
+    val scaleFactor = (winW / 300.dp).coerceIn(0.4f, 2f)
 
     val filteredRecords = remember(historyRecords, searchQuery) {
         if (searchQuery.isBlank()) historyRecords
@@ -282,7 +284,8 @@ fun JoyStickHistoryOverlay(
                                     onSelectRecord = onSelectRecord,
                                     onToggleFavorite = onToggleFavorite,
                                     onRename = { id -> renameTarget = id; renameText = (record[HistoryActivity.KEY_LOCATION] as? String) ?: "" },
-                                    onDelete = onDelete
+                                    onDelete = onDelete,
+                                    scaleFactor = scaleFactor
                                 )
                             }
                             HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp), color = Color.LightGray.copy(alpha = 0.5f))
@@ -298,7 +301,7 @@ fun JoyStickHistoryOverlay(
                 } else {
                     LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(vertical = 4.dp)) {
                         items(filteredRecords.sortedByDescending { (it["rawTimestamp"] as? Long) ?: 0L }, key = { "all_${it[HistoryActivity.KEY_ID]}" }) { record ->
-                            historyListItem(record = record, isFav = (record["isFavorite"] as? Boolean) == true, showMoveButtons = false, onSelectRecord = onSelectRecord, onToggleFavorite = onToggleFavorite, onRename = { id -> renameTarget = id; renameText = (record[HistoryActivity.KEY_LOCATION] as? String) ?: "" }, onDelete = onDelete)
+                            historyListItem(record = record, isFav = (record["isFavorite"] as? Boolean) == true, showMoveButtons = false, onSelectRecord = onSelectRecord, onToggleFavorite = onToggleFavorite, onRename = { id -> renameTarget = id; renameText = (record[HistoryActivity.KEY_LOCATION] as? String) ?: "" }, onDelete = onDelete, scaleFactor = scaleFactor)
                             HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp), color = Color.LightGray.copy(alpha = 0.5f))
                         }
                     }
@@ -363,30 +366,75 @@ fun historyListItem(
     onRename: (String) -> Unit,
     onDelete: (String) -> Unit,
     onMoveUp: () -> Unit = {},
-    onMoveDown: () -> Unit = {}
+    onMoveDown: () -> Unit = {},
+    scaleFactor: Float = 1f
 ) {
     val id = (record[HistoryActivity.KEY_ID] as? String) ?: ""
+    val iconSize = (24 * scaleFactor).dp
+    val btnSize = (40 * scaleFactor).dp
     Row(
-        modifier = Modifier.fillMaxWidth().clickable { onSelectRecord(record) }.padding(start = 4.dp, end = 4.dp),
+        modifier = Modifier.fillMaxWidth().clickable { onSelectRecord(record) }.padding(start = 4.dp * scaleFactor, end = 4.dp * scaleFactor),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (showMoveButtons) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(end = 6.dp)) {
-                Text("▲", modifier = Modifier.clickable(onClick = onMoveUp).padding(2.dp), fontSize = 10.sp, color = Color.Gray)
-                Text("▼", modifier = Modifier.clickable(onClick = onMoveDown).padding(2.dp), fontSize = 10.sp, color = Color.Gray)
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(end = 6.dp * scaleFactor)) {
+                Text("▲", modifier = Modifier.clickable(onClick = onMoveUp).padding((2 * scaleFactor).dp), fontSize = (10 * scaleFactor).sp, color = Color.Gray)
+                Text("▼", modifier = Modifier.clickable(onClick = onMoveDown).padding((2 * scaleFactor).dp), fontSize = (10 * scaleFactor).sp, color = Color.Gray)
             }
         }
         Column(modifier = Modifier.weight(1f)) {
-            HistoryItem(record = record, onClick = { onSelectRecord(record) })
+            HistoryItem(record = record, onClick = { onSelectRecord(record) }, scaleFactor = scaleFactor)
         }
-        IconButton(onClick = { onToggleFavorite(id) }) {
-            Icon(Icons.Default.Star, contentDescription = "Favorite", tint = if (isFav) Color(0xFFFFB300) else Color.Gray, modifier = Modifier.graphicsLayer(alpha = if (isFav) 1f else 0.4f))
+        IconButton(onClick = { onToggleFavorite(id) }, modifier = Modifier.size(btnSize)) {
+            Icon(Icons.Default.Star, contentDescription = "Favorite", tint = if (isFav) Color(0xFFFFB300) else Color.Gray, modifier = Modifier.size(iconSize).graphicsLayer(alpha = if (isFav) 1f else 0.4f))
         }
-        IconButton(onClick = { onRename(id) }) {
-            Icon(Icons.Default.Edit, contentDescription = "Rename", tint = MaterialTheme.colorScheme.primary)
+        IconButton(onClick = { onRename(id) }, modifier = Modifier.size(btnSize)) {
+            Icon(Icons.Default.Edit, contentDescription = "Rename", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(iconSize))
         }
-        IconButton(onClick = { onDelete(id) }) {
-            Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+        val ctx = LocalContext.current
+        val prefs = remember { PreferenceManager.getDefaultSharedPreferences(ctx) }
+        val showDeleteConfirm = remember { mutableStateOf(false) }
+        var dontRemind by remember { mutableStateOf(false) }
+        IconButton(onClick = {
+            if (System.currentTimeMillis() < prefs.getLong("delete_dont_remind_until", 0L)) {
+                onDelete(id)
+            } else {
+                showDeleteConfirm.value = true
+                dontRemind = false
+            }
+        }, modifier = Modifier.size(btnSize)) {
+            Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red, modifier = Modifier.size(iconSize))
+        }
+        if (showDeleteConfirm.value) {
+            AlertDialog(
+                onDismissRequest = { showDeleteConfirm.value = false },
+                title = { Text(stringResource(R.string.common_warning)) },
+                text = {
+                    Column {
+                        Text(stringResource(R.string.common_delete_item_confirm))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(checked = dontRemind, onCheckedChange = { dontRemind = it })
+                            Text(stringResource(R.string.delete_dont_remind_10min), fontSize = 14.sp)
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        if (dontRemind) {
+                            prefs.edit().putLong("delete_dont_remind_until", System.currentTimeMillis() + 10 * 60 * 1000).apply()
+                        }
+                        showDeleteConfirm.value = false; onDelete(id)
+                    }) {
+                        Text(stringResource(R.string.common_confirm))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteConfirm.value = false }) {
+                        Text(stringResource(R.string.common_cancel))
+                    }
+                }
+            )
         }
     }
 }
@@ -394,7 +442,8 @@ fun historyListItem(
 @Composable
 fun HistoryItem(
     record: Map<String, Any>,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    scaleFactor: Float = 1f
 ) {
     val name = (record[HistoryActivity.KEY_LOCATION] as? String) 
             ?: (record[LocationPickerViewModel.POI_NAME] as? String) 
@@ -408,7 +457,7 @@ fun HistoryItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(8.dp)
+            .padding((8 * scaleFactor).dp)
     ) {
         Text(text = name, style = MaterialTheme.typography.bodyLarge)
         if (address.isNotEmpty()) {

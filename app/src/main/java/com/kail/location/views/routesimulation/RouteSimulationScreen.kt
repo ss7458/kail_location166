@@ -1,8 +1,10 @@
 package com.kail.location.views.routesimulation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -39,6 +41,7 @@ import com.kail.location.viewmodels.RouteSimulationViewModel
 import com.kail.location.views.common.DrawerHeader
 
 import androidx.compose.ui.platform.LocalContext
+import androidx.preference.PreferenceManager
 import android.content.Intent
 import android.net.Uri
 import com.kail.location.views.common.UpdateDialog
@@ -64,6 +67,7 @@ fun RouteSimulationScreen(
     onXposedSettingsSelected: () -> Unit = {},
     onNavigate: (Int) -> Unit,
     onAddRouteClick: () -> Unit,
+    onExtendRouteClick: () -> Unit = {},
     onEditRoute: (String) -> Unit = {},
     appVersion: String,
     onStartSimulation: (SimulationSettings) -> Unit,
@@ -98,6 +102,7 @@ fun RouteSimulationScreen(
 
     val isDownloading by viewModel.isDownloading.collectAsState()
     val downloadProgress by viewModel.downloadProgress.collectAsState()
+    val downloadDeterminate by viewModel.downloadDeterminate.collectAsState()
     val installUri by viewModel.installUri.collectAsState()
     val toastMessage by viewModel.toastMessage.collectAsState()
     
@@ -113,6 +118,7 @@ fun RouteSimulationScreen(
             info = updateInfo!!,
             downloading = isDownloading,
             progress = downloadProgress,
+            progressIndeterminate = !downloadDeterminate,
             onDismiss = { viewModel.dismissUpdateDialog() },
             onStartDownload = { viewModel.startUpdateDownload(context) }
         )
@@ -200,7 +206,7 @@ fun RouteSimulationScreen(
                         
                         // FAB overlapping the card
                         FloatingActionButton(
-                            onClick = onAddRouteClick,
+                            onClick = { if (isSimulating) onExtendRouteClick() else onAddRouteClick() },
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = Color.White,
                             shape = CircleShape,
@@ -213,35 +219,78 @@ fun RouteSimulationScreen(
                     }
 
                     var selectedTab by remember { mutableStateOf(0) }
+                    var searchQuery by remember { mutableStateOf("") }
+                    var isSearchVisible by remember { mutableStateOf(false) }
                     val favRoutes = historyRoutes.filter { it.isFavorite }
                         .sortedWith(compareBy<RouteInfo> { it.favoriteOrder }.thenByDescending { it.favoriteTime })
                     val allRoutes = historyRoutes.sortedByDescending { it.id.toLongOrNull() ?: 0L }
 
-                    TabRow(
-                        selectedTabIndex = selectedTab,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
-                    ) {
-                        Tab(
-                            selected = selectedTab == 0,
-                            onClick = { selectedTab = 0 },
-                            text = { Text(stringResource(R.string.joystick_history_favorites), fontSize = 14.sp) }
-                        )
-                        Tab(
-                            selected = selectedTab == 1,
-                            onClick = { selectedTab = 1 },
-                            text = { Text(stringResource(R.string.route_sim_history), fontSize = 14.sp) }
+                    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        TabRow(
+                            selectedTabIndex = selectedTab,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Tab(
+                                selected = selectedTab == 0,
+                                onClick = { selectedTab = 0 },
+                                text = { Text(stringResource(R.string.joystick_history_favorites), fontSize = 14.sp) }
+                            )
+                            Tab(
+                                selected = selectedTab == 1,
+                                onClick = { selectedTab = 1 },
+                                text = { Text(stringResource(R.string.route_sim_history), fontSize = 14.sp) }
+                            )
+                        }
+                        IconButton(onClick = { isSearchVisible = !isSearchVisible }) {
+                            Icon(Icons.Default.Search, contentDescription = "Search")
+                        }
+                    }
+
+                    if (isSearchVisible) {
+                        val searchTextStyle = MaterialTheme.typography.bodySmall
+                        BasicTextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            singleLine = true,
+                            textStyle = searchTextStyle,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                                .height(32.dp)
+                                .border(1.dp, Color.LightGray, RoundedCornerShape(6.dp))
+                                .padding(horizontal = 8.dp, vertical = 6.dp),
+                            decorationBox = { innerTextField ->
+                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxHeight()) {
+                                    Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.size(14.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Box(modifier = Modifier.weight(1f)) {
+                                        if (searchQuery.isEmpty()) {
+                                            Text(stringResource(R.string.app_search_tips), style = searchTextStyle, color = Color.Gray)
+                                        }
+                                        innerTextField()
+                                    }
+                                    if (searchQuery.isNotEmpty()) {
+                                        IconButton(onClick = { searchQuery = ""; isSearchVisible = false }, modifier = Modifier.size(18.dp)) {
+                                            Icon(Icons.Default.Close, contentDescription = "Clear", modifier = Modifier.size(14.dp))
+                                        }
+                                    }
+                                }
+                            }
                         )
                     }
+
+                    val filteredFavRoutes = if (searchQuery.isBlank()) favRoutes
+                        else favRoutes.filter { it.startName.contains(searchQuery, ignoreCase = true) || it.endName.contains(searchQuery, ignoreCase = true) }
 
                     if (selectedTab == 0) {
                         var draggedId by remember { mutableStateOf<String?>(null) }
                         var dragOffset by remember { mutableStateOf(0f) }
                         val localFavList = remember { mutableStateListOf<RouteInfo>() }
 
-                        LaunchedEffect(favRoutes) {
+                        LaunchedEffect(filteredFavRoutes) {
                             if (draggedId == null) {
                                 localFavList.clear()
-                                localFavList.addAll(favRoutes)
+                                localFavList.addAll(filteredFavRoutes)
                             }
                         }
 
@@ -269,7 +318,7 @@ fun RouteSimulationScreen(
                                                 val contentY = offset.y + scrollState.value
                                                 val idx = (contentY / itemUnitPx).toInt().coerceIn(0, localFavList.lastIndex)
                                                 localFavList.clear()
-                                                localFavList.addAll(favRoutes)
+                                                localFavList.addAll(filteredFavRoutes)
                                                 draggedId = localFavList.getOrNull(idx)?.id
                                                 dragOffset = 0f
                                             },
@@ -333,12 +382,14 @@ fun RouteSimulationScreen(
                             }
                         }
                     } else {
+                        val src = if (searchQuery.isBlank()) allRoutes
+                            else allRoutes.filter { it.startName.contains(searchQuery, ignoreCase = true) || it.endName.contains(searchQuery, ignoreCase = true) }
                         LazyColumn(
                             modifier = Modifier.weight(1f),
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            items(allRoutes, key = { "all_${it.id}" }) { route ->
+                            items(src, key = { "all_${it.id}" }) { route ->
                                 RouteHistoryCard(
                                     route = route,
                                     isFav = route.isFavorite,
@@ -798,8 +849,50 @@ fun RouteHistoryCard(
                 IconButton(onClick = onRename) {
                     Icon(Icons.Default.Edit, contentDescription = "Rename", tint = MaterialTheme.colorScheme.primary)
                 }
-                IconButton(onClick = onDelete) {
+                val context = LocalContext.current
+                val prefs = remember { PreferenceManager.getDefaultSharedPreferences(context) }
+                val showDeleteConfirm = remember { mutableStateOf(false) }
+                var dontRemind by remember { mutableStateOf(false) }
+                IconButton(onClick = {
+                    if (System.currentTimeMillis() < prefs.getLong("delete_dont_remind_until", 0L)) {
+                        onDelete()
+                    } else {
+                        showDeleteConfirm.value = true
+                        dontRemind = false
+                    }
+                }) {
                     Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+                }
+                if (showDeleteConfirm.value) {
+                    AlertDialog(
+                        onDismissRequest = { showDeleteConfirm.value = false },
+                        title = { Text(stringResource(R.string.common_warning)) },
+                        text = {
+                            Column {
+                                Text(stringResource(R.string.common_delete_item_confirm))
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Checkbox(checked = dontRemind, onCheckedChange = { dontRemind = it })
+                                    Text(stringResource(R.string.delete_dont_remind_10min), fontSize = 14.sp)
+                                }
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                if (dontRemind) {
+                                    prefs.edit().putLong("delete_dont_remind_until", System.currentTimeMillis() + 10 * 60 * 1000).apply()
+                                }
+                                showDeleteConfirm.value = false; onDelete()
+                            }) {
+                                Text(stringResource(R.string.common_confirm))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showDeleteConfirm.value = false }) {
+                                Text(stringResource(R.string.common_cancel))
+                            }
+                        }
+                    )
                 }
             }
         }

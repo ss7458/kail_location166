@@ -44,21 +44,22 @@ fun AppDrawer(
     var showRunModeDialog by remember { mutableStateOf(false) }
     var showEnvDialog by remember { mutableStateOf(false) }
     var showXposedDownloadDialog by remember { mutableStateOf(false) }
+    var showXposedVersionDialog by remember { mutableStateOf(false) }
     var envMessage by remember { mutableStateOf("") }
     val context = LocalContext.current
 
-    fun isXposedModuleInstalled(): Boolean {
+    fun getXposedModuleVersionCode(): Int? {
         return try {
             val pm = context.packageManager
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            val pkgInfo = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
                 pm.getPackageInfo("com.kail.locationxposed", android.content.pm.PackageManager.PackageInfoFlags.of(0))
             } else {
                 @Suppress("DEPRECATION")
                 pm.getPackageInfo("com.kail.locationxposed", 0)
             }
-            true
+            pkgInfo.longVersionCode.toInt()
         } catch (e: Exception) {
-            false
+            null
         }
     }
 
@@ -167,10 +168,13 @@ fun AppDrawer(
                             .fillMaxWidth()
                             .clickable {
                                 showRunModeDialog = false
-                                if (isXposedModuleInstalled()) {
-                                    onRunModeChange("xposed")
-                                } else {
+                                val moduleVersion = getXposedModuleVersionCode()
+                                if (moduleVersion == null) {
                                     showXposedDownloadDialog = true
+                                } else if (moduleVersion != com.kail.location.BuildConfig.VERSION_CODE) {
+                                    showXposedVersionDialog = true
+                                } else {
+                                    onRunModeChange("xposed")
                                 }
                             }
                             .padding(16.dp)
@@ -235,6 +239,27 @@ fun AppDrawer(
             confirmButton = {
                 TextButton(onClick = {
                     showXposedDownloadDialog = false
+                    downloadAndInstallXposed()
+                }) {
+                    Text(stringResource(R.string.xposed_module_download))
+                }
+            }
+        )
+    }
+
+    if (showXposedVersionDialog) {
+        AlertDialog(
+            onDismissRequest = { showXposedVersionDialog = false },
+            title = { Text(stringResource(R.string.xposed_module_version_mismatch)) },
+            text = { Text(stringResource(R.string.xposed_module_version_hint)) },
+            dismissButton = {
+                TextButton(onClick = { showXposedVersionDialog = false }) {
+                    Text(stringResource(android.R.string.cancel))
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showXposedVersionDialog = false
                     downloadAndInstallXposed()
                 }) {
                     Text(stringResource(R.string.xposed_module_download))
@@ -338,6 +363,14 @@ fun AppDrawer(
                         onClick = { scope.launch { closeDrawerSmooth(); onNavigate(R.id.nav_cell_simulation) } }
                     )
                 }
+                item {
+                    NavigationDrawerItem(
+                        label = { Text(stringResource(R.string.nav_menu_camera_sim)) },
+                        icon = { Icon(painterResource(R.drawable.ic_menu_settings), contentDescription = null) },
+                        selected = currentScreen == "CameraSimulation",
+                        onClick = { scope.launch { closeDrawerSmooth(); onNavigate(R.id.nav_camera_simulation) } }
+                    )
+                }
             }
             if (runMode == "sandbox") {
                 item {
@@ -350,6 +383,14 @@ fun AppDrawer(
                 }
             }
             if (runMode == "xposed") {
+                item {
+                    NavigationDrawerItem(
+                        label = { Text(stringResource(R.string.nav_menu_camera_sim)) },
+                        icon = { Icon(painterResource(R.drawable.ic_menu_settings), contentDescription = null) },
+                        selected = currentScreen == "CameraSimulation",
+                        onClick = { scope.launch { closeDrawerSmooth(); onNavigate(R.id.nav_camera_simulation) } }
+                    )
+                }
                 item {
                     NavigationDrawerItem(
                         label = { Text(stringResource(R.string.drawer_xposed_settings)) },
@@ -411,6 +452,14 @@ fun AppDrawer(
                     icon = { Icon(painterResource(R.drawable.ic_menu_dev), contentDescription = null) },
                     selected = false,
                     onClick = { scope.launch { closeDrawerSmooth(); onNavigate(R.id.nav_source_code) } }
+                )
+            }
+            item {
+                NavigationDrawerItem(
+                    label = { Text(stringResource(R.string.nav_menu_faq)) },
+                    icon = { Icon(painterResource(R.drawable.ic_menu_feedback), contentDescription = null) },
+                    selected = false,
+                    onClick = { scope.launch { closeDrawerSmooth(); onNavigate(R.id.nav_faq) } }
                 )
             }
         }

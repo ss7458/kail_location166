@@ -17,13 +17,13 @@ android {
         applicationId = "com.kail.location.free"
         minSdk = 27
         targetSdk = 36
-        versionCode = 39
-        versionName = "1.6.6"
+        versionCode = 43
+        versionName = "1.6.10"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
         ndk {
-            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
         }
 
         buildConfigField("String", "APP_API_URL", "\"https://adminkaillocation.kaillocation.xyz/app-api\"")
@@ -98,6 +98,14 @@ tasks.whenTaskAdded {
                                 rename { "libkail_inject.so" }
                             }
                         }
+                        val x64Exe = file("${hashDir.absolutePath}/obj/x86_64/kail_inject")
+                        if (x64Exe.exists()) {
+                            copy {
+                                from(x64Exe)
+                                into("${buildDir}/intermediates/merged_native_libs/debug/out/lib/x86_64/")
+                                rename { "libkail_inject.so" }
+                            }
+                        }
                     }
                 }
             }
@@ -127,6 +135,14 @@ tasks.whenTaskAdded {
                                     rename { "libkail_inject.so" }
                                 }
                             }
+                            val x64Exe = file("${hashDir.absolutePath}/obj/x86_64/kail_inject")
+                            if (x64Exe.exists()) {
+                                copy {
+                                    from(x64Exe)
+                                    into("${buildDir}/intermediates/merged_native_libs/release/out/lib/x86_64/")
+                                    rename { "libkail_inject.so" }
+                                }
+                            }
                         }
                     }
                 }
@@ -149,6 +165,14 @@ tasks.whenTaskAdded {
                                 rename { "libkail_inject.so" }
                             }
                         }
+                        val x64Exe = file("${hashDir.absolutePath}/obj/x86_64/kail_inject")
+                        if (x64Exe.exists()) {
+                            copy {
+                                from(x64Exe)
+                                into("${buildDir}/intermediates/merged_native_libs/release/out/lib/x86_64/")
+                                rename { "libkail_inject.so" }
+                            }
+                        }
                     }
                 }
             }
@@ -159,7 +183,7 @@ tasks.whenTaskAdded {
             val mergedDir = file("${buildDir}/intermediates/merged_native_libs/debug/out/lib")
             val strippedDir = file("${buildDir}/intermediates/stripped_native_libs/debug/stripDebugDebugSymbols/out/lib")
             if (mergedDir.exists() && strippedDir.exists()) {
-                listOf("arm64-v8a", "armeabi-v7a").forEach { abi ->
+                listOf("arm64-v8a", "armeabi-v7a", "x86_64").forEach { abi ->
                     val src = file("${mergedDir.absolutePath}/$abi/libkail_inject.so")
                     if (src.exists()) {
                         copy {
@@ -177,7 +201,7 @@ tasks.whenTaskAdded {
             val mergedDir = file("${buildDir}/intermediates/merged_native_libs/release/out/lib")
             val strippedDir = file("${buildDir}/intermediates/stripped_native_libs/release/stripReleaseDebugSymbols/out/lib")
             if (mergedDir.exists() && strippedDir.exists()) {
-                listOf("arm64-v8a", "armeabi-v7a").forEach { abi ->
+                listOf("arm64-v8a", "armeabi-v7a", "x86_64").forEach { abi ->
                     val src = file("${mergedDir.absolutePath}/$abi/libkail_inject.so")
                     if (src.exists()) {
                         copy {
@@ -225,12 +249,19 @@ fun findD8Jar(): java.io.File? {
         include("**/lib/r8.jar")
         include("**/lib/d8.jar")
     }.forEach { candidates.add(it) }
+    // build-tools also ship d8.jar — prefer the newest version available.
+    fileTree("${sdkDir.absolutePath}/build-tools").matching {
+        include("**/lib/d8.jar")
+        include("**/lib/r8.jar")
+    }.forEach { candidates.add(it) }
     val gradleHome = gradle.gradleUserHomeDir
     fileTree(gradleHome) {
         include("caches/**/r8-*.jar")
         include("caches/**/r8/**/r8.jar")
     }.forEach { candidates.add(it) }
-    return candidates.firstOrNull { it.exists() && it.length() > 0 }
+    return candidates
+        .filter { it.exists() && it.length() > 0 }
+        .maxByOrNull { it.absolutePath }
 }
 
 androidComponents {
@@ -245,6 +276,14 @@ androidComponents {
 
             dependsOn("compile${variantNameCap}JavaWithJavac")
             dependsOn("compile${variantNameCap}Kotlin")
+
+            outputs.file(outFile.get().asFile)
+            val inputClassDirs = listOf(
+                file("${buildDir}/intermediates/javac/${variant.name}/classes"),
+                file("${buildDir}/intermediates/javac/${variant.name}/compile${variantNameCap}JavaWithJavac/classes"),
+                file("${buildDir}/tmp/kotlin-classes/${variant.name}")
+            ).filter { it.exists() }
+            inputs.files(inputClassDirs)
 
             doLast {
                 val r8Jar = findD8Jar()
@@ -409,9 +448,8 @@ dependencies {
     implementation(libs.material)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("io.noties.markwon:core:4.6.2")
-
-    // ShadowHook
-    implementation("com.bytedance.android:shadowhook:1.0.9")
+    implementation("io.noties.markwon:image-coil:4.6.2")
+    implementation("io.coil-kt:coil:1.4.0")
 
     // Dobby
     implementation("io.github.vvb2060.ndk:dobby:1.2")

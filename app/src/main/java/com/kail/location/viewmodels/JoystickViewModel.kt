@@ -171,6 +171,7 @@ class JoystickViewModel(application: Application) : AndroidViewModel(application
 
                 val orderClauses = mutableListOf<String>()
                 if (hasFavCol) orderClauses.add("${DataBaseHistoryLocation.DB_COLUMN_FAVORITE} DESC")
+                if (hasFavCol && DataBaseHistoryLocation.DB_COLUMN_FAVORITE_ORDER in colInfo) orderClauses.add("${DataBaseHistoryLocation.DB_COLUMN_FAVORITE_ORDER} ASC")
                 orderClauses.add("${DataBaseHistoryLocation.DB_COLUMN_TIMESTAMP} DESC")
                 val cursor = db.rawQuery("SELECT * FROM ${DataBaseHistoryLocation.TABLE_NAME} WHERE ${DataBaseHistoryLocation.DB_COLUMN_ID} > 0 ORDER BY ${orderClauses.joinToString(",")}", null)
 

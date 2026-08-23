@@ -75,6 +75,7 @@ class RouteSimulationActivity : BaseActivity(), SensorEventListener {
             locationTheme {
                 var currentScreen by remember { mutableStateOf(Screen.LIST) }
                 var editingRouteId by remember { mutableStateOf<String?>(null) }
+                var extendingRunning by remember { mutableStateOf(false) }
                 val runMode by viewModel.runMode.collectAsState()
                 
                 val onNavigate: (Int) -> Unit = { id ->
@@ -103,6 +104,9 @@ class RouteSimulationActivity : BaseActivity(), SensorEventListener {
                         }
                         R.id.nav_cell_simulation -> {
                             startActivity(Intent(this@RouteSimulationActivity, com.kail.location.views.cellsimulation.CellSimulationActivity::class.java))
+                        }
+                        R.id.nav_camera_simulation -> {
+                            startActivity(Intent(this@RouteSimulationActivity, com.kail.location.views.camerasimulation.CameraSimulationActivity::class.java))
                         }
                         R.id.nav_sandbox -> {
                             startActivity(Intent(this@RouteSimulationActivity, com.kail.location.views.sandbox.SandboxActivity::class.java))
@@ -157,6 +161,14 @@ class RouteSimulationActivity : BaseActivity(), SensorEventListener {
                         onNavigate = onNavigate,
                             onAddRouteClick = {
                                 editingRouteId = null
+                                extendingRunning = false
+                                viewModel.clearPendingRoute()
+                                mBaiduMap?.clear()
+                                currentScreen = Screen.PLAN
+                            },
+                            onExtendRouteClick = {
+                                editingRouteId = null
+                                extendingRunning = true
                                 viewModel.clearPendingRoute()
                                 mBaiduMap?.clear()
                                 currentScreen = Screen.PLAN
@@ -176,20 +188,36 @@ class RouteSimulationActivity : BaseActivity(), SensorEventListener {
                         )
                     }
                     Screen.PLAN -> {
-                        key(editingRouteId) {
-                            val initialWp = editingRouteId?.let { viewModel.getRoutePointsById(it) } ?: emptyList()
+                        key(editingRouteId to extendingRunning) {
+                            val initialWp = when {
+                                extendingRunning -> viewModel.runningRoutePoints.value ?: emptyList()
+                                editingRouteId != null -> viewModel.getRoutePointsById(editingRouteId!!)
+                                else -> emptyList()
+                            }
+                            val initialWaits = when {
+                                extendingRunning -> viewModel.runningRouteWaitTimes.value ?: emptyList()
+                                editingRouteId != null -> viewModel.getRouteWaitTimesById(editingRouteId!!)
+                                else -> emptyList()
+                            }
                             RoutePlanScreen(
                                 mapView = mMapView,
                                 onBackClick = {
+                                    extendingRunning = false
                                     editingRouteId = null
                                     currentScreen = Screen.LIST
                                 },
                                 onConfirmClick = {
+                                    extendingRunning = false
                                     editingRouteId = null
                                     currentScreen = Screen.LIST
                                 },
                                 editingRouteId = editingRouteId,
                                 initialWaypoints = initialWp,
+                                initialWaitTimes = initialWaits,
+                                extendBaseCount = if (extendingRunning) initialWp.size else 0,
+                                onExtendConfirm = { waypoints, waitTimes ->
+                                    if (extendingRunning) viewModel.extendRunningRoute(waypoints, waitTimes)
+                                },
                             onLocateClick = {
                                 mLocClient?.requestLocation()
                                 val lat = mCurrentLat

@@ -1,12 +1,15 @@
 package com.kail.location.views.navigationsimulation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.input.pointer.pointerInput
@@ -14,6 +17,8 @@ import androidx.compose.ui.zIndex
 import kotlin.math.abs
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -34,21 +39,16 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kail.location.R
 import com.kail.location.viewmodels.NavigationSimulationViewModel
-import androidx.compose.material.icons.filled.Place
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import android.app.Activity
-import android.content.Intent
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.unit.IntOffset
-import com.kail.location.views.locationpicker.LocationPickerActivity
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import com.kail.location.views.common.AppDrawer
+import androidx.compose.ui.platform.LocalContext
+import androidx.preference.PreferenceManager
 import kotlinx.coroutines.launch
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -66,7 +66,8 @@ fun NavigationSimulationScreen(
     runMode: String,
     onRunModeChange: (String) -> Unit,
     onDeveloperModeSelected: () -> Unit = {},
-    onXposedSettingsSelected: () -> Unit = {}
+    onXposedSettingsSelected: () -> Unit = {},
+    onPlanRouteClick: () -> Unit = {}
 ) {
     val startPoint by viewModel.startPoint.collectAsState()
     val endPoint by viewModel.endPoint.collectAsState()
@@ -75,12 +76,11 @@ fun NavigationSimulationScreen(
     val isSimulating by viewModel.isSimulating.collectAsState()
     val isPaused by viewModel.isPaused.collectAsState()
     val candidateRoutes by viewModel.candidateRoutes.collectAsState()
+    val plannedRoute by viewModel.plannedRoute.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val currentLatLng by viewModel.currentLatLng.collectAsState()
     
     // Search State
-    var isSearchingStart by remember { mutableStateOf(false) }
-    var isSearchingEnd by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     val searchResults by viewModel.searchResults.collectAsState()
     
@@ -92,41 +92,7 @@ fun NavigationSimulationScreen(
     var renameTarget by remember { mutableStateOf<RouteInfo?>(null) }
     var renameText by remember { mutableStateOf("") }
 
-    // Map Selection State
-    var pickingType by remember { mutableStateOf("none") } // "start" or "end"
-
     val context = androidx.compose.ui.platform.LocalContext.current
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val data = result.data
-            val lat = data?.getDoubleExtra(LocationPickerActivity.RESULT_LAT, 0.0) ?: 0.0
-            val lng = data?.getDoubleExtra(LocationPickerActivity.RESULT_LNG, 0.0) ?: 0.0
-            val name = data?.getStringExtra(LocationPickerActivity.RESULT_NAME) ?: "Unknown"
-            
-            if (pickingType == "start") {
-                viewModel.selectStartPoint(name, lat, lng)
-            } else if (pickingType == "end") {
-                viewModel.selectEndPoint(name, lat, lng)
-            }
-        }
-        pickingType = "none"
-    }
-
-    fun pickStart() {
-        pickingType = "start"
-        launcher.launch(Intent(context, LocationPickerActivity::class.java).apply {
-            putExtra(LocationPickerActivity.EXTRA_PICK_MODE, true)
-        })
-    }
-    fun pickEnd() {
-        pickingType = "end"
-        launcher.launch(Intent(context, LocationPickerActivity::class.java).apply {
-            putExtra(LocationPickerActivity.EXTRA_PICK_MODE, true)
-        })
-    }
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -216,15 +182,13 @@ fun NavigationSimulationScreen(
                     .padding(paddingValues)
                     .fillMaxSize()
             ) {
-                if (!isSearchingStart && !isSearchingEnd) {
-                    Column(
+                Column(
                         modifier = Modifier
                             .fillMaxSize()
                     ) {
+                    Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                     Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp),
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
@@ -245,19 +209,22 @@ fun NavigationSimulationScreen(
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .clickable { pickStart() }
                                 ) {
                                     Text(
                                         text = if (startPoint.isEmpty()) stringResource(R.string.nav_sim_select_start) else startPoint,
                                         color = if (startPoint.isEmpty()) Color.Gray else MaterialTheme.colorScheme.onSurface
                                     )
                                 }
-                                IconButton(onClick = { pickStart() }) {
-                                    Icon(Icons.Default.Place, contentDescription = "Select on Map", tint = MaterialTheme.colorScheme.primary)
-                                }
                             }
                             
-                            HorizontalDivider()
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                IconButton(onClick = { viewModel.clearPoints() }) {
+                                    Icon(Icons.Default.Delete, contentDescription = "Clear", tint = Color.Red)
+                                }
+                            }
 
                             // End Point
                             Row(
@@ -275,15 +242,29 @@ fun NavigationSimulationScreen(
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .clickable { pickEnd() }
                                 ) {
                                     Text(
                                         text = if (endPoint.isEmpty()) stringResource(R.string.nav_sim_select_end) else endPoint,
                                         color = if (endPoint.isEmpty()) Color.Gray else MaterialTheme.colorScheme.onSurface
                                     )
                                 }
-                                IconButton(onClick = { pickEnd() }) {
-                                    Icon(Icons.Default.Place, contentDescription = "Select on Map", tint = MaterialTheme.colorScheme.primary)
+                            }
+
+                            if (plannedRoute != null) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        Icons.Default.Check,
+                                        contentDescription = null,
+                                        tint = Color(0xFF4CAF50),
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = stringResource(R.string.nav_sim_planned),
+                                        color = Color(0xFF4CAF50),
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 }
                             }
 
@@ -296,7 +277,9 @@ fun NavigationSimulationScreen(
                             ) {
                             if (!isSimulating) {
                                 Button(
-                                    onClick = { viewModel.startSimulation() },
+                                    onClick = {
+                                        if (plannedRoute == null) viewModel.planRoute() else viewModel.startSimulation()
+                                    },
                                     enabled = !isLoading && startPoint.isNotEmpty() && endPoint.isNotEmpty(),
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = MaterialTheme.colorScheme.primary,
@@ -315,7 +298,10 @@ fun NavigationSimulationScreen(
                                         Spacer(modifier = Modifier.width(8.dp))
                                         Text(stringResource(R.string.nav_sim_planning), color = MaterialTheme.colorScheme.onPrimary)
                                     } else {
-                                        Text(stringResource(R.string.nav_sim_start), color = MaterialTheme.colorScheme.onPrimary)
+                                        Text(
+                                            text = if (plannedRoute == null) stringResource(R.string.nav_sim_plan) else stringResource(R.string.nav_sim_start),
+                                            color = MaterialTheme.colorScheme.onPrimary
+                                        )
                                     }
                                 }
                             } else {
@@ -360,37 +346,94 @@ fun NavigationSimulationScreen(
                         }
                     }
 
+                        FloatingActionButton(
+                            onClick = onPlanRouteClick,
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = Color.White,
+                            shape = CircleShape,
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .size(48.dp)
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = "Plan", tint = Color.White)
+                        }
+                    }
+
                     var selectedTab by remember { mutableStateOf(0) }
+                    var searchQuery by remember { mutableStateOf("") }
+                    var isSearchVisible by remember { mutableStateOf(false) }
                     val favOrders by viewModel.favOrders.collectAsState()
                     val favRoutes = historyList.filter { it.isFavorite }
+                        .sortedBy { viewModel.getFavoriteOrder(it.id.toLongOrNull() ?: 0L) }
                         .sortedBy { it.id.toLongOrNull()?.let { id -> favOrders[id] ?: Int.MAX_VALUE } ?: Int.MAX_VALUE }
                     val allRoutes = historyList
 
-                    TabRow(
-                        selectedTabIndex = selectedTab,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
-                    ) {
-                        Tab(
-                            selected = selectedTab == 0,
-                            onClick = { selectedTab = 0 },
-                            text = { Text(stringResource(R.string.joystick_history_favorites), fontSize = 14.sp) }
-                        )
-                        Tab(
-                            selected = selectedTab == 1,
-                            onClick = { selectedTab = 1 },
-                            text = { Text(stringResource(R.string.joystick_history_normal), fontSize = 14.sp) }
+                    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        TabRow(
+                            selectedTabIndex = selectedTab,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Tab(
+                                selected = selectedTab == 0,
+                                onClick = { selectedTab = 0 },
+                                text = { Text(stringResource(R.string.joystick_history_favorites), fontSize = 14.sp) }
+                            )
+                            Tab(
+                                selected = selectedTab == 1,
+                                onClick = { selectedTab = 1 },
+                                text = { Text(stringResource(R.string.joystick_history_normal), fontSize = 14.sp) }
+                            )
+                        }
+                        IconButton(onClick = { isSearchVisible = !isSearchVisible }) {
+                            Icon(Icons.Default.Search, contentDescription = "Search")
+                        }
+                    }
+
+                    if (isSearchVisible) {
+                        val searchTextStyle = MaterialTheme.typography.bodySmall
+                        BasicTextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            singleLine = true,
+                            textStyle = searchTextStyle,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                                .height(32.dp)
+                                .border(1.dp, Color.LightGray, RoundedCornerShape(6.dp))
+                                .padding(horizontal = 8.dp, vertical = 6.dp),
+                            decorationBox = { innerTextField ->
+                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxHeight()) {
+                                    Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.size(14.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Box(modifier = Modifier.weight(1f)) {
+                                        if (searchQuery.isEmpty()) {
+                                            Text(stringResource(R.string.app_search_tips), style = searchTextStyle, color = Color.Gray)
+                                        }
+                                        innerTextField()
+                                    }
+                                    if (searchQuery.isNotEmpty()) {
+                                        IconButton(onClick = { searchQuery = ""; isSearchVisible = false }, modifier = Modifier.size(18.dp)) {
+                                            Icon(Icons.Default.Close, contentDescription = "Clear", modifier = Modifier.size(14.dp))
+                                        }
+                                    }
+                                }
+                            }
                         )
                     }
+
+                    val filteredFavRoutes = if (searchQuery.isBlank()) favRoutes
+                        else favRoutes.filter { it.startName.contains(searchQuery, ignoreCase = true) || it.endName.contains(searchQuery, ignoreCase = true) }
 
                     if (selectedTab == 0) {
                         var draggedId by remember { mutableStateOf<String?>(null) }
                         var dragOffset by remember { mutableStateOf(0f) }
                         val localFavList = remember { mutableStateListOf<RouteInfo>() }
 
-                        LaunchedEffect(favRoutes) {
+                        LaunchedEffect(filteredFavRoutes) {
                             if (draggedId == null) {
                                 localFavList.clear()
-                                localFavList.addAll(favRoutes)
+                                localFavList.addAll(filteredFavRoutes)
                             }
                         }
 
@@ -418,7 +461,7 @@ fun NavigationSimulationScreen(
                                                 val contentY = offset.y + scrollState.value
                                                 val idx = (contentY / itemUnitPx).toInt().coerceIn(0, localFavList.lastIndex)
                                                 localFavList.clear()
-                                                localFavList.addAll(favRoutes)
+                                                localFavList.addAll(filteredFavRoutes)
                                                 draggedId = localFavList.getOrNull(idx)?.id
                                                 dragOffset = 0f
                                             },
@@ -483,7 +526,9 @@ fun NavigationSimulationScreen(
                             }
                         }
                     } else {
-                        if (allRoutes.isEmpty()) {
+                        val src = if (searchQuery.isBlank()) allRoutes
+                            else allRoutes.filter { it.startName.contains(searchQuery, ignoreCase = true) || it.endName.contains(searchQuery, ignoreCase = true) }
+                        if (src.isEmpty()) {
                             Box(
                                 modifier = Modifier.weight(1f).fillMaxWidth(),
                                 contentAlignment = Alignment.Center
@@ -493,9 +538,10 @@ fun NavigationSimulationScreen(
                         } else {
                             LazyColumn(
                                 modifier = Modifier.weight(1f),
-                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                items(allRoutes, key = { "all_${it.id}" }) { route ->
+                                items(src, key = { "all_${it.id}" }) { route ->
                                     NavigationHistoryCard(
                                         route = route,
                                         isFav = route.isFavorite,
@@ -512,12 +558,11 @@ fun NavigationSimulationScreen(
                         }
                     }
                 }
-            }
 
             if (candidateRoutes.isNotEmpty()) {
                 var selectedIndex by remember { mutableStateOf(0) }
                 Dialog(
-                    onDismissRequest = { },
+                    onDismissRequest = { viewModel.cancelPlan() },
                     properties = DialogProperties(usePlatformDefaultWidth = false)
                 ) {
                     Box(
@@ -636,8 +681,50 @@ fun NavigationHistoryCard(
             IconButton(onClick = onRename) {
                 Icon(Icons.Default.Edit, contentDescription = "Rename", tint = MaterialTheme.colorScheme.primary)
             }
-            IconButton(onClick = onDelete) {
+            val context = LocalContext.current
+            val prefs = remember { PreferenceManager.getDefaultSharedPreferences(context) }
+            val showDeleteConfirm = remember { mutableStateOf(false) }
+            var dontRemind by remember { mutableStateOf(false) }
+            IconButton(onClick = {
+                if (System.currentTimeMillis() < prefs.getLong("delete_dont_remind_until", 0L)) {
+                    onDelete()
+                } else {
+                    showDeleteConfirm.value = true
+                    dontRemind = false
+                }
+            }) {
                 Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+            }
+            if (showDeleteConfirm.value) {
+                AlertDialog(
+                    onDismissRequest = { showDeleteConfirm.value = false },
+                    title = { Text(stringResource(R.string.common_warning)) },
+                    text = {
+                        Column {
+                            Text(stringResource(R.string.common_delete_item_confirm))
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Checkbox(checked = dontRemind, onCheckedChange = { dontRemind = it })
+                                Text(stringResource(R.string.delete_dont_remind_10min), fontSize = 14.sp)
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            if (dontRemind) {
+                                prefs.edit().putLong("delete_dont_remind_until", System.currentTimeMillis() + 10 * 60 * 1000).apply()
+                            }
+                            showDeleteConfirm.value = false; onDelete()
+                        }) {
+                            Text(stringResource(R.string.common_confirm))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDeleteConfirm.value = false }) {
+                            Text(stringResource(R.string.common_cancel))
+                        }
+                    }
+                )
             }
             IconButton(onClick = onToggleFavorite) {
                 Icon(

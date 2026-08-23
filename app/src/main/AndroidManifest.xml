@@ -167,6 +167,41 @@
             android:screenOrientation="portrait" />
 
         <activity
+            android:name="com.kail.location.views.camerasimulation.CameraSimulationActivity"
+            android:label="@string/camera_sim_title"
+            android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.kail.location.views.camerasimulation.CameraSettingsActivity"
+            android:label="@string/camera_sim_settings"
+            android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait" />
+
+        <provider
+            android:name="com.kail.location.views.camerasimulation.CameraConfigProvider"
+            android:authorities="com.kail.location.cameraprovider"
+            android:exported="true" />
+
+        <service
+            android:name="com.kail.location.service.Root.CameraControlService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+        <service
+            android:name="com.kail.location.service.Root.CameraOverlayService"
+            android:exported="false" />
+
+        <activity
+            android:name="com.kail.location.views.faq.FaqActivity"
+            android:label="@string/faq_title"
+            android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name="com.kail.location.views.nfcsimulation.NfcSimulationActivity"
             android:label="NFC模拟"
             android:exported="false"
