@@ -424,6 +424,10 @@ class ServiceGoSandbox : Service() {
                     Thread.sleep(50)
                     if (isStop) {
                         KailLog.v(this@ServiceGoSandbox, "[sandbox] ServiceGoSandbox", "handleMessage: paused (isStop=true)")
+                        // [本地化修改] 暂停期间：1) 刷新 tick 时间戳，避免恢复时按陈旧间隔瞬移；
+                        // 2) 继续推送冻结位置（速度 0），与其他模式一致，防止目标应用回退真实定位。
+                        lastTickElapsedMs = android.os.SystemClock.elapsedRealtime()
+                        SandboxLocationHook.updateLocation(mCurLat, mCurLng, mCurAlt, mCurBea, 0.0)
                         sendEmptyMessage(HANDLER_MSG_ID)
                         return
                     }
