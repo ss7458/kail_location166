@@ -534,17 +534,7 @@
     <string name="forgot_password_success">密碼重設成功</string>
     <string name="forgot_password_failed">重設失敗，請稍後重試</string>
 
-    <string name="loc_sim_title">位置模擬</string>
-    <string name="loc_sim_target">目標位置</string>
-    <string name="loc_sim_none">NONE</string>
-    <string name="loc_sim_lat_lng">經緯度: %1$s,%2$s</string>
-    <string name="loc_sim_start">啟動模擬</string>
     <string name="sim_starting">啟動中...</string>
-    <string name="loc_sim_stop">停止模擬</string>
-    <string name="loc_sim_base_station">基站</string>
-    <string name="loc_sim_joystick">搖桿</string>
-    <string name="loc_sim_history_title">歷史位置</string>
-    <string name="loc_sim_add_tips">點擊右上角「+」按鈕進行新增</string>
 
     <string name="root_hide_title">Root 與應用隱藏</string>
     <string name="root_hide_status_running">隱藏執行中</string>

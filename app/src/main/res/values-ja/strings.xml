@@ -534,17 +534,7 @@
     <string name="forgot_password_success">パスワードをリセットしました</string>
     <string name="forgot_password_failed">リセットに失敗しました。後でもう一度お試しください</string>
 
-    <string name="loc_sim_title">位置シミュレーション</string>
-    <string name="loc_sim_target">ターゲット位置</string>
-    <string name="loc_sim_none">NONE</string>
-    <string name="loc_sim_lat_lng">経度/緯度: %1$s,%2$s</string>
-    <string name="loc_sim_start">模擬開始</string>
     <string name="sim_starting">起動中...</string>
-    <string name="loc_sim_stop">模擬停止</string>
-    <string name="loc_sim_base_station">基地局</string>
-    <string name="loc_sim_joystick">ジョイスティック</string>
-    <string name="loc_sim_history_title">履歴</string>
-    <string name="loc_sim_add_tips">右上の「+」をタップして追加</string>
 
     <string name="root_hide_title">Root &amp; アプリ非表示</string>
     <string name="root_hide_status_running">非表示実行中</string>
