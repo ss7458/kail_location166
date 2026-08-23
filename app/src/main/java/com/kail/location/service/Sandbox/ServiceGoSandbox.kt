@@ -59,6 +59,9 @@ class ServiceGoSandbox : Service() {
 
     private var locationLoopStarted: Boolean = false
     private var speedFluctuation: Boolean = false
+    // [本地化修改] tick 时间戳与最近实际步进速度。
+    private var lastTickElapsedMs: Long = 0L
+    private var lastStepSpeed: Double = 1.2
 
     companion object {
         const val DEFAULT_LAT = ServiceConstants.DEFAULT_LAT
@@ -425,12 +428,22 @@ class ServiceGoSandbox : Service() {
                         return
                     }
                     if (mRouteEngine.isActive) {
+                        // [本地化修改] 用真实流逝时间推进路线，替换原硬编码 0.185s：
+                        // 调度延迟不再造成里程丢失/速度失真。
+                        val now = android.os.SystemClock.elapsedRealtime()
+                        val elapsedMs = if (lastTickElapsedMs > 0L) {
+                            (now - lastTickElapsedMs).coerceIn(0L, 30_000L)
+                        } else {
+                            150L
+                        }
+                        lastTickElapsedMs = now
                         val speedForStep = if (speedFluctuation) {
                             GeoPredict.randomInRangeWithMean(mSpeed * 0.5, mSpeed * 1.5, mSpeed)
                         } else {
                             mSpeed
                         }
-                        mRouteEngine.advance(speedForStep * 0.185)
+                        mRouteEngine.advance(speedForStep * (elapsedMs / 1000.0))
+                        lastStepSpeed = speedForStep
                         mCurLng = mRouteEngine.currentLng
                         mCurLat = mRouteEngine.currentLat
                         mCurBea = mRouteEngine.currentBea
@@ -441,7 +454,7 @@ class ServiceGoSandbox : Service() {
                     if (jitterApplied) {
                         KailLog.v(this@ServiceGoSandbox, "[sandbox] ServiceGoSandbox", "jitter applied: $mCurLat,$mCurLng -> $jlat,$jlng")
                     }
-                    SandboxLocationHook.updateLocation(jlat, jlng, mCurAlt, mCurBea, mSpeed)
+                    SandboxLocationHook.updateLocation(jlat, jlng, mCurAlt, mCurBea, lastStepSpeed)
                     sendEmptyMessage(HANDLER_MSG_ID)
                 } catch (e: InterruptedException) {
                     KailLog.e(this@ServiceGoSandbox, "[sandbox] ServiceGoSandbox", "handleMessage interrupted: ${e.message}")

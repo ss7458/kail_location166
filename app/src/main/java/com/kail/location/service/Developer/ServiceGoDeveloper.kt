@@ -53,6 +53,10 @@ class ServiceGoDeveloper : Service() {
 
     private var locationLoopStarted: Boolean = false
     private var speedFluctuation: Boolean = false
+    // [本地化修改] 上一次 tick 的实际时间戳，用于按真实耗时推进路线，避免调度延迟导致里程缩水。
+    private var lastTickElapsedMs: Long = 0L
+    // [本地化修改] 最近一次实际步进速度，上报给 Location.speed 保持与位移一致。
+    private var lastStepSpeed: Double = 1.2
 
     companion object {
         const val DEFAULT_LAT = ServiceConstants.DEFAULT_LAT
@@ -369,23 +373,32 @@ class ServiceGoDeveloper : Service() {
         mLocHandler = object : Handler(mLocHandlerThread.looper) {
             override fun handleMessage(msg: Message) {
                 try {
+                    // [本地化修改] 用真实流逝时间推进路线：调度延迟不再造成里程丢失。
+                    val now = SystemClock.elapsedRealtime()
+                    val elapsedMs = if (lastTickElapsedMs > 0L) {
+                        (now - lastTickElapsedMs).coerceIn(0L, 30_000L)
+                    } else {
+                        currentLocationUpdateIntervalMs()
+                    }
+                    lastTickElapsedMs = now
+                    var speedForStep = mSpeed
                     if (!isStop) {
                         if (mRouteEngine.isActive) {
-                            val speedForStep = if (speedFluctuation) {
+                            speedForStep = if (speedFluctuation) {
                                 GeoPredict.randomInRangeWithMean(mSpeed * 0.5, mSpeed * 1.5, mSpeed)
                             } else {
                                 mSpeed
                             }
-                            val intervalMs = currentLocationUpdateIntervalMs()
-                            mRouteEngine.advance(speedForStep * (intervalMs / 1000.0))
+                            mRouteEngine.advance(speedForStep * (elapsedMs / 1000.0))
                             mCurLng = mRouteEngine.currentLng
                             mCurLat = mRouteEngine.currentLat
                             mCurBea = mRouteEngine.currentBea
                             updateJoystickStatus()
                         }
                     }
+                    lastStepSpeed = speedForStep
                     val (jlat, jlng) = jitterLocation()
-                    mMockLocationProvider.setLocation(jlat, jlng, mCurAlt, mCurBea, mSpeed, isStop)
+                    mMockLocationProvider.setLocation(jlat, jlng, mCurAlt, mCurBea, lastStepSpeed, isStop)
                     mLocHandler.sendEmptyMessageDelayed(HANDLER_MSG_ID, currentLocationUpdateIntervalMs())
                 } catch (e: InterruptedException) {
                     KailLog.e(this@ServiceGoDeveloper, "ServiceGoDeveloper", "handleMessage interrupted: ${e.message}")

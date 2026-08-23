@@ -51,6 +51,8 @@ class ServiceGoXposed : Service() {
 
     private var locationLoopStarted: Boolean = false
     private var speedFluctuation: Boolean = false
+    // [本地化修改] 上一次 tick 的实际时间戳，用于按真实耗时推进路线。
+    private var lastTickElapsedMs: Long = 0L
     private var stepEnabled: Boolean = false
     private var stepCadence: Float = 120f
     private var stepMode: Int = 0
@@ -694,6 +696,14 @@ class ServiceGoXposed : Service() {
         mLocHandler = object : Handler(mLocHandlerThread.looper) {
             override fun handleMessage(msg: Message) {
                 try {
+                    // [本地化修改] 用真实流逝时间推进路线：调度延迟不再造成里程丢失。
+                    val now = android.os.SystemClock.elapsedRealtime()
+                    val elapsedMs = if (lastTickElapsedMs > 0L) {
+                        (now - lastTickElapsedMs).coerceIn(0L, 30_000L)
+                    } else {
+                        currentLocationUpdateIntervalMs()
+                    }
+                    lastTickElapsedMs = now
                     if (!isStop) {
                         if (mRouteEngine.isActive) {
                             val speedForStep = if (speedFluctuation) {
@@ -701,8 +711,7 @@ class ServiceGoXposed : Service() {
                             } else {
                                 mSpeed
                             }
-                            val intervalMs = currentLocationUpdateIntervalMs()
-                            mRouteEngine.advance(speedForStep * (intervalMs / 1000.0))
+                            mRouteEngine.advance(speedForStep * (elapsedMs / 1000.0))
                             mCurLng = mRouteEngine.currentLng
                             mCurLat = mRouteEngine.currentLat
                             mCurBea = mRouteEngine.currentBea

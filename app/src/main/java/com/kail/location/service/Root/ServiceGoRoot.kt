@@ -122,6 +122,8 @@ class ServiceGoRoot : Service() {
     @Volatile private var bootstrapInProgress: Boolean = false
     @Volatile private var activeRootControlSession: Long = 0L
     private var lastRouteTickElapsedMs: Long = 0L
+    // [本地化修改] 最近一次实际步进速度，推送给注入层保持 Location.speed 与位移一致。
+    @Volatile private var lastStepSpeed: Double = 1.2
     private var rootControlFastProcess: java.lang.Process? = null
     private var rootControlFastWriter: BufferedWriter? = null
     private lateinit var mRootControlWriterThread: HandlerThread
@@ -1921,7 +1923,7 @@ class ServiceGoRoot : Service() {
                     longitude = mCurLng
                     altitude = mCurAlt
                     bearing = mCurBea
-                    speed = mSpeed.toFloat()
+                    speed = lastStepSpeed.toFloat()
                     accuracy = 1.0f
                     time = System.currentTimeMillis()
                     elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
@@ -1993,6 +1995,7 @@ class ServiceGoRoot : Service() {
                                 mSpeed
                             }
                             mRouteEngine.advance(speedForStep * (elapsedMs / 1000.0))
+                            lastStepSpeed = speedForStep
                             mCurLng = mRouteEngine.currentLng
                             mCurLat = mRouteEngine.currentLat
                             mCurBea = mRouteEngine.currentBea
