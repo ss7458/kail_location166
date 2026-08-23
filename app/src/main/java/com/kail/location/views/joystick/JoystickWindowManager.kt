@@ -104,6 +104,17 @@ class JoystickWindowManager(
                     onMoveInfo = { auto, angle, r -> processDirection(auto, angle, r) },
                     onWindowDrag = { dx, dy -> updateWindowPosition(dx, dy) },
                     onClose = { hide() },
+                    // [本地化修改] 主面板关闭：同步关闭摇杆开关，避免下次模拟自动复活。
+                    onCloseMain = {
+                        try {
+                            PreferenceManager
+                                .getDefaultSharedPreferences(context)
+                                .edit()
+                                .putBoolean("setting_joystick_enabled", false)
+                                .apply()
+                        } catch (_: Exception) {}
+                        hide()
+                    },
                     onFocusModeChanged = { needsFocus ->
                         if (needsFocus) {
                             windowParams.flags = windowParams.flags and WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE.inv()

@@ -23,6 +23,8 @@ fun JoystickRoot(
     onMoveInfo: (Boolean, Double, Double) -> Unit,
     onWindowDrag: (Float, Float) -> Unit,
     onClose: () -> Unit,
+    // [本地化修改] 主摇杆面板的关闭回调：隐藏浮窗并同步关闭摇杆开关。
+    onCloseMain: () -> Unit = {},
     onFocusModeChanged: (Boolean) -> Unit = {}
 ) {
     val windowType by viewModel.windowType.collectAsState()
@@ -53,7 +55,8 @@ fun JoystickRoot(
             JoyStickOverlay(
                 viewModel = viewModel,
                 onMoveInfo = onMoveInfo,
-                onWindowDrag = onWindowDrag
+                onWindowDrag = onWindowDrag,
+                onClose = onCloseMain
             )
         }
         JoystickViewModel.WindowType.MAP -> {

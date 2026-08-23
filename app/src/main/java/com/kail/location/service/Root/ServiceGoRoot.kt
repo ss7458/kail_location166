@@ -249,6 +249,7 @@ class ServiceGoRoot : Service() {
         const val CONTROL_SEEK = ServiceConstants.CONTROL_SEEK
         const val CONTROL_SET_SPEED = ServiceConstants.CONTROL_SET_SPEED
         const val CONTROL_SET_SPEED_FLUCTUATION = ServiceConstants.CONTROL_SET_SPEED_FLUCTUATION
+        const val CONTROL_SET_JOYSTICK = ServiceConstants.CONTROL_SET_JOYSTICK
         const val CONTROL_APPEND_ROUTE = ServiceConstants.CONTROL_APPEND_ROUTE
         const val CONTROL_SET_STEP = "set_step"
         const val CONTROL_STOP_WIFI = "stop_wifi"
@@ -510,6 +511,13 @@ class ServiceGoRoot : Service() {
                     runCatching { NativeSensorHook.nativeReset() }
                 }
             }.onFailure { KailLog.e(applicationContext, TAG, "background cleanup: ${it.message}") }
+            // [本地化修改] 二次确认清理：注入层偶发繁忙时单次停止可能失效，
+            // 延迟重试一轮，避免"取消模拟后仍停留在假定位"。
+            runCatching {
+                Thread.sleep(2500)
+                stopMockLocationOnInjection(retry = true, rootControlSession = stoppingRootControlSession)
+                KailLog.i(applicationContext, TAG, "background cleanup: second pass done")
+            }.onFailure { KailLog.e(applicationContext, TAG, "background cleanup second pass: ${it.message}") }
         }, "ServiceGoRootCleanup").start()
 
         super.onDestroy()
@@ -522,6 +530,18 @@ class ServiceGoRoot : Service() {
 
     private fun handleControlAction(ctrl: String, intent: Intent) {
         when (ctrl) {
+            // [本地化修改] 仅切换摇杆浮窗，不触碰位置/速度/暂停状态。
+            CONTROL_SET_JOYSTICK -> runCatching {
+                val show = intent.getBooleanExtra(EXTRA_JOYSTICK_ENABLED, false)
+                if (this::mJoystickManager.isInitialized) {
+                    if (show) {
+                        if (mRouteEngine.isActive) mJoystickManager.showRouteControl(mSpeed * 3.6) else mJoystickManager.show()
+                    } else {
+                        mJoystickManager.hide()
+                    }
+                }
+            }.onFailure { KailLog.e(this, TAG, "set_joystick: ${it.message}") }
+
             CONTROL_PAUSE -> runCatching {
                 isStop = true
                 if (this::mJoystickManager.isInitialized) mJoystickManager.setRoutePauseState(true)

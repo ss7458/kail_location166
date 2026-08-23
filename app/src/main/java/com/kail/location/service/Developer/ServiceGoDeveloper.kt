@@ -88,6 +88,7 @@ class ServiceGoDeveloper : Service() {
         const val CONTROL_SEEK = ServiceConstants.CONTROL_SEEK
         const val CONTROL_SET_SPEED = ServiceConstants.CONTROL_SET_SPEED
         const val CONTROL_SET_SPEED_FLUCTUATION = ServiceConstants.CONTROL_SET_SPEED_FLUCTUATION
+        const val CONTROL_SET_JOYSTICK = ServiceConstants.CONTROL_SET_JOYSTICK
         const val CONTROL_APPEND_ROUTE = ServiceConstants.CONTROL_APPEND_ROUTE
         const val COORD_WGS84 = ServiceConstants.COORD_WGS84
         const val COORD_BD09 = ServiceConstants.COORD_BD09
@@ -149,6 +150,22 @@ class ServiceGoDeveloper : Service() {
             val ctrl = intent.getStringExtra(EXTRA_CONTROL_ACTION)
             if (!ctrl.isNullOrBlank()) {
                 when (ctrl) {
+                    // [本地化修改] 仅切换摇杆浮窗，立即返回，避免裸意图重置位置/速度/暂停状态。
+                    CONTROL_SET_JOYSTICK -> {
+                        try {
+                            val show = intent.getBooleanExtra(EXTRA_JOYSTICK_ENABLED, false)
+                            if (this::mJoystickManager.isInitialized) {
+                                if (show && (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this))) {
+                                    if (mRouteEngine.isActive) mJoystickManager.showRouteControl(mSpeed * 3.6) else mJoystickManager.show()
+                                } else {
+                                    mJoystickManager.hide()
+                                }
+                            }
+                        } catch (e: Exception) {
+                            KailLog.e(this, "ServiceGoDeveloper", "set_joystick error: ${e.message}")
+                        }
+                        return super.onStartCommand(intent, flags, startId)
+                    }
                     CONTROL_PAUSE -> {
                         try {
                             isStop = true

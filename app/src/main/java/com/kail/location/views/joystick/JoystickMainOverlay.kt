@@ -65,7 +65,8 @@ import kotlin.math.sqrt
 fun JoyStickOverlay(
     viewModel: JoystickViewModel,
     onMoveInfo: (Boolean, Double, Double) -> Unit, // auto, angle, r
-    onWindowDrag: (Float, Float) -> Unit
+    onWindowDrag: (Float, Float) -> Unit,
+    onClose: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val prefs = remember { PreferenceManager.getDefaultSharedPreferences(context) }
@@ -111,6 +112,12 @@ fun JoyStickOverlay(
                     iconRes = R.drawable.ic_map,
                     contentDescription = "Map",
                     onClick = { viewModel.setWindowType(JoystickViewModel.WindowType.MAP) }
+                )
+                // [本地化修改] 主面板补上真正的关闭按钮：隐藏浮窗并同步关闭摇杆开关。
+                CircleIconButton(
+                    iconRes = R.drawable.ic_close,
+                    contentDescription = "Close Joystick",
+                    onClick = onClose
                 )
             }
 

@@ -28,6 +28,8 @@ object ServiceConstants {
     const val CONTROL_SEEK = "seek"
     const val CONTROL_SET_SPEED = "set_speed"
     const val CONTROL_SET_SPEED_FLUCTUATION = "set_speed_fluctuation"
+    // [本地化修改] 仅切换摇杆浮窗显隐，不触碰位置/速度/暂停状态。
+    const val CONTROL_SET_JOYSTICK = "set_joystick"
     const val CONTROL_APPEND_ROUTE = "append_route"
 
     const val COORD_WGS84 = "WGS84"

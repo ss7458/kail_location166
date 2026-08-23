@@ -94,6 +94,7 @@ class ServiceGoSandbox : Service() {
         const val CONTROL_SEEK = ServiceConstants.CONTROL_SEEK
         const val CONTROL_SET_SPEED = ServiceConstants.CONTROL_SET_SPEED
         const val CONTROL_SET_SPEED_FLUCTUATION = ServiceConstants.CONTROL_SET_SPEED_FLUCTUATION
+        const val CONTROL_SET_JOYSTICK = ServiceConstants.CONTROL_SET_JOYSTICK
         const val CONTROL_APPEND_ROUTE = ServiceConstants.CONTROL_APPEND_ROUTE
         const val CONTROL_SET_STEP = "set_step"
         const val COORD_WGS84 = ServiceConstants.COORD_WGS84
@@ -161,6 +162,20 @@ class ServiceGoSandbox : Service() {
             if (!ctrl.isNullOrBlank()) {
                 KailLog.i(this, "[sandbox] ServiceGoSandbox", "onStartCommand controlAction=$ctrl")
                 when (ctrl) {
+                    // [本地化修改] 仅切换摇杆浮窗，不触碰位置/速度/暂停状态。
+                    CONTROL_SET_JOYSTICK -> {
+                        try {
+                            val show = intent.getBooleanExtra(EXTRA_JOYSTICK_ENABLED, false)
+                            if (show) {
+                                if (mRouteEngine.isActive) mJoystickManager.showRouteControl(mSpeed * 3.6) else mJoystickManager.show()
+                            } else {
+                                mJoystickManager.hide()
+                            }
+                        } catch (e: Exception) {
+                            KailLog.e(this, "[sandbox] ServiceGoSandbox", "CONTROL_SET_JOYSTICK error: ${e.message}")
+                        }
+                        return super.onStartCommand(intent, flags, startId)
+                    }
                     CONTROL_PAUSE -> {
                         try {
                             isStop = true

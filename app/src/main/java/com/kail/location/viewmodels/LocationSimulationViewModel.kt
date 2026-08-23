@@ -297,7 +297,9 @@ class LocationSimulationViewModel(application: Application) : AndroidViewModel(a
             val currentRunMode = sharedPreferences.getString("setting_run_mode", "developer") ?: "developer"
             val serviceClass = getServiceClass(currentRunMode)
             val extraJoystickEnabled = getExtraName(currentRunMode, ServiceGoRoot.EXTRA_JOYSTICK_ENABLED, ServiceGoDeveloper.EXTRA_JOYSTICK_ENABLED)
+            // [本地化修改] 改用专用控制指令切换摇杆，避免裸意图重置位置/速度/暂停状态。
             val intent = Intent(app, serviceClass)
+            intent.putExtra(ServiceConstants.EXTRA_CONTROL_ACTION, ServiceConstants.CONTROL_SET_JOYSTICK)
             intent.putExtra(extraJoystickEnabled, enabled)
             app.startService(intent)
         }
