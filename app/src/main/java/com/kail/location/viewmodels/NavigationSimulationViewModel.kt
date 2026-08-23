@@ -583,17 +583,7 @@ class NavigationSimulationViewModel(application: Application) : AndroidViewModel
         }
     }
 
-    fun chooseCandidate(index: Int) {
-        val routes = _candidateRoutes.value
-        if (index in routes.indices) {
-            val app = getApplication<Application>()
-            viewModelScope.launch {
-                addToHistory(_startPoint.value, _endPoint.value)
-                startSimulationService(routes[index])
-                _candidateRoutes.value = emptyList()
-            }
-        }
-    }
+    // [本地化修改] 旧版直接启动的 chooseCandidate 已删除，统一走上游"规划→确认→startSimulation()"流程。
 
     fun pauseSimulation() {
         val app = getApplication<Application>()
