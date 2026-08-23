@@ -415,16 +415,9 @@ class NavigationSimulationViewModel(application: Application) : AndroidViewModel
     fun startSimulation() {
         val route = _plannedRoute.value ?: return
         val app = getApplication<Application>()
-        viewModelScope.launch {
-            if (!UsageManager.canStartSimulation(app)) {
-                return@launch
-            }
-            if (!UsageManager.consumeSimulation(app)) {
-                return@launch
-            }
-            addToHistory(_startPoint.value, _endPoint.value)
-            startSimulationService(route)
-        }
+        // [本地化修改] 订阅/次数系统已移除，直接启动模拟。
+        addToHistory(_startPoint.value, _endPoint.value)
+        startSimulationService(route)
     }
 
     private fun startSimulationService(points: List<LatLng>) {

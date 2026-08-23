@@ -283,23 +283,10 @@ class CameraSimulationViewModel(application: Application) : AndroidViewModel(app
             pushConfigAndInject()
             return
         }
-        // Turning ON requires login + subscription/license (same as other sims).
-        viewModelScope.launch {
-            if (!UsageManager.canStartSimulation(app)) return@launch
-            if (!UsageManager.consumeSimulation(app)) return@launch
-            if (_runMode.value == "root") {
-                val (ready, remainSec) = UsageManager.systemReadiness()
-                if (!ready) {
-                    android.widget.Toast.makeText(app,
-                        app.getString(R.string.vm_system_not_ready, UsageManager.bootReadyThresholdSeconds(), remainSec),
-                        android.widget.Toast.LENGTH_SHORT).show()
-                    return@launch
-                }
-            }
-            _enabled.value = true
-            prefs.edit().putBoolean(CameraSimController.KEY_ENABLED, true).apply()
-            pushConfigAndInject()
-        }
+        // [本地化修改] 订阅/次数系统已移除，直接允许启用。
+        _enabled.value = true
+        prefs.edit().putBoolean(CameraSimController.KEY_ENABLED, true).apply()
+        pushConfigAndInject()
     }
 
     fun pushConfigAndInject() {

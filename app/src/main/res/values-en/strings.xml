@@ -172,6 +172,7 @@
     <string name="nav_menu_github">Source Code</string>
     <string name="nav_menu_faq">FAQ</string>
     <string name="faq_title">FAQ</string>
+    <string name="checkout_back_desc">Back</string>
     <string name="faq_retry">Retry</string>
     <string name="faq_empty">No FAQ available</string>
     <string name="faq_updated_at">Updated at</string>
