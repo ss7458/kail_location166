@@ -37,6 +37,9 @@ object UpdateDownloader {
         onProgress: (Int) -> Unit = {},
         onTotalKnown: (Boolean) -> Unit = {}
     ): File {
+        // [本地化修改] 在线下载 APK 已禁用：防止误装上游 release 的包覆盖本项目构建。
+        // 检查更新功能保留（仍会提示新版本）；如需恢复下载，删除下面这行 throw 即可。
+        throw IOException("online APK download is disabled in this build")
         val candidates = mutableListOf<Candidate>()
         if (info.downloadUrl.isNotBlank()) candidates.add(Candidate(info.downloadUrl, info.filename, info.fileSize))
         if (!info.fallbackUrl.isNullOrBlank()) candidates.add(Candidate(info.fallbackUrl, info.fallbackFilename, 0L))

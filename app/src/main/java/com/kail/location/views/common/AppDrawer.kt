@@ -78,6 +78,14 @@ fun AppDrawer(
     }
 
     fun downloadAndInstallXposed() {
+        // [本地化修改] 在线下载 Xposed 模块 APK 已禁用：防止误装上游 release 的模块覆盖本项目构建。
+        // 如需恢复，删除下面的 return 块即可。
+        android.widget.Toast.makeText(
+            context,
+            "在线下载已禁用：请手动安装本地构建的 KailLocationXposed.apk",
+            android.widget.Toast.LENGTH_LONG
+        ).show()
+        return
         scope.launch(kotlinx.coroutines.Dispatchers.IO) {
             try {
                 withContext(kotlinx.coroutines.Dispatchers.Main) { xposedDownloadProgress = 0 }
