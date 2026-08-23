@@ -182,6 +182,16 @@ class ServiceGoXposed : Service() {
             result
         } catch (e: Exception) {
             KailLog.e(this, "ServiceGoXposed", "sendXposedCommand $commandId failed: ${e.message}")
+            // [本地化修改] system_server 死亡（如熄屏/亮屏瞬间系统崩溃重启）时优雅停止：
+            // 继续高频 IPC 轰击已死的系统只会拖慢恢复并刷爆日志。
+            if (e is android.os.DeadSystemException) {
+                KailLog.w(this, "ServiceGoXposed", "system_server is dead -> stopping simulation loop gracefully")
+                try {
+                    isStop = true
+                    if (this::mLocHandler.isInitialized) mLocHandler.removeCallbacksAndMessages(null)
+                    stopSelf()
+                } catch (_: Exception) {}
+            }
             false
         }
     }

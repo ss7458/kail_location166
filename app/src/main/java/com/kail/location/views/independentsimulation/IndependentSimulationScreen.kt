@@ -274,6 +274,10 @@ fun AppPickerDialog(
         }
     }
 
+    // [本地化修改] 生命周期守卫：Activity 非 RESUMED（如熄屏瞬间）时不挂载 Dialog，
+    // 避免 WindowManager BadTokenException 闪退。
+    val dialogLifecycleState by androidx.compose.ui.platform.LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
+    if (dialogLifecycleState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = MaterialTheme.shapes.large,
@@ -373,6 +377,7 @@ fun AppPickerDialog(
                 }
             }
         }
+    }
     }
 }
 
