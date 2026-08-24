@@ -248,6 +248,10 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
         try {
             getApplication<Application>().unregisterReceiver(positionReceiver)
         } catch (_: Exception) {}
+        // [本地化修改] 关闭数据库句柄，避免多次进出页面后 fd 泄漏。
+        try {
+            db?.close()
+        } catch (_: Exception) {}
         suggestionSearch.destroy()
     }
 
@@ -1252,45 +1256,72 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
             if (points.length() < 1) return
             val first = points.optJSONObject(0) ?: return
             val last = points.optJSONObject(points.length() - 1) ?: return
-            reverseGeocode(first.optDouble("lat"), first.optDouble("lng")) { name ->
-                if (name.isNotBlank() && name != "null") obj.put("startName", name)
+            val lat1 = first.optDouble("lat"); val lng1 = first.optDouble("lng")
+            val lat2 = last.optDouble("lat"); val lng2 = last.optDouble("lng")
+
+            // [本地化修改] 原实现把未修改的新数组原样写回（名称永远存不进去），且两个回调并发互相覆盖。
+            // 现按首/尾坐标匹配对应路线条目，在同一实例上改值后一次性写回。
+            fun persistName(field: String, name: String) {
+                if (name.isBlank() || name == "null") return
                 val prefs = PreferenceManager.getDefaultSharedPreferences(getApplication())
-                val res = prefs.getString("saved_routes", "[]") ?: "[]"
-                val arr = JSONArray(res)
+                val arr = JSONArray(prefs.getString("saved_routes", "[]") ?: "[]")
+                for (i in 0 until arr.length()) {
+                    val item = arr.optJSONObject(i) ?: continue
+                    val pts = item.optJSONArray("points") ?: continue
+                    val p0 = pts.optJSONObject(0) ?: continue
+                    val pN = pts.optJSONObject(pts.length() - 1) ?: continue
+                    val match = when (field) {
+                        "startName" -> p0.optDouble("lat") == lat1 && p0.optDouble("lng") == lng1
+                        else -> pN.optDouble("lat") == lat2 && pN.optDouble("lng") == lng2
+                    }
+                    if (match) {
+                        item.put(field, name)
+                        break
+                    }
+                }
                 prefs.edit().putString("saved_routes", arr.toString()).apply()
                 _historyRoutes.value = parseRoutes(arr.toString())
             }
-            reverseGeocode(last.optDouble("lat"), last.optDouble("lng")) { name ->
-                if (name.isNotBlank() && name != "null") obj.put("endName", name)
-                val prefs = PreferenceManager.getDefaultSharedPreferences(getApplication())
-                val res = prefs.getString("saved_routes", "[]") ?: "[]"
-                val arr = JSONArray(res)
-                prefs.edit().putString("saved_routes", arr.toString()).apply()
-                _historyRoutes.value = parseRoutes(arr.toString())
-            }
+
+            reverseGeocode(lat1, lng1) { name -> persistName("startName", name) }
+            reverseGeocode(lat2, lng2) { name -> persistName("endName", name) }
         } catch (e: Exception) {
             KailLog.w(getApplication(), TAG, "enrichNamesForRoute: enrich route names failed: ${e.message}")
         }
     }
 
     private fun reverseGeocode(lat: Double, lng: Double, onResult: (String) -> Unit) {
+        val unknownLocation = getApplication<Application>().getString(R.string.vm_unknown_location)
+        // [本地化修改] 泄漏加固：newInstance 失败/请求抛异常时也销毁 GeoCoder，不再只依赖回调路径释放。
+        val coder = try {
+            GeoCoder.newInstance()
+        } catch (e: Exception) {
+            KailLog.w(getApplication(), TAG, "reverseGeocode: newInstance failed: ${e.message}")
+            onResult(unknownLocation)
+            return
+        }
+        var delivered = false
+        coder.setOnGetGeoCodeResultListener(object : OnGetGeoCoderResultListener {
+            override fun onGetGeoCodeResult(geoCodeResult: com.baidu.mapapi.search.geocode.GeoCodeResult?) {}
+            override fun onGetReverseGeoCodeResult(result: com.baidu.mapapi.search.geocode.ReverseGeoCodeResult?) {
+                if (delivered) return
+                delivered = true
+                val name = if (result != null && result.error == SearchResult.ERRORNO.NO_ERROR) {
+                    result.address ?: unknownLocation
+                } else unknownLocation
+                onResult(name)
+                coder.destroy()
+            }
+        })
         try {
-            val coder = GeoCoder.newInstance()
-            coder.setOnGetGeoCodeResultListener(object : OnGetGeoCoderResultListener {
-                override fun onGetGeoCodeResult(geoCodeResult: com.baidu.mapapi.search.geocode.GeoCodeResult?) {}
-                override fun onGetReverseGeoCodeResult(result: com.baidu.mapapi.search.geocode.ReverseGeoCodeResult?) {
-                    val unknownLocation = getApplication<Application>().getString(R.string.vm_unknown_location)
-                    val name = if (result != null && result.error == SearchResult.ERRORNO.NO_ERROR) {
-                        result.address ?: unknownLocation
-                    } else unknownLocation
-                    onResult(name)
-                    coder.destroy()
-                }
-            })
             coder.reverseGeoCode(ReverseGeoCodeOption().location(com.baidu.mapapi.model.LatLng(lat, lng)))
         } catch (e: Exception) {
-            KailLog.w(getApplication(), TAG, "reverseGeocode: reverse geocode failed: ${e.message}")
-            onResult(getApplication<Application>().getString(R.string.vm_unknown_location))
+            KailLog.w(getApplication(), TAG, "reverseGeocode: request failed: ${e.message}")
+            if (!delivered) {
+                delivered = true
+                onResult(unknownLocation)
+                coder.destroy()
+            }
         }
     }
 }

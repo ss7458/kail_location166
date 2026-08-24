@@ -286,6 +286,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
 
     override fun onCleared() {
         super.onCleared()
-        // db?.close() 
+        // [本地化修改] 恢复被注释的句柄释放。
+        db?.close()
     }
 }

@@ -417,7 +417,7 @@ fun LocationSimulationScreen(
                                     detectDragGesturesAfterLongPress(
                                         onDragStart = { offset ->
                                             val contentY = offset.y + scrollState.value
-                                            val idx = (contentY / itemUnitPx).toInt().coerceIn(0, localFavList.lastIndex)
+                                            val idx = (contentY / itemUnitPx).toInt().coerceIn(0, maxOf(0, localFavList.lastIndex))
                                             localFavList.clear()
                                             localFavList.addAll(filteredFavRecords)
                                             draggedId = localFavList.getOrNull(idx)?.id
@@ -432,7 +432,7 @@ fun LocationSimulationScreen(
                                             val thresholdPx = cardHeightPx * 0.92f
                                             if (abs(dragOffset) >= thresholdPx) {
                                                 val dir = if (dragOffset > 0) 1 else -1
-                                                val targetIdx = (curIdx + dir).coerceIn(0, localFavList.lastIndex)
+                                                val targetIdx = (curIdx + dir).coerceIn(0, maxOf(0, localFavList.lastIndex))
                                                 if (targetIdx != curIdx) {
                                                     val temp = localFavList[curIdx]
                                                     localFavList[curIdx] = localFavList[targetIdx]

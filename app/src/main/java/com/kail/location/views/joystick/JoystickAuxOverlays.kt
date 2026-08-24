@@ -228,7 +228,7 @@ fun JoyStickHistoryOverlay(
                                 detectDragGesturesAfterLongPress(
                                     onDragStart = { offset ->
                                         val contentY = offset.y + scrollState.value
-                                        val idx = (contentY / itemUnitPx).toInt().coerceIn(0, localFavList.lastIndex)
+                                        val idx = (contentY / itemUnitPx).toInt().coerceIn(0, maxOf(0, localFavList.lastIndex))
                                         localFavList.clear()
                                         localFavList.addAll(favRecords)
                                         draggedId = localFavList.getOrNull(idx)?.let { it[HistoryActivity.KEY_ID] as? String }
@@ -243,7 +243,7 @@ fun JoyStickHistoryOverlay(
                                         val thresholdPx = cardHeightPx * 0.92f
                                         if (abs(dragOffset) >= thresholdPx) {
                                             val dir = if (dragOffset > 0) 1 else -1
-                                            val targetIdx = (curIdx + dir).coerceIn(0, localFavList.lastIndex)
+                                            val targetIdx = (curIdx + dir).coerceIn(0, maxOf(0, localFavList.lastIndex))
                                             if (targetIdx != curIdx) {
                                                 val temp = localFavList[curIdx]
                                                 localFavList[curIdx] = localFavList[targetIdx]

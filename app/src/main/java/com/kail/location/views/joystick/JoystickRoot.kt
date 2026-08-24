@@ -74,10 +74,13 @@ fun JoystickRoot(
                     onSearch = { query -> viewModel.search(query, null) },
                     searchResults = searchResults,
                     onSelectSearchResult = { item ->
-                        val lat = item[com.kail.location.viewmodels.LocationPickerViewModel.POI_LATITUDE].toString().toDouble()
-                        val lng = item[com.kail.location.viewmodels.LocationPickerViewModel.POI_LONGITUDE].toString().toDouble()
-                        viewModel.updateMarkLocation(LatLng(lat, lng))
-                        mapView.map.animateMapStatus(MapStatusUpdateFactory.newLatLng(LatLng(lat, lng)))
+                        // [本地化修改] 防崩溃：POI 坐标解析失败时忽略本次选择（原 toDouble 直接抛 NumberFormatException）。
+                        val lat = item[com.kail.location.viewmodels.LocationPickerViewModel.POI_LATITUDE].toString().toDoubleOrNull()
+                        val lng = item[com.kail.location.viewmodels.LocationPickerViewModel.POI_LONGITUDE].toString().toDoubleOrNull()
+                        if (lat != null && lng != null) {
+                            viewModel.updateMarkLocation(LatLng(lat, lng))
+                            mapView.map.animateMapStatus(MapStatusUpdateFactory.newLatLng(LatLng(lat, lng)))
+                        }
                     }
                 )
             }
