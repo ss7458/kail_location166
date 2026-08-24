@@ -493,7 +493,7 @@ class ServiceGoSandbox : Service() {
                     if (jitterApplied) {
                         KailLog.v(this@ServiceGoSandbox, "[sandbox] ServiceGoSandbox", "jitter applied: $mCurLat,$mCurLng -> $jlat,$jlng")
                     }
-                    SandboxLocationHook.updateLocation(jlat, jlng, mCurAlt, GeoRealism.noisyBearing(mCurBea), GeoRealism.noisySpeed(lastStepSpeed))
+                    SandboxLocationHook.updateLocation(jlat, jlng, mCurAlt, GeoRealism.noisyBearing(mCurBea), GeoRealism.noisySpeed(lastStepSpeed).toDouble())
                     // [本地化修改] 心跳日志（约15秒一条）+ 周期坐标广播（约0.75秒一次）。
                     loopTickCounter++
                     if (loopTickCounter % 100L == 0L) {

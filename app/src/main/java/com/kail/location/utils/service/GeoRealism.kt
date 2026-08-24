@@ -1,6 +1,7 @@
 package com.kail.location.utils.service
 
 import android.os.SystemClock
+import kotlin.math.sqrt
 import java.util.concurrent.ThreadLocalRandom
 
 /**
