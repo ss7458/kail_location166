@@ -893,8 +893,10 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
                 val last = points.optJSONObject(points.length() - 1) ?: continue
                 val coordS = String.format(java.util.Locale.US, "%.6f,%.6f", first.optDouble("lat"), first.optDouble("lng"))
                 val coordE = String.format(java.util.Locale.US, "%.6f,%.6f", last.optDouble("lat"), last.optDouble("lng"))
-                val s = obj.optString("startName", coordS).let { if (it.isBlank() || it == "null") coordS else it }
-                val e = obj.optString("endName", coordE).let { if (it.isBlank() || it == "null") coordE else it }
+                // [本地化修改] 自愈：历史数据里已污染的"未知地点"名称按缺失处理，回退显示坐标。
+                val unknownLoc = getApplication<Application>().getString(R.string.vm_unknown_location)
+                val s = obj.optString("startName", coordS).let { if (it.isBlank() || it == "null" || it == unknownLoc) coordS else it }
+                val e = obj.optString("endName", coordE).let { if (it.isBlank() || it == "null" || it == unknownLoc) coordE else it }
                 val isFav = obj.optBoolean("isFavorite", false)
                 val favTime = obj.optLong("favoriteTime", 0L)
                 val favOrder = obj.optInt("favoriteOrder", 0)
@@ -1258,11 +1260,13 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
             val last = points.optJSONObject(points.length() - 1) ?: return
             val lat1 = first.optDouble("lat"); val lng1 = first.optDouble("lng")
             val lat2 = last.optDouble("lat"); val lng2 = last.optDouble("lng")
+            // [本地化修改] 占位符文本不入库：逆地理失败时回调会收到"未知地点"，持久化它会永久污染路线名。
+            val unknownLocationText = getApplication<Application>().getString(R.string.vm_unknown_location)
 
             // [本地化修改] 原实现把未修改的新数组原样写回（名称永远存不进去），且两个回调并发互相覆盖。
             // 现按首/尾坐标匹配对应路线条目，在同一实例上改值后一次性写回。
             fun persistName(field: String, name: String) {
-                if (name.isBlank() || name == "null") return
+                if (name.isBlank() || name == "null" || name == unknownLocationText) return
                 val prefs = PreferenceManager.getDefaultSharedPreferences(getApplication())
                 val arr = JSONArray(prefs.getString("saved_routes", "[]") ?: "[]")
                 for (i in 0 until arr.length()) {
