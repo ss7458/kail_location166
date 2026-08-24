@@ -266,12 +266,21 @@ fun AppDrawer(
                     Text(stringResource(android.R.string.cancel))
                 }
             },
+            // [本地化修改] 新增"仍然使用"：fork 与上游模块版本本就独立，不强制锁版本。
             confirmButton = {
-                TextButton(onClick = {
-                    showXposedVersionDialog = false
-                    downloadAndInstallXposed()
-                }) {
-                    Text(stringResource(R.string.xposed_module_download))
+                Row {
+                    TextButton(onClick = {
+                        showXposedVersionDialog = false
+                        onRunModeChange("xposed")
+                    }) {
+                        Text(stringResource(R.string.xposed_module_use_anyway))
+                    }
+                    TextButton(onClick = {
+                        showXposedVersionDialog = false
+                        downloadAndInstallXposed()
+                    }) {
+                        Text(stringResource(R.string.xposed_module_download))
+                    }
                 }
             }
         )

@@ -13,8 +13,8 @@ android {
         applicationId = "com.kail.locationxposed"
         minSdk = 29
         targetSdk = 36
-        versionCode = 44
-        versionName = "1.6.11"
+        versionCode = 45
+        versionName = "1.6.12"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
