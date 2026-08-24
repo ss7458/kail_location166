@@ -44,7 +44,11 @@ class KailXpBridgeService(private val context: Context) : IKailXpBridge.Stub() {
             @Suppress("UNCHECKED_CAST")
             val sCache = sCacheField.get(null) as? MutableMap<String, IBinder>
             if (sCache != null) {
-                sCache[SERVICE_NAME] = this
+                // [本地化修改] 线程安全修复：sCache 是系统 ServiceManager 的共享 Map，
+                // 无锁写入会与 getService 的并发读触发 ConcurrentModificationException 崩溃 system_server。
+                synchronized(sCache) {
+                    sCache[SERVICE_NAME] = this
+                }
                 serviceRegistered = true
                 KailLog.i(null, "XpBridge", "Service '$SERVICE_NAME' injected into sCache")
                 true

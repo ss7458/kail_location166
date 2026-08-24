@@ -459,7 +459,7 @@ class ServiceGoDeveloper : Service() {
     private fun currentLocationUpdateIntervalMs(): Long {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         return (prefs.getString("setting_report_interval", DEFAULT_LOCATION_UPDATE_INTERVAL_MS.toString())?.toLongOrNull()
-            ?: DEFAULT_LOCATION_UPDATE_INTERVAL_MS).coerceAtLeast(0L)
+            ?: DEFAULT_LOCATION_UPDATE_INTERVAL_MS).coerceAtLeast(50L)
     }
 
     private fun startLocationLoop() {

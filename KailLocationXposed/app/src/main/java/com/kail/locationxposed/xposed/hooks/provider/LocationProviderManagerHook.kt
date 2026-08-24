@@ -252,67 +252,72 @@ object LocationProviderManagerHook {
             }
 
             val registrations = fieldMRegistrations.get(thisObject) as ArrayMap<*, *>
-            val newRegistrations = ArrayMap<Any, Any>()
-            registrations.forEach { registration ->
-                val value = registration.value ?: return@forEach
-                val locationResult = args[0]
+            // [本地化修改] 安全修复：不再用空 ArrayMap 替换 mRegistrations 字段（原实现会导致
+            // 系统监听注册表永久丢失，且无锁替换与系统并发写竞争可抛 CME 直接崩 system_server）。
+            // 改为对快照迭代；单条监听器处理失败只跳过该条，不中断其余、不逃逸异常。
+            val snapshot = registrations.entries.toList()
+            snapshot.forEach { entry ->
+                runCatching {
+                    val value = entry.value ?: return@runCatching
+                    val locationResult = args[0]
 
-                val mLocationsField = XposedHelpers.findFieldIfExists(locationResult.javaClass, "mLocations")
-                if (mLocationsField == null) {
-                    KailLog.e(null, "Kail_Xposed", "Failed to find mLocations in LocationResult")
-                    return@onceHookMethodBefore
-                }
-                mLocationsField.isAccessible = true
-                val mLocations = mLocationsField.get(locationResult) as ArrayList<*>
+                    val mLocationsField = XposedHelpers.findFieldIfExists(locationResult.javaClass, "mLocations")
+                    if (mLocationsField == null) {
+                        KailLog.e(null, "Kail_Xposed", "Failed to find mLocations in LocationResult")
+                        return@runCatching
+                    }
+                    mLocationsField.isAccessible = true
+                    val mLocations = mLocationsField.get(locationResult) as ArrayList<*>
 
-                val originLocation = mLocations.firstOrNull() as? Location
-                    ?: Location(LocationManager.GPS_PROVIDER)
-                val location = Location(originLocation.provider)
+                    val originLocation = mLocations.firstOrNull() as? Location
+                        ?: Location(LocationManager.GPS_PROVIDER)
+                    val location = Location(originLocation.provider)
 
-                val jitterLat = FakeLoc.jitterLocation()
-                location.latitude = jitterLat.first
-                location.longitude = jitterLat.second
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    location.isMock = false
-                }
-                location.altitude = FakeLoc.altitude
-                location.speed = originLocation.speed
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    location.speedAccuracyMetersPerSecond = 0F
-                }
+                    val jitterLat = FakeLoc.jitterLocation()
+                    location.latitude = jitterLat.first
+                    location.longitude = jitterLat.second
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        location.isMock = false
+                    }
+                    location.altitude = FakeLoc.altitude
+                    location.speed = originLocation.speed
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        location.speedAccuracyMetersPerSecond = 0F
+                    }
 
-                location.time = originLocation.time
-                location.accuracy = originLocation.accuracy
-                var modBearing = FakeLoc.bearing % 360.0 + 0.0
-                if (modBearing < 0) {
-                    modBearing += 360.0
-                }
-                location.bearing = modBearing.toFloat()
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && originLocation.hasBearingAccuracy()) {
-                    location.bearingAccuracyDegrees = modBearing.toFloat()
-                }
-                location.elapsedRealtimeNanos = originLocation.elapsedRealtimeNanos
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    location.elapsedRealtimeUncertaintyNanos = originLocation.elapsedRealtimeUncertaintyNanos
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    location.verticalAccuracyMeters = originLocation.verticalAccuracyMeters
-                }
-                originLocation.extras?.let {
-                    location.extras = it
-                }
+                    location.time = originLocation.time
+                    location.accuracy = originLocation.accuracy
+                    var modBearing = FakeLoc.bearing % 360.0 + 0.0
+                    if (modBearing < 0) {
+                        modBearing += 360.0
+                    }
+                    location.bearing = modBearing.toFloat()
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && originLocation.hasBearingAccuracy()) {
+                        location.bearingAccuracyDegrees = modBearing.toFloat()
+                    }
+                    location.elapsedRealtimeNanos = originLocation.elapsedRealtimeNanos
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        location.elapsedRealtimeUncertaintyNanos = originLocation.elapsedRealtimeUncertaintyNanos
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        location.verticalAccuracyMeters = originLocation.verticalAccuracyMeters
+                    }
+                    originLocation.extras?.let {
+                        location.extras = it
+                    }
 
-                mLocationsField.set(locationResult, arrayListOf(location))
+                    mLocationsField.set(locationResult, arrayListOf(location))
 
-                val operation = XposedHelpers.callMethod(value, "acceptLocationChange", locationResult)
-                XposedHelpers.callMethod(value, "executeOperation", operation)
+                    val operation = XposedHelpers.callMethod(value, "acceptLocationChange", locationResult)
+                    XposedHelpers.callMethod(value, "executeOperation", operation)
+                }.onFailure {
+                    KailLog.e(null, "Kail_Xposed", "onReportLocation: listener dispatch failed: ${it.message}")
+                }
             }
 
             if (FakeLoc.enableDebugLog) {
                 KailLog.d(null, "Kail_Xposed", "onReportLocation: injected!")
             }
-
-            fieldMRegistrations.set(thisObject, newRegistrations)
         }
     }
 

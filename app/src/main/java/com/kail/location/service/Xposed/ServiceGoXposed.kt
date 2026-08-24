@@ -189,16 +189,42 @@ class ServiceGoXposed : Service() {
         }
     }
 
+    // [本地化修改] 密钥重协商：system_server/模块重启后旧密钥失效会让所有命令被拒（"定位不动"根因）。
+    // 命令被拒或无密钥时同步重新握手并重放一次；全局 2 秒限流，防止模块缺失时空握手打爆 binder。
+    @Volatile private var lastRenegotiateAtMs = 0L
+
+    @Synchronized
+    private fun tryRenegotiateKey(): Boolean {
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (lastRenegotiateAtMs != 0L && now - lastRenegotiateAtMs < 2000L) return false
+        lastRenegotiateAtMs = now
+        val oldKey = xposedKey
+        val ok = exchangeKey()
+        if (ok) {
+            KailLog.i(this, "ServiceGoXposed", "key renegotiated (hadOldKey=${oldKey != null})")
+        }
+        return ok
+    }
+
     private fun sendXposedCommand(commandId: String, extras: Bundle = Bundle()): Boolean {
-        val key = xposedKey
-        if (key == null) {
+        var key = xposedKey
+        if (key == null && !tryRenegotiateKey()) {
             KailLog.e(this, "ServiceGoXposed", "No Xposed key available")
             reportXposedChannelFailure("no-key")
             return false
         }
+        key = xposedKey ?: return false
         return try {
             extras.putString("command_id", commandId)
-            val result = mLocManager.sendExtraCommand("kail", key, extras)
+            var result = mLocManager.sendExtraCommand("kail", key, extras)
+            // [本地化修改] 命令被拒（典型：系统/模块重启后密钥失效）→ 重新握手并重放一次。
+            if (!result && tryRenegotiateKey()) {
+                val newKey = xposedKey
+                if (newKey != null) {
+                    result = mLocManager.sendExtraCommand("kail", newKey, extras)
+                    KailLog.i(this, "ServiceGoXposed", "retried '$commandId' after key renegotiation -> $result")
+                }
+            }
             // [本地化修改] 高频命令节流日志：update_location 每 100 次（约20秒）记一条，其余命令照常。
             if (commandId != "update_location" || ++updateLocationLogCounter % 100L == 0L) {
                 KailLog.i(this, "ServiceGoXposed", "sendXposedCommand '$commandId' -> $result, key=$key")
@@ -334,21 +360,21 @@ class ServiceGoXposed : Service() {
                         stepCadence = intent.getFloatExtra(EXTRA_STEP_FREQ, stepCadence)
                         stepMode = intent.getIntExtra(EXTRA_STEP_MODE, stepMode)
                         stepScheme = intent.getIntExtra(EXTRA_STEP_SCHEME, stepScheme)
-                        if (stepEnabled) {
-                            loadNativeLibraryIfNeeded()
+                        // [本地化修改] 原生库加载移至后台线程（原主线程同步 root shell 导致 ANR 卡死）
+                        loadNativeLibraryIfNeededAsync(stepEnabled) {
+                            sendXposedCommand("set_step_enabled", Bundle().apply {
+                                putBoolean("enabled", stepEnabled)
+                                putFloat("cadence", stepCadence)
+                                putInt("mode", stepMode)
+                                putInt("scheme", stepScheme)
+                            })
+                            sendXposedCommand("set_step_cadence", Bundle().apply {
+                                putFloat("cadence", stepCadence)
+                            })
+                            sendXposedCommand("set_step_sim_enabled", Bundle().apply {
+                                putBoolean("enabled", stepEnabled)
+                            })
                         }
-                        sendXposedCommand("set_step_enabled", Bundle().apply {
-                            putBoolean("enabled", stepEnabled)
-                            putFloat("cadence", stepCadence)
-                            putInt("mode", stepMode)
-                            putInt("scheme", stepScheme)
-                        })
-                        sendXposedCommand("set_step_cadence", Bundle().apply {
-                            putFloat("cadence", stepCadence)
-                        })
-                        sendXposedCommand("set_step_sim_enabled", Bundle().apply {
-                            putBoolean("enabled", stepEnabled)
-                        })
                         return super.onStartCommand(intent, flags, startId)
                     }
                 }
@@ -481,19 +507,19 @@ class ServiceGoXposed : Service() {
         sendXposedCommand("set_config", configExtras)
 
         // Apply step simulation settings (matching kail_location ServiceGoRoot logic)
-        if (stepEnabled) {
-            loadNativeLibraryIfNeeded()
+        // [本地化修改] 原生库加载移至后台线程（避免主线程 ANR）
+        loadNativeLibraryIfNeededAsync(stepEnabled) {
+            sendXposedCommand("set_step_enabled", Bundle().apply {
+                putBoolean("enabled", stepEnabled)
+                putInt("scheme", stepScheme)
+            })
+            sendXposedCommand("set_step_cadence", Bundle().apply {
+                putFloat("cadence", stepCadence)
+            })
+            sendXposedCommand("set_step_sim_enabled", Bundle().apply {
+                putBoolean("enabled", stepEnabled)
+            })
         }
-        sendXposedCommand("set_step_enabled", Bundle().apply {
-            putBoolean("enabled", stepEnabled)
-            putInt("scheme", stepScheme)
-        })
-        sendXposedCommand("set_step_cadence", Bundle().apply {
-            putFloat("cadence", stepCadence)
-        })
-        sendXposedCommand("set_step_sim_enabled", Bundle().apply {
-            putBoolean("enabled", stepEnabled)
-        })
 
         KailLog.i(this, "ServiceGoXposed", "Xposed mock started")
     }
@@ -501,21 +527,20 @@ class ServiceGoXposed : Service() {
     private fun applyStepSimulation() {
         KailLog.i(this, "ServiceGoXposed", ">>> applyStepSimulation START: enabled=$stepEnabled, cadence=$stepCadence, mode=$stepMode, scheme=$stepScheme")
 
-        if (stepEnabled) {
-            loadNativeLibraryIfNeeded()
+        // [本地化修改] 原生库加载移至后台线程（避免主线程 ANR）
+        loadNativeLibraryIfNeededAsync(stepEnabled) {
+            // Send step simulation commands separately (matching kail_location ServiceGoRoot logic)
+            sendXposedCommand("set_step_enabled", Bundle().apply {
+                putBoolean("enabled", stepEnabled)
+                putInt("scheme", stepScheme)
+            })
+            sendXposedCommand("set_step_cadence", Bundle().apply {
+                putFloat("cadence", stepCadence)
+            })
+            sendXposedCommand("set_step_sim_enabled", Bundle().apply {
+                putBoolean("enabled", stepEnabled)
+            })
         }
-
-        // Send step simulation commands separately (matching kail_location ServiceGoRoot logic)
-        sendXposedCommand("set_step_enabled", Bundle().apply {
-            putBoolean("enabled", stepEnabled)
-            putInt("scheme", stepScheme)
-        })
-        sendXposedCommand("set_step_cadence", Bundle().apply {
-            putFloat("cadence", stepCadence)
-        })
-        sendXposedCommand("set_step_sim_enabled", Bundle().apply {
-            putBoolean("enabled", stepEnabled)
-        })
 
         KailLog.i(this, "ServiceGoXposed", "Step simulation applied: enabled=$stepEnabled, cadence=$stepCadence, mode=$stepMode, scheme=$stepScheme")
     }
@@ -610,7 +635,39 @@ class ServiceGoXposed : Service() {
         }
     }
 
-    private fun loadNativeLibraryIfNeeded(): Boolean {
+    // [本地化修改] 防重入标志：原实现可被并发调用，rm/cp 交错会损坏 so 文件。
+    private val nativeLoadInProgress = java.util.concurrent.atomic.AtomicBoolean(false)
+
+    /**
+     * [本地化修改] 后台加载原生库。原实现在主线程同步执行 10+ 条 root shell 命令
+     * （hasRoot/setenforce/readelf 等），单次阻塞 3~10 秒，是"莫名卡死退出"的 ANR 元凶。
+     * @param run false 时跳过加载直接执行 followUp（对应 stepEnabled=false 的调用点）
+     * @param followUp 加载完成后执行的后续命令（如 set_step_*）；防重入跳过时也会立即执行——
+     *                模块侧命令只更新状态字段，与加载顺序解耦，不会丢失配置。
+     */
+    private fun loadNativeLibraryIfNeededAsync(run: Boolean = true, followUp: () -> Unit = {}) {
+        if (!run) {
+            followUp()
+            return
+        }
+        if (!nativeLoadInProgress.compareAndSet(false, true)) {
+            KailLog.w(this, "ServiceGoXposed", ">>> loadNativeLibrary skipped: already in progress")
+            followUp()
+            return
+        }
+        Thread({
+            try {
+                loadNativeLibraryIfNeededInternal()
+            } catch (e: Exception) {
+                KailLog.e(this, "ServiceGoXposed", ">>> loadNativeLibrary error: ${e.message}")
+            } finally {
+                nativeLoadInProgress.set(false)
+            }
+            followUp()
+        }, "XposedNativeLoad").start()
+    }
+
+    private fun loadNativeLibraryIfNeededInternal(): Boolean {
         KailLog.i(this, "ServiceGoXposed", ">>> loadNativeLibraryIfNeeded called")
 
         if (!com.kail.location.utils.ShellUtils.hasRoot()) {
@@ -826,7 +883,7 @@ class ServiceGoXposed : Service() {
     private fun currentLocationUpdateIntervalMs(): Long {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         return (prefs.getString("setting_report_interval", DEFAULT_LOCATION_UPDATE_INTERVAL_MS.toString())?.toLongOrNull()
-            ?: DEFAULT_LOCATION_UPDATE_INTERVAL_MS).coerceAtLeast(0L)
+            ?: DEFAULT_LOCATION_UPDATE_INTERVAL_MS).coerceAtLeast(50L)
     }
 
     private fun startLocationLoop() {
