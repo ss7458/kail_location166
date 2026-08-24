@@ -326,10 +326,13 @@ class RouteEngine {
 
     /**
      * [本地化修改] 单行诊断摘要：路线推进全量状态，供服务心跳日志输出。
+     * 注意：模板里的字面百分号必须写成 %%，否则 .format() 会抛 UnknownFormatConversionException。
      */
     fun diagnosticsString(): String {
+        val progressPct = (progressRatio * 100).toInt()
+        val posText = "%.6f,%.6f".format(currentLat, currentLng)
         return "route[active=$isActive finished=$routeFinished waiting=$isWaiting idx=$routeIndex/${routePoints.size} " +
-            "progress=${(progressRatio * 100).toInt()}% loop=$routeLoop] pos=[${"%.6f"},${"%.6f"}]".format(currentLat, currentLng)
+            "progress=${progressPct}% loop=$routeLoop] pos=[$posText]"
     }
 
     fun buildStatusString(): Pair<String, LatLng>? {

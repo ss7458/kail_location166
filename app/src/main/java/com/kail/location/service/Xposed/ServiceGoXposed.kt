@@ -199,7 +199,10 @@ class ServiceGoXposed : Service() {
         return try {
             extras.putString("command_id", commandId)
             val result = mLocManager.sendExtraCommand("kail", key, extras)
-            KailLog.i(this, "ServiceGoXposed", "sendXposedCommand '$commandId' -> $result, key=$key")
+            // [本地化修改] 高频命令节流日志：update_location 每 100 次（约20秒）记一条，其余命令照常。
+            if (commandId != "update_location" || ++updateLocationLogCounter % 100L == 0L) {
+                KailLog.i(this, "ServiceGoXposed", "sendXposedCommand '$commandId' -> $result, key=$key")
+            }
             if (!result) reportXposedChannelFailure("rejected:$commandId") else reportXposedChannelSuccess()
             result
         } catch (e: Exception) {
@@ -221,6 +224,8 @@ class ServiceGoXposed : Service() {
 
     // [本地化修改] 模块通道失败连击统计：连续失败时聚合告警，便于诊断"定位不动"。
     private var xposedFailStreak = 0
+    // [本地化修改] 高频推送日志节流计数器（update_location 每秒约5次，全量记录会刷爆日志并增加文件IO发热）。
+    private var updateLocationLogCounter = 0L
     private fun reportXposedChannelFailure(reason: String) {
         xposedFailStreak++
         if (xposedFailStreak == 1 || xposedFailStreak == 10 || xposedFailStreak % 50 == 0) {

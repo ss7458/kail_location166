@@ -683,7 +683,43 @@ fun SettingsDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(stringResource(R.string.route_sim_speed_text), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
-    Text("${settings.speed} km/h", fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
+                    // [本地化修改] 点击数值循环切换单位：km/h → m/s → 配速(min/km)，选择持久化。
+                    var speedUnit by remember {
+                        mutableStateOf(
+                            androidx.preference.PreferenceManager
+                                .getDefaultSharedPreferences(context)
+                                .getString("route_sim_speed_unit", "kmh") ?: "kmh"
+                        )
+                    }
+                    val displaySpeedText = when (speedUnit) {
+                        "ms" -> "${"%.2f".format(settings.speed / 3.6f)} m/s"
+                        "pace" -> run {
+                            val s = settings.speed.toDouble()
+                            if (s < 0.5) "--'--\" /km"
+                            else {
+                                val secPerKm = 3600.0 / s
+                                "${(secPerKm / 60).toInt()}'${(secPerKm % 60).toInt().toString().padStart(2, '0')}\" /km"
+                            }
+                        }
+                        else -> "${settings.speed} km/h"
+                    }
+                    Text(
+                        text = displaySpeedText,
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable {
+                            speedUnit = when (speedUnit) {
+                                "kmh" -> "ms"
+                                "ms" -> "pace"
+                                else -> "kmh"
+                            }
+                            androidx.preference.PreferenceManager
+                                .getDefaultSharedPreferences(context)
+                                .edit()
+                                .putString("route_sim_speed_unit", speedUnit)
+                                .apply()
+                        }
+                    )
                 }
 
                 // Speed Slider

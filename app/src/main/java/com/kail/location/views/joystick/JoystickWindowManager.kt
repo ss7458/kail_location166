@@ -221,9 +221,15 @@ class JoystickWindowManager(
         }, "KailJoystickMapDestroy").start()
     }
 
+    // [本地化修改] 地图 UI 节流：每 tick 触发 setMyLocationData+animateMapStatus 是模拟期间发热大户之一。
+    private var lastMapUiUpdateMs = 0L
+
     fun updateRouteStatus(progress: Float, distance: String, currentLatLng: LatLng?) {
         viewModel.updateRouteStatus(progress, distance, currentLatLng)
         if (currentLatLng != null) {
+            val now = android.os.SystemClock.elapsedRealtime()
+            if (now - lastMapUiUpdateMs < 500L) return
+            lastMapUiUpdateMs = now
             routeMapView?.map?.let { map ->
                 val locData = MyLocationData.Builder()
                     .latitude(currentLatLng.latitude)
