@@ -251,10 +251,38 @@ abstract class BaseLocationHook: BaseDivineService() {
                     return value.toNmeaString()
                 }
                 is NmeaValue.GSA -> {
-                    return null
+                    // [本地化修改] 伪造 GSA：原 return null 会回落透传真实 NMEA（真实坐标泄漏 + 与假 GPS 矛盾）。
+                    val prn = List(12) { i -> if (i < 8) 1 + (i * 7 % 32) else null }
+                    return NmeaValue.GSA(
+                        mode = "A",
+                        fixStatus = 3,
+                        prn = prn,
+                        pdop = 1.2,
+                        hdop = 0.9,
+                        vdop = 0.8,
+                        systemId = value.systemId
+                    ).toNmeaString()
                 }
                 is NmeaValue.GSV -> {
-                    return null
+                    // [本地化修改] 伪造 GSV：生成与假 GPS 自洽的卫星视图；字段按 4 秒步进缓慢变化，
+                    // 避免目标 app 因卫星数据高频突变而识破（借鉴 LocationSpoofer）。
+                    val total = 10
+                    val step = (android.os.SystemClock.elapsedRealtime() / 4000L).toInt()
+                    val sats = (0 until total).map { i ->
+                        NmeaValue.GSV.Satellite(
+                            prn = 1 + (i * 8 + step % 32) % 32,
+                            elevation = 15 + (i * 37 + step * 11) % 60,
+                            azimuth = (i * 47 + step * 3) % 360,
+                            snr = 25 + (i * 13 + step * 5) % 15
+                        )
+                    }
+                    return NmeaValue.GSV(
+                        totalMessages = 1,
+                        messageNumber = 1,
+                        totalSatellitesInView = total,
+                        satellites = sats,
+                        infoId = value.infoId
+                    ).toNmeaString()
                 }
                 is NmeaValue.RMC -> {
                     if (value.latitude == null || value.longitude == null) {
@@ -286,7 +314,21 @@ abstract class BaseLocationHook: BaseDivineService() {
                     return value.toNmeaString()
                 }
                 is NmeaValue.VTG -> {
-                    return null
+                    // [本地化修改] 伪造 VTG：真实报文含真实速度/航向（泄漏+矛盾），改为从假状态生成。
+                    val track = (FakeLoc.bearing % 360.0 + 360.0) % 360.0
+                    val knots = FakeLoc.speed * 1.943844
+                    val kph = FakeLoc.speed * 3.6
+                    return NmeaValue.VTG(
+                        trueTrack = track,
+                        magneticTrack = null,
+                        groundSpeedKnots = knots,
+                        groundSpeedUnit = "N",
+                        groundSpeedKph = kph,
+                        groundSpeedKphUnit = "K",
+                        trueTrackMode = "A",
+                        magneticTrackMode = "A",
+                        mode = "A"
+                    ).toNmeaString()
                 }
             }
         }.onFailure {
