@@ -207,12 +207,16 @@ abstract class BaseLocationHook: BaseDivineService() {
                     value.latitudeHemisphere = latitudeHemisphere
                     value.longitudeHemisphere = longitudeHemisphere
 
-                    var degree = FakeLoc.latitude.toInt()
-                    var minute = (FakeLoc.latitude - degree) * 60
+                    // [本地化修改] 南/西半球修复：度分换算必须用绝对值，符号由半球字母(N/S,E/W)表达；
+                    // 原实现对负坐标产出形如 -030.300000+S 的非法报文，下游解析崩溃或坐标错乱。
+                    val latAbs = kotlin.math.abs(FakeLoc.latitude)
+                    var degree = latAbs.toInt()
+                    var minute = (latAbs - degree) * 60
                     value.latitude = degree + minute / 100
 
-                    degree = FakeLoc.longitude.toInt()
-                    minute = (FakeLoc.longitude - degree) * 60
+                    val lngAbs = kotlin.math.abs(FakeLoc.longitude)
+                    degree = lngAbs.toInt()
+                    minute = (lngAbs - degree) * 60
                     value.longitude = degree + minute / 100
 
                     return value.toNmeaString()
@@ -232,12 +236,16 @@ abstract class BaseLocationHook: BaseDivineService() {
                     value.latitudeHemisphere = latitudeHemisphere
                     value.longitudeHemisphere = longitudeHemisphere
 
-                    var degree = FakeLoc.latitude.toInt()
-                    var minute = (FakeLoc.latitude - degree) * 60
+                    // [本地化修改] 南/西半球修复：度分换算必须用绝对值，符号由半球字母(N/S,E/W)表达；
+                    // 原实现对负坐标产出形如 -030.300000+S 的非法报文，下游解析崩溃或坐标错乱。
+                    val latAbs = kotlin.math.abs(FakeLoc.latitude)
+                    var degree = latAbs.toInt()
+                    var minute = (latAbs - degree) * 60
                     value.latitude = degree + minute / 100
 
-                    degree = FakeLoc.longitude.toInt()
-                    minute = (FakeLoc.longitude - degree) * 60
+                    val lngAbs = kotlin.math.abs(FakeLoc.longitude)
+                    degree = lngAbs.toInt()
+                    minute = (lngAbs - degree) * 60
                     value.longitude = degree + minute / 100
 
                     return value.toNmeaString()
@@ -263,12 +271,16 @@ abstract class BaseLocationHook: BaseDivineService() {
                     value.latitudeHemisphere = latitudeHemisphere
                     value.longitudeHemisphere = longitudeHemisphere
 
-                    var degree = FakeLoc.latitude.toInt()
-                    var minute = (FakeLoc.latitude - degree) * 60
+                    // [本地化修改] 南/西半球修复：度分换算必须用绝对值，符号由半球字母(N/S,E/W)表达；
+                    // 原实现对负坐标产出形如 -030.300000+S 的非法报文，下游解析崩溃或坐标错乱。
+                    val latAbs = kotlin.math.abs(FakeLoc.latitude)
+                    var degree = latAbs.toInt()
+                    var minute = (latAbs - degree) * 60
                     value.latitude = degree + minute / 100
 
-                    degree = FakeLoc.longitude.toInt()
-                    minute = (FakeLoc.longitude - degree) * 60
+                    val lngAbs = kotlin.math.abs(FakeLoc.longitude)
+                    degree = lngAbs.toInt()
+                    minute = (lngAbs - degree) * 60
                     value.longitude = degree + minute / 100
 
                     return value.toNmeaString()

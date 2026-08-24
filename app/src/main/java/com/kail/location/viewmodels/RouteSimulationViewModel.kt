@@ -887,8 +887,8 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
                 
                 val first = points.optJSONObject(0) ?: continue
                 val last = points.optJSONObject(points.length() - 1) ?: continue
-                val coordS = String.format("%.6f,%.6f", first.optDouble("lat"), first.optDouble("lng"))
-                val coordE = String.format("%.6f,%.6f", last.optDouble("lat"), last.optDouble("lng"))
+                val coordS = String.format(java.util.Locale.US, "%.6f,%.6f", first.optDouble("lat"), first.optDouble("lng"))
+                val coordE = String.format(java.util.Locale.US, "%.6f,%.6f", last.optDouble("lat"), last.optDouble("lng"))
                 val s = obj.optString("startName", coordS).let { if (it.isBlank() || it == "null") coordS else it }
                 val e = obj.optString("endName", coordE).let { if (it.isBlank() || it == "null") coordE else it }
                 val isFav = obj.optBoolean("isFavorite", false)
@@ -1024,7 +1024,7 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
         _pendingRouteWaitTimes.value = waitTimes
         _selectedRouteId.value = null
         val name = if (points.isNotEmpty()) {
-            String.format("%.4f,%.4f", points.first().latitude, points.first().longitude)
+            String.format(java.util.Locale.US, "%.4f,%.4f", points.first().latitude, points.first().longitude)
         } else null
         _pendingRouteName.value = name
     }

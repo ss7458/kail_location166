@@ -180,6 +180,8 @@ class ServiceGoXposed : Service() {
             val success = mLocManager.sendExtraCommand("kail", "exchange_key", extras)
             if (success) {
                 xposedKey = extras.getString("key")
+                // [本地化修改] 握手成功证明系统存活，清除死亡停机标志。
+                systemDeadStopped = false
                 KailLog.i(this, "ServiceGoXposed", "Key exchanged successfully")
             }
             success
@@ -238,6 +240,7 @@ class ServiceGoXposed : Service() {
             // 继续高频 IPC 轰击已死的系统只会拖慢恢复并刷爆日志。
             if (e is android.os.DeadSystemException) {
                 KailLog.w(this, "ServiceGoXposed", "system_server is dead -> stopping simulation loop gracefully")
+                systemDeadStopped = true
                 try {
                     isStop = true
                     if (this::mLocHandler.isInitialized) mLocHandler.removeCallbacksAndMessages(null)
@@ -250,6 +253,8 @@ class ServiceGoXposed : Service() {
 
     // [本地化修改] 模块通道失败连击统计：连续失败时聚合告警，便于诊断"定位不动"。
     private var xposedFailStreak = 0
+    // [本地化修改] system_server 死亡后已优雅停机的标志：防止 handleMessage 尾部重调度抵消 stopSelf。
+    @Volatile private var systemDeadStopped = false
     // [本地化修改] 高频推送日志节流计数器（update_location 每秒约5次，全量记录会刷爆日志并增加文件IO发热）。
     private var updateLocationLogCounter = 0L
     private fun reportXposedChannelFailure(reason: String) {
@@ -823,6 +828,8 @@ class ServiceGoXposed : Service() {
         mLocHandler = object : Handler(mLocHandlerThread.looper) {
             override fun handleMessage(msg: Message) {
                 try {
+                    // [本地化修改] 系统死亡停机后不再处理任何消息（防止尾部重调度抵消 stopSelf）。
+                    if (systemDeadStopped) return
                     // [本地化修改] 用真实流逝时间推进路线：调度延迟不再造成里程丢失。
                     val now = android.os.SystemClock.elapsedRealtime()
                     val elapsedMs = if (lastTickElapsedMs > 0L) {
@@ -888,6 +895,8 @@ class ServiceGoXposed : Service() {
 
     private fun startLocationLoop() {
         if (!this::mLocHandler.isInitialized) return
+        // [本地化修改] 显式启动模拟时清除系统死亡停机标志，否则守卫会永久拦截消息循环。
+        systemDeadStopped = false
         isStop = false
         if (locationLoopStarted) return
         locationLoopStarted = true

@@ -53,7 +53,7 @@ class RouteEngine {
     /** True only while the route is still progressing (not yet at its end). */
     val isProgressing: Boolean get() = routePoints.size >= 2 && !routeFinished
     val progressRatio: Float
-        get() {
+        @Synchronized get() {
             if (routeFinished) return 1f
             if (totalDistance <= 0) return 0f
             val currentDist = if (routeIndex < routeCumulativeDistances.size)
@@ -62,6 +62,7 @@ class RouteEngine {
             return (currentDist / totalDistance).toFloat().coerceIn(0f, 1f)
         }
 
+    @Synchronized
     fun setupFromArray(routeArray: DoubleArray, coordType: String, waitTimes: DoubleArray? = null) {
         routePoints.clear()
         routeCumulativeDistances.clear()
@@ -109,6 +110,7 @@ class RouteEngine {
         routeLoop = loop
     }
 
+    @Synchronized
     fun clear() {
         routePoints.clear()
         routeCumulativeDistances.clear()
@@ -133,6 +135,7 @@ class RouteEngine {
      * @param newPoints additional points (WGS84) to append after the current last point
      * @param newWaitTimes per-point wait seconds (seconds) parallel to newPoints; missing = 0
      */
+    @Synchronized
     fun appendPoints(newPoints: List<Pair<Double, Double>>, newWaitTimes: DoubleArray? = null) {
         if (newPoints.isEmpty()) return
         val wasFinished = routeFinished
@@ -155,6 +158,7 @@ class RouteEngine {
         KailLog.i(null, TAG, "appendPoints: +${newPoints.size} points, total=${routePoints.size}, totalDistance=${"%.1f".format(totalDistance)}m, finished=$wasFinished")
     }
 
+    @Synchronized
     fun seekToRatio(ratio: Float) {
         if (routePoints.size < 2 || routeCumulativeDistances.isEmpty()) return
         // Seeking back into the route re-activates progression.
@@ -188,6 +192,7 @@ class RouteEngine {
         KailLog.d(null, TAG, "seekToRatio: ratio=${"%.3f".format(ratio)} -> index=$routeIndex lat=$currentLat lng=$currentLng")
     }
 
+    @Synchronized
     fun advance(distanceMeters: Double) {
         // Once a non-looping route has finished, stay parked at the final point
         // (currentLat/Lng already hold the destination). Do not advance or
@@ -198,6 +203,12 @@ class RouteEngine {
             if (stalledAdvanceLogs == 1L || stalledAdvanceLogs % 150L == 0L) {
                 KailLog.w(null, TAG, "advance ignored: route finished & parked (count=$stalledAdvanceLogs). Use 延长路线 or restart simulation to move again.")
             }
+            return
+        }
+        // [本地化修改] 全零长路线（所有点重合）+ 循环模式会在下方 while 中无限空转（CPU 100%），
+        // 直接视为已到达并泊车；后续 appendPoints 会自动复活。
+        if (totalDistance <= 1e-6) {
+            parkAtDestination()
             return
         }
         // [本地化修改] 诊断：零/负位移推进（速度为 0 或间隔异常时位置不会动）。
@@ -328,13 +339,15 @@ class RouteEngine {
      * [本地化修改] 单行诊断摘要：路线推进全量状态，供服务心跳日志输出。
      * 注意：模板里的字面百分号必须写成 %%，否则 .format() 会抛 UnknownFormatConversionException。
      */
+    @Synchronized
     fun diagnosticsString(): String {
         val progressPct = (progressRatio * 100).toInt()
-        val posText = "%.6f,%.6f".format(currentLat, currentLng)
+        val posText = String.format(java.util.Locale.US, "%.6f,%.6f", currentLat, currentLng)
         return "route[active=$isActive finished=$routeFinished waiting=$isWaiting idx=$routeIndex/${routePoints.size} " +
             "progress=${progressPct}% loop=$routeLoop] pos=[$posText]"
     }
 
+    @Synchronized
     fun buildStatusString(): Pair<String, LatLng>? {
         if (routePoints.isEmpty()) return null
         val currentDist = if (routeFinished) totalDistance
