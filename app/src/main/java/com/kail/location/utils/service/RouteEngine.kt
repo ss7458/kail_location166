@@ -106,6 +106,7 @@ class RouteEngine {
         KailLog.i(null, TAG, "setupFromArray: ${routePoints.size} points, coordType=$coordType, totalDistance=${"%.1f".format(totalDistance)}m")
     }
 
+    @Synchronized
     fun setLoop(loop: Boolean) {
         routeLoop = loop
     }

@@ -594,9 +594,6 @@ class LocationSimulationViewModel(application: Application) : AndroidViewModel(a
         try {
             getApplication<Application>().unregisterReceiver(positionReceiver)
         } catch (_: Exception) {}
-        // [本地化修改] 关闭数据库句柄，避免 fd 泄漏。
-        try {
-            db?.close()
-        } catch (_: Exception) {}
+        // [本地化修改] 不在此处 close：IO 协程可能仍在使用连接池（待办：应用级统一管理生命周期）。
     }
 }

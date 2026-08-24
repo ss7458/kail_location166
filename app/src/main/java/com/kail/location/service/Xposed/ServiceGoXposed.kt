@@ -307,6 +307,8 @@ class ServiceGoXposed : Service() {
                     CONTROL_RESUME -> {
                         try {
                             isStop = false
+                            // [本地化修改] 恢复时清除系统死亡停机标志，否则守卫会永久拦截消息循环。
+                            systemDeadStopped = false
                             if (this::mJoystickManager.isInitialized) {
                                 mJoystickManager.setRoutePauseState(false)
                             }

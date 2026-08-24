@@ -248,10 +248,7 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
         try {
             getApplication<Application>().unregisterReceiver(positionReceiver)
         } catch (_: Exception) {}
-        // [本地化修改] 关闭数据库句柄，避免多次进出页面后 fd 泄漏。
-        try {
-            db?.close()
-        } catch (_: Exception) {}
+        // [本地化修改] 不在此处 close：IO 协程可能仍在使用连接池，关闭会抛 IllegalStateException（待办：应用级统一管理生命周期）。
         suggestionSearch.destroy()
     }
 
@@ -1265,23 +1262,18 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
 
             // [本地化修改] 原实现把未修改的新数组原样写回（名称永远存不进去），且两个回调并发互相覆盖。
             // 现按首/尾坐标匹配对应路线条目，在同一实例上改值后一次性写回。
+            // [本地化修改] 按路线唯一 time ID 匹配（原单端点坐标匹配在同起点多路线时会错配到别的路线）。
+            val routeId = obj.optLong("time", -1L)
             fun persistName(field: String, name: String) {
                 if (name.isBlank() || name == "null" || name == unknownLocationText) return
+                if (routeId < 0) return
                 val prefs = PreferenceManager.getDefaultSharedPreferences(getApplication())
                 val arr = JSONArray(prefs.getString("saved_routes", "[]") ?: "[]")
                 for (i in 0 until arr.length()) {
                     val item = arr.optJSONObject(i) ?: continue
-                    val pts = item.optJSONArray("points") ?: continue
-                    val p0 = pts.optJSONObject(0) ?: continue
-                    val pN = pts.optJSONObject(pts.length() - 1) ?: continue
-                    val match = when (field) {
-                        "startName" -> p0.optDouble("lat") == lat1 && p0.optDouble("lng") == lng1
-                        else -> pN.optDouble("lat") == lat2 && pN.optDouble("lng") == lng2
-                    }
-                    if (match) {
-                        item.put(field, name)
-                        break
-                    }
+                    if (item.optLong("time", -2L) != routeId) continue
+                    item.put(field, name)
+                    break
                 }
                 prefs.edit().putString("saved_routes", arr.toString()).apply()
                 _historyRoutes.value = parseRoutes(arr.toString())

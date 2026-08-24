@@ -219,7 +219,7 @@ abstract class BaseLocationHook: BaseDivineService() {
                     minute = (lngAbs - degree) * 60
                     value.longitude = degree + minute / 100
 
-                    return value.toNmeaString()
+                    return NMEA(nmea.talkerId, value).toNmeaString()
                 }
                 is NmeaValue.GNS -> {
                     if (value.latitude == null || value.longitude == null) {
@@ -248,12 +248,12 @@ abstract class BaseLocationHook: BaseDivineService() {
                     minute = (lngAbs - degree) * 60
                     value.longitude = degree + minute / 100
 
-                    return value.toNmeaString()
+                    return NMEA(nmea.talkerId, value).toNmeaString()
                 }
                 is NmeaValue.GSA -> {
                     // [本地化修改] 伪造 GSA：原 return null 会回落透传真实 NMEA（真实坐标泄漏 + 与假 GPS 矛盾）。
                     val prn = List(12) { i -> if (i < 8) 1 + (i * 7 % 32) else null }
-                    return NmeaValue.GSA(
+                    return NMEA(nmea.talkerId, NmeaValue.GSA(
                         mode = "A",
                         fixStatus = 3,
                         prn = prn,
@@ -261,7 +261,7 @@ abstract class BaseLocationHook: BaseDivineService() {
                         hdop = 0.9,
                         vdop = 0.8,
                         systemId = value.systemId
-                    ).toNmeaString()
+                    )).toNmeaString())
                 }
                 is NmeaValue.GSV -> {
                     // [本地化修改] 伪造 GSV：生成与假 GPS 自洽的卫星视图；字段按 4 秒步进缓慢变化，
@@ -276,13 +276,13 @@ abstract class BaseLocationHook: BaseDivineService() {
                             snr = 25 + (i * 13 + step * 5) % 15
                         )
                     }
-                    return NmeaValue.GSV(
+                    return NMEA(nmea.talkerId, NmeaValue.GSV(
                         totalMessages = 1,
                         messageNumber = 1,
                         totalSatellitesInView = total,
                         satellites = sats,
                         infoId = value.infoId
-                    ).toNmeaString()
+                    )).toNmeaString())
                 }
                 is NmeaValue.RMC -> {
                     if (value.latitude == null || value.longitude == null) {
@@ -311,14 +311,14 @@ abstract class BaseLocationHook: BaseDivineService() {
                     minute = (lngAbs - degree) * 60
                     value.longitude = degree + minute / 100
 
-                    return value.toNmeaString()
+                    return NMEA(nmea.talkerId, value).toNmeaString()
                 }
                 is NmeaValue.VTG -> {
                     // [本地化修改] 伪造 VTG：真实报文含真实速度/航向（泄漏+矛盾），改为从假状态生成。
                     val track = (FakeLoc.bearing % 360.0 + 360.0) % 360.0
                     val knots = FakeLoc.speed * 1.943844
                     val kph = FakeLoc.speed * 3.6
-                    return NmeaValue.VTG(
+                    return NMEA(nmea.talkerId, NmeaValue.VTG(
                         trueTrack = track,
                         magneticTrack = null,
                         groundSpeedKnots = knots,
@@ -328,7 +328,7 @@ abstract class BaseLocationHook: BaseDivineService() {
                         trueTrackMode = "A",
                         magneticTrackMode = "A",
                         mode = "A"
-                    ).toNmeaString()
+                    )).toNmeaString())
                 }
             }
         }.onFailure {

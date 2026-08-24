@@ -255,7 +255,9 @@ object LocationProviderManagerHook {
             // [本地化修改] 安全修复：不再用空 ArrayMap 替换 mRegistrations 字段（原实现会导致
             // 系统监听注册表永久丢失，且无锁替换与系统并发写竞争可抛 CME 直接崩 system_server）。
             // 改为对快照迭代；单条监听器处理失败只跳过该条，不中断其余、不逃逸异常。
-            val snapshot = registrations.entries.toList()
+            // [本地化修改] 快照必须在系统锁内获取：mRegistrations 受 synchronized 保护，
+            // 无锁 toList 与 register/unregister 并发会抛 CME 崩溃 system_server。
+            val snapshot = synchronized(registrations) { registrations.entries.toList() }
             snapshot.forEach { entry ->
                 runCatching {
                     val value = entry.value ?: return@runCatching
@@ -318,6 +320,10 @@ object LocationProviderManagerHook {
             if (FakeLoc.enableDebugLog) {
                 KailLog.d(null, "Kail_Xposed", "onReportLocation: injected!")
             }
+
+            // [本地化修改] 抑制原生分发：伪造位置已自行派发给全部监听器，
+            // 若放行原生 onReportLocation 会再派发一帧真实位置（真假交替泄漏/拉扯）。
+            result = null
         }
     }
 

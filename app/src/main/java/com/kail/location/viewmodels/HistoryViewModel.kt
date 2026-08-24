@@ -286,7 +286,6 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
 
     override fun onCleared() {
         super.onCleared()
-        // [本地化修改] 恢复被注释的句柄释放。
-        db?.close()
+        // [本地化修改] 不在此处 close：IO 协程可能仍在使用连接池，关闭会抛 IllegalStateException（原注释是有意为之）。
     }
 }
