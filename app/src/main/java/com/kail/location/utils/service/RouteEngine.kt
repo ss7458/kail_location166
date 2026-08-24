@@ -33,6 +33,10 @@ class RouteEngine {
      */
     private var routeFinished = false
 
+    // [本地化修改] 诊断计数器：泊车后推进 / 零位移推进。
+    private var stalledAdvanceLogs: Long = 0L
+    private var zeroAdvanceLogs: Long = 0L
+
     /**
      * 是否正在某个途经点原地等待（等待期间位置保持在该点）。
      */
@@ -188,7 +192,21 @@ class RouteEngine {
         // Once a non-looping route has finished, stay parked at the final point
         // (currentLat/Lng already hold the destination). Do not advance or
         // reset — the location must remain at the last simulated spot.
-        if (routeFinished) return
+        if (routeFinished) {
+            // [本地化修改] 诊断：泊车后仍被推进（"定位不动"最常见原因之一）。
+            stalledAdvanceLogs++
+            if (stalledAdvanceLogs == 1L || stalledAdvanceLogs % 150L == 0L) {
+                KailLog.w(null, TAG, "advance ignored: route finished & parked (count=$stalledAdvanceLogs). Use 延长路线 or restart simulation to move again.")
+            }
+            return
+        }
+        // [本地化修改] 诊断：零/负位移推进（速度为 0 或间隔异常时位置不会动）。
+        if (distanceMeters <= 0.0) {
+            zeroAdvanceLogs++
+            if (zeroAdvanceLogs == 1L || zeroAdvanceLogs % 150L == 0L) {
+                KailLog.w(null, TAG, "advance: non-positive distance=$distanceMeters (count=$zeroAdvanceLogs) — check speed setting/joystick speed.")
+            }
+        }
 
         // While waiting at a waypoint, hold the position and only count down
         // the wall-clock wait timer. Once elapsed, resume moving this tick.
@@ -304,6 +322,14 @@ class RouteEngine {
             routeIndex = (routePoints.size - 1).coerceAtLeast(0)
         }
         KailLog.i(null, TAG, "advance: route finished (no loop), parked at destination lat=$currentLat lng=$currentLng")
+    }
+
+    /**
+     * [本地化修改] 单行诊断摘要：路线推进全量状态，供服务心跳日志输出。
+     */
+    fun diagnosticsString(): String {
+        return "route[active=$isActive finished=$routeFinished waiting=$isWaiting idx=$routeIndex/${routePoints.size} " +
+            "progress=${(progressRatio * 100).toInt()}% loop=$routeLoop] pos=[${"%.6f"},${"%.6f"}]".format(currentLat, currentLng)
     }
 
     fun buildStatusString(): Pair<String, LatLng>? {

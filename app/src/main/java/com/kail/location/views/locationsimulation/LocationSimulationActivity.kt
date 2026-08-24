@@ -63,8 +63,9 @@ class LocationSimulationActivity : BaseActivity() {
 
         setContent {
             locationTheme {
-                val locationInfo by viewModel.locationInfo.collectAsState()
-                val isSimulating by viewModel.isSimulating.collectAsState()
+val locationInfo by viewModel.locationInfo.collectAsState()
+val isSimulating by viewModel.isSimulating.collectAsState()
+val simulatedPosition by viewModel.simulatedPosition.collectAsState()
                 val isStarting by viewModel.isStarting.collectAsState()
                 val isJoystickEnabled by viewModel.isJoystickEnabled.collectAsState()
                 val stepSimulationEnabled by viewModel.stepSimulationEnabled.collectAsState()
@@ -96,6 +97,7 @@ class LocationSimulationActivity : BaseActivity() {
                     locationInfo = locationInfo,
                     isSimulating = isSimulating,
                     isStarting = isStarting,
+                    simulatedPosition = simulatedPosition,
                     isJoystickEnabled = isJoystickEnabled,
                     stepSimulationEnabled = stepSimulationEnabled,
                     stepCadenceSpm = stepCadenceSpm,

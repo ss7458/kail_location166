@@ -62,6 +62,25 @@ class ServiceGoSandbox : Service() {
     // [本地化修改] tick 时间戳与最近实际步进速度。
     private var lastTickElapsedMs: Long = 0L
     private var lastStepSpeed: Double = 1.2
+    // [本地化修改] 心跳/广播计数器。
+    private var loopTickCounter: Long = 0L
+    private var posBroadcastCounter: Long = 0L
+
+    /**
+     * [本地化修改] 周期性广播当前模拟坐标，供页面实时显示。
+     */
+    private fun maybeBroadcastPosition() {
+        posBroadcastCounter++
+        if (posBroadcastCounter % 5L != 0L) return
+        runCatching {
+            val i = Intent(ServiceConstants.ACTION_POSITION_CHANGED).apply {
+                setPackage(packageName)
+                putExtra(ServiceConstants.EXTRA_POS_LAT, mCurLat)
+                putExtra(ServiceConstants.EXTRA_POS_LNG, mCurLng)
+            }
+            sendBroadcast(i)
+        }
+    }
 
     companion object {
         const val DEFAULT_LAT = ServiceConstants.DEFAULT_LAT
@@ -474,10 +493,20 @@ class ServiceGoSandbox : Service() {
                         KailLog.v(this@ServiceGoSandbox, "[sandbox] ServiceGoSandbox", "jitter applied: $mCurLat,$mCurLng -> $jlat,$jlng")
                     }
                     SandboxLocationHook.updateLocation(jlat, jlng, mCurAlt, mCurBea, lastStepSpeed)
+                    // [本地化修改] 心跳日志（约15秒一条）+ 周期坐标广播（约0.75秒一次）。
+                    loopTickCounter++
+                    if (loopTickCounter % 100L == 0L) {
+                        KailLog.i(this@ServiceGoSandbox, "[sandbox] ServiceGoSandbox",
+                            "heartbeat #$loopTickCounter speed=${"%.2f".format(mSpeed)} stop=$isStop ${mRouteEngine.diagnosticsString()}")
+                    }
+                    maybeBroadcastPosition()
                     sendEmptyMessage(HANDLER_MSG_ID)
                 } catch (e: InterruptedException) {
                     KailLog.e(this@ServiceGoSandbox, "[sandbox] ServiceGoSandbox", "handleMessage interrupted: ${e.message}")
                     Thread.currentThread().interrupt()
+                    // [本地化修改] 中断后尝试恢复循环，否则定位会静默冻结。
+                    runCatching { sendEmptyMessage(HANDLER_MSG_ID) }
+                        .onFailure { KailLog.w(this@ServiceGoSandbox, "[sandbox] ServiceGoSandbox", "loop NOT rescheduled after interrupt (looper quit?): ${it.message}") }
                 } catch (e: Exception) {
                     KailLog.e(this@ServiceGoSandbox, "[sandbox] ServiceGoSandbox", "handleMessage exception: ${e.message}")
                     sendEmptyMessageDelayed(HANDLER_MSG_ID, 100)

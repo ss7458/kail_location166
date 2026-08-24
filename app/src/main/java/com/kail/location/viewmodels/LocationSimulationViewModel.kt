@@ -120,6 +120,19 @@ class LocationSimulationViewModel(application: Application) : AndroidViewModel(a
 
     private var startTimeoutJob: kotlinx.coroutines.Job? = null
 
+    // [本地化修改] 实时模拟坐标（来自服务周期广播），供页面显示。
+    private val _simulatedPosition = MutableStateFlow<Pair<Double, Double>?>(null)
+    val simulatedPosition: StateFlow<Pair<Double, Double>?> = _simulatedPosition.asStateFlow()
+
+    private val positionReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action != ServiceConstants.ACTION_POSITION_CHANGED) return
+            val lat = intent.getDoubleExtra(ServiceConstants.EXTRA_POS_LAT, Double.NaN)
+            val lng = intent.getDoubleExtra(ServiceConstants.EXTRA_POS_LNG, Double.NaN)
+            if (!lat.isNaN() && !lng.isNaN()) _simulatedPosition.value = lat to lng
+        }
+    }
+
     private val statusReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action != ServiceConstants.ACTION_STATUS_CHANGED) return
@@ -149,6 +162,13 @@ class LocationSimulationViewModel(application: Application) : AndroidViewModel(a
             application,
             statusReceiver,
             IntentFilter(ServiceConstants.ACTION_STATUS_CHANGED),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+        // [本地化修改] 接收服务周期广播的模拟坐标。
+        ContextCompat.registerReceiver(
+            application,
+            positionReceiver,
+            IntentFilter(ServiceConstants.ACTION_POSITION_CHANGED),
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
     }
@@ -570,6 +590,9 @@ class LocationSimulationViewModel(application: Application) : AndroidViewModel(a
         startTimeoutJob?.cancel()
         try {
             getApplication<Application>().unregisterReceiver(statusReceiver)
+        } catch (_: Exception) {}
+        try {
+            getApplication<Application>().unregisterReceiver(positionReceiver)
         } catch (_: Exception) {}
     }
 }

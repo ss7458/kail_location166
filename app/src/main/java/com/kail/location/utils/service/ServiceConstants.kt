@@ -39,4 +39,9 @@ object ServiceConstants {
     const val ACTION_STATUS_CHANGED = "com.kail.location.service.STATUS_CHANGED"
     const val EXTRA_IS_SIMULATING = "is_simulating"
     const val EXTRA_IS_PAUSED = "is_paused"
+
+    // [本地化修改] 周期性模拟坐标广播（约每 5 个 tick 一次），供页面实时显示当前模拟坐标。
+    const val ACTION_POSITION_CHANGED = "com.kail.location.service.POSITION_CHANGED"
+    const val EXTRA_POS_LAT = "pos_lat"
+    const val EXTRA_POS_LNG = "pos_lng"
 }

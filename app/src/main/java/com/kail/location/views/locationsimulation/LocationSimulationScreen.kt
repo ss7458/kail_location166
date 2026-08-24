@@ -78,6 +78,7 @@ fun LocationSimulationScreen(
     locationInfo: LocationSimulationViewModel.LocationInfo,
     isSimulating: Boolean,
     isStarting: Boolean,
+    simulatedPosition: Pair<Double, Double>? = null,
     isJoystickEnabled: Boolean,
     stepSimulationEnabled: Boolean,
     stepCadenceSpm: Float,
@@ -169,6 +170,16 @@ fun LocationSimulationScreen(
                     .padding(paddingValues)
                     .fillMaxSize()
             ) {
+                // [本地化修改] 实时模拟坐标显示（来自服务周期广播）
+                simulatedPosition?.let { (lat, lng) ->
+                    Text(
+                        text = "模拟坐标: ${"%.6f".format(lat)}, ${"%.6f".format(lng)}",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 2.dp)
+                    )
+                }
                 // Target Location Card
                 Box(
                     modifier = Modifier

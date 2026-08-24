@@ -53,6 +53,25 @@ class ServiceGoXposed : Service() {
     private var speedFluctuation: Boolean = false
     // [本地化修改] 上一次 tick 的实际时间戳，用于按真实耗时推进路线。
     private var lastTickElapsedMs: Long = 0L
+    // [本地化修改] 心跳/广播计数器。
+    private var loopTickCounter: Long = 0L
+    private var posBroadcastCounter: Long = 0L
+
+    /**
+     * [本地化修改] 周期性广播当前模拟坐标，供页面实时显示（约每 5 个 tick ≈ 1 秒）。
+     */
+    private fun maybeBroadcastPosition() {
+        posBroadcastCounter++
+        if (posBroadcastCounter % 5L != 0L) return
+        runCatching {
+            val i = Intent(ServiceConstants.ACTION_POSITION_CHANGED).apply {
+                setPackage(packageName)
+                putExtra(ServiceConstants.EXTRA_POS_LAT, mCurLat)
+                putExtra(ServiceConstants.EXTRA_POS_LNG, mCurLng)
+            }
+            sendBroadcast(i)
+        }
+    }
     private var stepEnabled: Boolean = false
     private var stepCadence: Float = 120f
     private var stepMode: Int = 0
@@ -173,15 +192,18 @@ class ServiceGoXposed : Service() {
         val key = xposedKey
         if (key == null) {
             KailLog.e(this, "ServiceGoXposed", "No Xposed key available")
+            reportXposedChannelFailure("no-key")
             return false
         }
         return try {
             extras.putString("command_id", commandId)
             val result = mLocManager.sendExtraCommand("kail", key, extras)
             KailLog.i(this, "ServiceGoXposed", "sendXposedCommand '$commandId' -> $result, key=$key")
+            if (!result) reportXposedChannelFailure("rejected:$commandId") else reportXposedChannelSuccess()
             result
         } catch (e: Exception) {
             KailLog.e(this, "ServiceGoXposed", "sendXposedCommand $commandId failed: ${e.message}")
+            reportXposedChannelFailure("${e.javaClass.simpleName}:${e.message}")
             // [本地化修改] system_server 死亡（如熄屏/亮屏瞬间系统崩溃重启）时优雅停止：
             // 继续高频 IPC 轰击已死的系统只会拖慢恢复并刷爆日志。
             if (e is android.os.DeadSystemException) {
@@ -194,6 +216,21 @@ class ServiceGoXposed : Service() {
             }
             false
         }
+    }
+
+    // [本地化修改] 模块通道失败连击统计：连续失败时聚合告警，便于诊断"定位不动"。
+    private var xposedFailStreak = 0
+    private fun reportXposedChannelFailure(reason: String) {
+        xposedFailStreak++
+        if (xposedFailStreak == 1 || xposedFailStreak == 10 || xposedFailStreak % 50 == 0) {
+            KailLog.w(this, "ServiceGoXposed", "xposed channel failing (streak=$xposedFailStreak, last=$reason) — target apps will see frozen location. Check LSPosed/module status.")
+        }
+    }
+    private fun reportXposedChannelSuccess() {
+        if (xposedFailStreak > 0) {
+            KailLog.i(this, "ServiceGoXposed", "xposed channel recovered after $xposedFailStreak failures")
+        }
+        xposedFailStreak = 0
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -750,10 +787,20 @@ class ServiceGoXposed : Service() {
                         putDouble("lon", mCurLng)
                     }
                     sendXposedCommand("update_location", locExtras)
+                    // [本地化修改] 心跳日志（约10秒一条）+ 周期坐标广播（约1秒一次）。
+                    loopTickCounter++
+                    if (loopTickCounter % 50L == 0L) {
+                        KailLog.i(this@ServiceGoXposed, "ServiceGoXposed",
+                            "heartbeat #$loopTickCounter speed=${"%.2f".format(mSpeed)} stop=$isStop elapsedMs=$elapsedMs ${mRouteEngine.diagnosticsString()}")
+                    }
+                    maybeBroadcastPosition()
                     sendEmptyMessageDelayed(HANDLER_MSG_ID, currentLocationUpdateIntervalMs())
                 } catch (e: InterruptedException) {
                     KailLog.e(this@ServiceGoXposed, "ServiceGoXposed", "handleMessage interrupted: ${e.message}")
                     Thread.currentThread().interrupt()
+                    // [本地化修改] 中断后尝试恢复循环，否则定位会静默冻结。
+                    runCatching { sendEmptyMessageDelayed(HANDLER_MSG_ID, currentLocationUpdateIntervalMs()) }
+                        .onFailure { KailLog.w(this@ServiceGoXposed, "ServiceGoXposed", "loop NOT rescheduled after interrupt (looper quit?): ${it.message}") }
                 } catch (e: Exception) {
                     KailLog.e(this@ServiceGoXposed, "ServiceGoXposed", "handleMessage exception: ${e.message}")
                     sendEmptyMessageDelayed(HANDLER_MSG_ID, currentLocationUpdateIntervalMs())

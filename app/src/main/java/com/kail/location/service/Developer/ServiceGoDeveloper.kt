@@ -57,6 +57,25 @@ class ServiceGoDeveloper : Service() {
     private var lastTickElapsedMs: Long = 0L
     // [本地化修改] 最近一次实际步进速度，上报给 Location.speed 保持与位移一致。
     private var lastStepSpeed: Double = 1.2
+    // [本地化修改] 心跳/广播计数器。
+    private var loopTickCounter: Long = 0L
+    private var posBroadcastCounter: Long = 0L
+
+    /**
+     * [本地化修改] 周期性广播当前模拟坐标，供页面实时显示（约每 5 个 tick ≈ 1 秒）。
+     */
+    private fun maybeBroadcastPosition() {
+        posBroadcastCounter++
+        if (posBroadcastCounter % 5L != 0L) return
+        runCatching {
+            val i = Intent(ServiceConstants.ACTION_POSITION_CHANGED).apply {
+                setPackage(packageName)
+                putExtra(ServiceConstants.EXTRA_POS_LAT, mCurLat)
+                putExtra(ServiceConstants.EXTRA_POS_LNG, mCurLng)
+            }
+            sendBroadcast(i)
+        }
+    }
 
     companion object {
         const val DEFAULT_LAT = ServiceConstants.DEFAULT_LAT
@@ -416,10 +435,20 @@ class ServiceGoDeveloper : Service() {
                     lastStepSpeed = speedForStep
                     val (jlat, jlng) = jitterLocation()
                     mMockLocationProvider.setLocation(jlat, jlng, mCurAlt, mCurBea, lastStepSpeed, isStop)
+                    // [本地化修改] 心跳日志（约10秒一条）+ 周期坐标广播（约1秒一次）。
+                    loopTickCounter++
+                    if (loopTickCounter % 50L == 0L) {
+                        KailLog.i(this@ServiceGoDeveloper, "ServiceGoDeveloper",
+                            "heartbeat #$loopTickCounter speed=${"%.2f".format(mSpeed)} stop=$isStop elapsedMs=$elapsedMs ${mRouteEngine.diagnosticsString()}")
+                    }
+                    maybeBroadcastPosition()
                     mLocHandler.sendEmptyMessageDelayed(HANDLER_MSG_ID, currentLocationUpdateIntervalMs())
                 } catch (e: InterruptedException) {
                     KailLog.e(this@ServiceGoDeveloper, "ServiceGoDeveloper", "handleMessage interrupted: ${e.message}")
                     Thread.currentThread().interrupt()
+                    // [本地化修改] 中断后尝试恢复循环，否则定位会静默冻结。
+                    runCatching { mLocHandler.sendEmptyMessageDelayed(HANDLER_MSG_ID, currentLocationUpdateIntervalMs()) }
+                        .onFailure { KailLog.w(this@ServiceGoDeveloper, "ServiceGoDeveloper", "loop NOT rescheduled after interrupt (looper quit?): ${it.message}") }
                 } catch (e: Exception) {
                     KailLog.e(this@ServiceGoDeveloper, "ServiceGoDeveloper", "handleMessage exception: ${e.message}")
                     sendEmptyMessageDelayed(HANDLER_MSG_ID, currentLocationUpdateIntervalMs())

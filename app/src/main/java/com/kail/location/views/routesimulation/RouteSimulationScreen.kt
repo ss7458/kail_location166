@@ -184,6 +184,17 @@ fun RouteSimulationScreen(
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
+                    // [本地化修改] 实时模拟坐标显示（来自服务周期广播）
+                    val simPos by viewModel.simulatedPosition.collectAsState()
+                    simPos?.let { (lat, lng) ->
+                        Text(
+                            text = "模拟坐标: ${"%.6f".format(lat)}, ${"%.6f".format(lng)}",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp, vertical = 2.dp)
+                        )
+                    }
                     // Target Route Card
                     Box(
                         modifier = Modifier
