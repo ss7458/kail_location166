@@ -17,6 +17,7 @@ import android.os.Process
 import android.os.SystemClock
 import android.provider.Settings
 import androidx.preference.PreferenceManager
+import com.kail.location.utils.service.GeoRealism
 import com.kail.location.R
 import com.kail.location.geo.GeoPredict
 import com.kail.location.inject.fakelocation.aidl.IMockLocationManager
@@ -1952,18 +1953,19 @@ class ServiceGoRoot : Service() {
             }
             runCatching {
                 val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-                if (prefs.getBoolean("setting_natural_jitter", false)) {
-                    val sigma = 2.5e-6
-                    mCurLat += (Math.random() * 2 - 1) * sigma
-                    mCurLng += (Math.random() * 2 - 1) * sigma
+                // [本地化修改] OU 时间相关漂移（不再累积改写状态变量），并真实化 accuracy/speed/bearing。
+                val (jlat, jlng) = if (prefs.getBoolean("setting_natural_jitter", false)) {
+                    GeoRealism.drifted(mCurLat, mCurLng)
+                } else {
+                    mCurLat to mCurLng
                 }
                 val loc = Location(LocationManager.GPS_PROVIDER).apply {
-                    latitude = mCurLat
-                    longitude = mCurLng
+                    latitude = jlat
+                    longitude = jlng
                     altitude = mCurAlt
-                    bearing = mCurBea
-                    speed = lastStepSpeed.toFloat()
-                    accuracy = 1.0f
+                    bearing = GeoRealism.noisyBearing(mCurBea)
+                    speed = GeoRealism.noisySpeed(lastStepSpeed)
+                    accuracy = GeoRealism.driftedAccuracy()
                     time = System.currentTimeMillis()
                     elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
                     extras = Bundle().apply { putString("from", "rocker") }

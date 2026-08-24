@@ -7,6 +7,7 @@ import android.location.LocationManager
 import android.os.*
 import android.provider.Settings
 import androidx.preference.PreferenceManager
+import com.kail.location.utils.service.GeoRealism
 import com.kail.location.R
 import com.kail.location.geo.GeoPredict
 import com.kail.location.utils.service.ServiceConstants
@@ -397,10 +398,8 @@ class ServiceGoDeveloper : Service() {
     private fun jitterLocation(): Pair<Double, Double> {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         if (!prefs.getBoolean("setting_natural_jitter", false)) return Pair(mCurLat, mCurLng)
-        val sigma = 2.5e-6
-        val jitterLat = (Math.random() * 2 - 1) * sigma
-        val jitterLng = (Math.random() * 2 - 1) * sigma
-        return Pair(mCurLat + jitterLat, mCurLng + jitterLng)
+        // [本地化修改] 升级为 OU 时间相关漂移（高斯+均值回归，米级），替换原 ±0.28m 均匀独立抖动。
+        return GeoRealism.drifted(mCurLat, mCurLng)
     }
 
     private fun initGoLocation() {

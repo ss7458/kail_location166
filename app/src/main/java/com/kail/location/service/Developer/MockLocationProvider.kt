@@ -10,6 +10,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.widget.Toast
+import com.kail.location.utils.service.GeoRealism
 import com.kail.location.R
 import com.kail.location.utils.KailLog
 
@@ -102,13 +103,13 @@ class MockLocationProvider(
     ): Boolean {
         return try {
             val loc = Location(LocationManager.GPS_PROVIDER).apply {
-                accuracy = 1.0f
+                accuracy = GeoRealism.driftedAccuracy()
                 this.altitude = alt
-                bearing = bea
+                bearing = GeoRealism.noisyBearing(bea)
                 this.latitude = lat
                 this.longitude = lng
                 time = System.currentTimeMillis()
-                val speedToSet = if (isStop) 0.0f else speed.toFloat()
+                val speedToSet = if (isStop) 0.0f else GeoRealism.noisySpeed(speed.toDouble())
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     this.speed = speedToSet
                     speedAccuracyMetersPerSecond = 0.1f
@@ -167,13 +168,13 @@ class MockLocationProvider(
     ): Boolean {
         return try {
             val loc = Location(LocationManager.NETWORK_PROVIDER).apply {
-                accuracy = 1.0f
+                accuracy = GeoRealism.driftedAccuracy()
                 this.altitude = alt
-                bearing = bea
+                bearing = GeoRealism.noisyBearing(bea)
                 this.latitude = lat
                 this.longitude = lng
                 time = System.currentTimeMillis()
-                val speedToSet = if (isStop) 0.0f else speed.toFloat()
+                val speedToSet = if (isStop) 0.0f else GeoRealism.noisySpeed(speed.toDouble())
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     this.speed = speedToSet
                     speedAccuracyMetersPerSecond = 0.1f

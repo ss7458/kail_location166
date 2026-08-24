@@ -7,6 +7,7 @@ import android.location.LocationManager
 import android.os.*
 import android.provider.Settings
 import androidx.preference.PreferenceManager
+import com.kail.location.utils.service.GeoRealism
 import com.kail.location.R
 import com.kail.location.geo.GeoPredict
 import com.kail.location.sandbox.SandboxManager
@@ -445,8 +446,8 @@ class ServiceGoSandbox : Service() {
     private fun jitterLocation(): Pair<Double, Double> {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         if (!prefs.getBoolean("setting_natural_jitter", false)) return Pair(mCurLat, mCurLng)
-        val sigma = 2.5e-6
-        return Pair(mCurLat + (Math.random() * 2 - 1) * sigma, mCurLng + (Math.random() * 2 - 1) * sigma)
+        // [本地化修改] 升级为 OU 时间相关漂移（高斯+均值回归，米级）。
+        return GeoRealism.drifted(mCurLat, mCurLng)
     }
 
     private fun initGoLocation() {
@@ -492,7 +493,7 @@ class ServiceGoSandbox : Service() {
                     if (jitterApplied) {
                         KailLog.v(this@ServiceGoSandbox, "[sandbox] ServiceGoSandbox", "jitter applied: $mCurLat,$mCurLng -> $jlat,$jlng")
                     }
-                    SandboxLocationHook.updateLocation(jlat, jlng, mCurAlt, mCurBea, lastStepSpeed)
+                    SandboxLocationHook.updateLocation(jlat, jlng, mCurAlt, GeoRealism.noisyBearing(mCurBea), GeoRealism.noisySpeed(lastStepSpeed))
                     // [本地化修改] 心跳日志（约15秒一条）+ 周期坐标广播（约0.75秒一次）。
                     loopTickCounter++
                     if (loopTickCounter % 100L == 0L) {

@@ -7,6 +7,7 @@ import android.location.LocationManager
 import android.os.*
 import android.provider.Settings
 import androidx.preference.PreferenceManager
+import com.kail.location.utils.service.GeoRealism
 import com.kail.location.R
 import com.kail.location.geo.GeoPredict
 import com.kail.location.utils.service.ServiceConstants
@@ -782,9 +783,17 @@ class ServiceGoXposed : Service() {
                             updateJoystickStatus()
                         }
                     }
+                    // [本地化修改] 下发前施加 OU 时间相关漂移，使目标 app 看到真实感轨迹。
+                    val (slat, slng) = if (androidx.preference.PreferenceManager
+                            .getDefaultSharedPreferences(this@ServiceGoXposed)
+                            .getBoolean("setting_natural_jitter", false)) {
+                        GeoRealism.drifted(mCurLat, mCurLng)
+                    } else {
+                        mCurLat to mCurLng
+                    }
                     val locExtras = Bundle().apply {
-                        putDouble("lat", mCurLat)
-                        putDouble("lon", mCurLng)
+                        putDouble("lat", slat)
+                        putDouble("lon", slng)
                     }
                     sendXposedCommand("update_location", locExtras)
                     // [本地化修改] 心跳日志（约10秒一条）+ 周期坐标广播（约1秒一次）。
