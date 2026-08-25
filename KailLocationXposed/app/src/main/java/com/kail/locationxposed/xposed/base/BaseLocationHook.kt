@@ -15,8 +15,10 @@ abstract class BaseLocationHook: BaseDivineService() {
     private val injecting = ThreadLocal<Boolean>()
 
     fun injectLocation(originLocation: Location, realLocation: Boolean = true): Location {
-        KailLog.e(null, "Kail_Xposed", "=== injectLocation ENTER: FakeLoc.lat=${FakeLoc.latitude}, FakeLoc.lon=${FakeLoc.longitude}")
-        KailLog.e(null, "Kail_Xposed", "=== injectLocation origin: ${originLocation.latitude},${originLocation.longitude} provider=${originLocation.provider}")
+        if (FakeLoc.enableDebugLog) {
+            KailLog.d(null, "Kail_Xposed", "=== injectLocation ENTER: FakeLoc.lat=${FakeLoc.latitude}, FakeLoc.lon=${FakeLoc.longitude}")
+            KailLog.d(null, "Kail_Xposed", "=== injectLocation origin: ${originLocation.latitude},${originLocation.longitude} provider=${originLocation.provider}")
+        }
         if (injecting.get() == true) {
             KailLog.e(null, "Kail_Xposed", "=== injectLocation EXIT: reentrant")
             return originLocation
