@@ -508,6 +508,7 @@ class ServiceGoXposed : Service() {
             val loopBroadcast = if (prefs.contains("setting_anti_pullback")) prefs.getBoolean("setting_anti_pullback", false) else prefs.getBoolean("setting_loop_broadcast", false)
             putBoolean("loopBroadcastLocation", loopBroadcast)
             putBoolean("enableNaturalJitter", prefs.getBoolean("setting_natural_jitter", false))
+            putBoolean("enableDiag", prefs.getBoolean("setting_diag_mode", false))
             putInt("minSatellites", prefs.getString("setting_min_satellites", "12")?.toIntOrNull() ?: 12)
             putFloat("accuracy", prefs.getString("setting_accuracy", "2.5")?.toFloatOrNull() ?: 2.5f)
             putInt("reportIntervalMs", prefs.getString("setting_report_interval", "200")?.toIntOrNull() ?: 200)

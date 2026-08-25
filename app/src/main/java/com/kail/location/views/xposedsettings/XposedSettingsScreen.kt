@@ -45,6 +45,7 @@ fun XposedSettingsScreen(
     var antiPullback by remember { mutableStateOf(prefs.getBoolean("setting_anti_pullback", false)) }
     var minSatellites by remember { mutableStateOf(prefs.getString("setting_min_satellites", "12") ?: "12") }
     var reportInterval by remember { mutableStateOf(prefs.getString("setting_report_interval", "100") ?: "100") }
+    var diagMode by remember { mutableStateOf(prefs.getBoolean("setting_diag_mode", false)) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -111,6 +112,16 @@ fun XposedSettingsScreen(
                         prefs.edit().putBoolean("setting_disable_fused", it).apply()
                     },
                     summary = stringResource(R.string.setting_disable_fused_summary)
+                )
+
+                SwitchPreference(
+                    title = stringResource(R.string.setting_diag_mode),
+                    checked = diagMode,
+                    onCheckedChange = {
+                        diagMode = it
+                        prefs.edit().putBoolean("setting_diag_mode", it).apply()
+                    },
+                    summary = stringResource(R.string.setting_diag_mode_summary)
                 )
 
                 SwitchPreference(

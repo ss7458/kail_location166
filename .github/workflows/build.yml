@@ -64,6 +64,18 @@ jobs:
           fi
           exit $rc
 
+      - name: Build Xposed Module APK
+        shell: bash
+        run: |
+          set +o pipefail
+          ./gradlew -p KailLocationXposed assembleRelease --no-daemon --stacktrace 2>&1 | tee module_gradle.log
+          rc=${PIPESTATUS[0]}
+          if [ $rc -ne 0 ]; then
+            echo "### Xposed module build failed" >> "$GITHUB_STEP_SUMMARY"
+            tail -60 module_gradle.log >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit $rc
+
       - name: Upload Gradle log
         if: failure()
         uses: actions/upload-artifact@v4
@@ -72,10 +84,18 @@ jobs:
           path: gradle.log
           if-no-files-found: warn
 
-      - name: Upload APK
+      - name: Upload App APK
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: kail_location-${{ github.sha }}
+          name: kail_location_app-${{ github.sha }}
           path: app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+
+      - name: Upload Xposed Module APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kail_location_xposed_module-${{ github.sha }}
+          path: KailLocationXposed/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
