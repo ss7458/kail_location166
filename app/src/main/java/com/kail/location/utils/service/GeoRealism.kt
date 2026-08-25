@@ -28,7 +28,9 @@ object GeoRealism {
     private const val CLAMP_DEG = 0.000036
 
     // ---- accuracy 漂移状态（单位：米）----
-    @Volatile private var accMeters = 8.0
+    // [本地化修改][回归修正] 原钳制 [4,25] 会游走到地图 SDK 的精度拒收门限（约15~20m）以上，
+    // 导致定位点被目标间歇性丢弃（表现为时走时停）。收紧到 [4,12]，贴近真实手机 3~10m 特征。
+    @Volatile private var accMeters = 7.0
     @Volatile private var lastAccAtMs = 0L
 
     /**
@@ -53,13 +55,13 @@ object GeoRealism {
      * 真实感 accuracy：围绕基准（默认 8m）缓慢高斯游走，钳制 [4, 25] 米。
      */
     @Synchronized
-    fun driftedAccuracy(baseMeters: Double = 8.0): Float {
+    fun driftedAccuracy(baseMeters: Double = 7.0): Float {
         val now = SystemClock.elapsedRealtime()
         val dtSec = if (lastAccAtMs == 0L) 1.0 else ((now - lastAccAtMs) / 1000.0).coerceIn(0.05, 10.0)
         lastAccAtMs = now
         val rnd = ThreadLocalRandom.current()
-        accMeters += 0.6 * sqrt(dtSec) * rnd.nextGaussian() - 0.08 * (accMeters - baseMeters) * dtSec
-        accMeters = accMeters.coerceIn(4.0, 25.0)
+        accMeters += 0.35 * sqrt(dtSec) * rnd.nextGaussian() - 0.1 * (accMeters - baseMeters) * dtSec
+        accMeters = accMeters.coerceIn(4.0, 12.0)
         return accMeters.toFloat()
     }
 

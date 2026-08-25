@@ -261,28 +261,28 @@ abstract class BaseLocationHook: BaseDivineService() {
                         hdop = 0.9,
                         vdop = 0.8,
                         systemId = value.systemId
-                    )).toNmeaString())
+                    )).toNmeaString()
                 }
                 is NmeaValue.GSV -> {
                     // [本地化修改] 伪造 GSV：生成与假 GPS 自洽的卫星视图；字段按 4 秒步进缓慢变化，
                     // 避免目标 app 因卫星数据高频突变而识破（借鉴 LocationSpoofer）。
-                    val total = 10
+                    // [本地化修改][规范修正] 单句最多 4 颗（NMEA 上限）且 PRN 唯一；原 10 颗单页含重复 PRN 会被严校验解析器拒收。
                     val step = (android.os.SystemClock.elapsedRealtime() / 4000L).toInt()
-                    val sats = (0 until total).map { i ->
+                    val sats = (0 until 4).map { i ->
                         NmeaValue.GSV.Satellite(
-                            prn = 1 + (i * 8 + step % 32) % 32,
-                            elevation = 15 + (i * 37 + step * 11) % 60,
-                            azimuth = (i * 47 + step * 3) % 360,
-                            snr = 25 + (i * 13 + step * 5) % 15
+                            prn = 1 + (i * 13 + step) % 32,
+                            elevation = 20 + (i * 17 + step * 11) % 55,
+                            azimuth = (i * 90 + step * 3) % 360,
+                            snr = 26 + (i * 7 + step * 5) % 12
                         )
                     }
                     return NMEA(nmea.talkerId, NmeaValue.GSV(
                         totalMessages = 1,
                         messageNumber = 1,
-                        totalSatellitesInView = total,
+                        totalSatellitesInView = 4,
                         satellites = sats,
                         infoId = value.infoId
-                    )).toNmeaString())
+                    )).toNmeaString()
                 }
                 is NmeaValue.RMC -> {
                     if (value.latitude == null || value.longitude == null) {
@@ -325,10 +325,10 @@ abstract class BaseLocationHook: BaseDivineService() {
                         groundSpeedUnit = "N",
                         groundSpeedKph = kph,
                         groundSpeedKphUnit = "K",
-                        trueTrackMode = "A",
-                        magneticTrackMode = "A",
+                        trueTrackMode = "T",
+                        magneticTrackMode = "M",
                         mode = "A"
-                    )).toNmeaString())
+                    )).toNmeaString()
                 }
             }
         }.onFailure {
