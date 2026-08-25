@@ -5,6 +5,8 @@ import kotlin.math.sin
 
 object GeoPredict {
     fun randomInRangeWithMean(min: Double, max: Double, mean: Double): Double {
+        // [本地化修改] 零速/极低速时区间为空，直接返回均值（原实现在 nextDouble 抛 IllegalArgumentException 导致该 tick 丢弃）。
+        if (max - min < 1e-9) return mean
         require(mean in min..max) { "平均值必须在 min 和 max 之间" }
         return if (kotlin.random.Random.nextBoolean()) {
             kotlin.random.Random.nextDouble(min, mean)

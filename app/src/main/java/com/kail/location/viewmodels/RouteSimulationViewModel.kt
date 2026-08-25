@@ -679,6 +679,7 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
                 val prefs = PreferenceManager.getDefaultSharedPreferences(getApplication())
                 val res = prefs.getString("saved_routes", "[]") ?: "[]"
                 val arr = JSONArray(res)
+                var matchedObj: JSONObject? = null
                 for (i in 0 until arr.length()) {
                     val obj = arr.optJSONObject(i) ?: continue
                     if (obj.optLong("time", 0L).toString() == id) {
@@ -692,19 +693,15 @@ class RouteSimulationViewModel(application: Application) : AndroidViewModel(appl
                             pts.put(p)
                         }
                         obj.put("points", pts)
+                        matchedObj = obj
                         break
                     }
                 }
                 prefs.edit().putString("saved_routes", arr.toString()).apply()
                 _historyRoutes.value = parseRoutes(arr.toString())
                 _editingRouteId.value = null
-                for (i in 0 until arr.length()) {
-                    val obj = arr.optJSONObject(i) ?: continue
-                    if (obj.optLong("time", 0L).toString() == id) {
-                        enrichNamesForRoute(obj)
-                        break
-                    }
-                }
+                // [本地化修改] 直接用首次扫描已匹配的对象补充名称（原二次扫描用旧 id 匹配在 time 已更新后永不命中）。
+                matchedObj?.let { enrichNamesForRoute(it) }
             } catch (e: Exception) {
                 KailLog.w(getApplication(), TAG, "updateRoute failed: ${e.message}")
             }
