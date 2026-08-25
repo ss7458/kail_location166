@@ -174,7 +174,8 @@ class ServiceGoXposed : Service() {
         KailLog.i(this, "ServiceGoXposed", "onCreate finished")
     }
 
-    @Synchronized`n    private fun exchangeKey(): Boolean {
+    @Synchronized
+    private fun exchangeKey(): Boolean {
         return try {
             val extras = Bundle()
             val success = mLocManager.sendExtraCommand("kail", "exchange_key", extras)
@@ -503,7 +504,9 @@ class ServiceGoXposed : Service() {
             putBoolean("hideMock", prefs.getBoolean("setting_hide_mock", true))
             putBoolean("hookWifi", prefs.getBoolean("setting_disable_wifi_scan", true))
             putBoolean("needDowngradeToCdma", prefs.getBoolean("setting_downgrade_to_cdma", true))
-            // [本地化修改] key 兼容：设置页写 setting_anti_pullback，旧 key 作回退。`n            val loopBroadcast = if (prefs.contains("setting_anti_pullback")) prefs.getBoolean("setting_anti_pullback", false) else prefs.getBoolean("setting_loop_broadcast", false)`n            putBoolean("loopBroadcastLocation", loopBroadcast)
+            // [本地化修改] key 兼容：设置页写 setting_anti_pullback，旧 key 作回退。
+            val loopBroadcast = if (prefs.contains("setting_anti_pullback")) prefs.getBoolean("setting_anti_pullback", false) else prefs.getBoolean("setting_loop_broadcast", false)
+            putBoolean("loopBroadcastLocation", loopBroadcast)
             putBoolean("enableNaturalJitter", prefs.getBoolean("setting_natural_jitter", false))
             putInt("minSatellites", prefs.getString("setting_min_satellites", "12")?.toIntOrNull() ?: 12)
             putFloat("accuracy", prefs.getString("setting_accuracy", "2.5")?.toFloatOrNull() ?: 2.5f)
