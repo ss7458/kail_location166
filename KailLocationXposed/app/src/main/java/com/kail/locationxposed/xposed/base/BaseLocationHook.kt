@@ -48,10 +48,7 @@ abstract class BaseLocationHook: BaseDivineService() {
             }
         }
 
-        if (originLocation.latitude + originLocation.longitude == FakeLoc.latitude + FakeLoc.longitude) {
-            KailLog.e(null, "Kail_Xposed", "=== injectLocation EXIT: already processed")
-            return originLocation
-        }
+        // [本地化修改] 移除和值判重：浮点和值巧合相等会直接泄漏真实 Location（kail_faked extras 已足够判重）。
 
         if (FakeLoc.disableNetworkLocation && originLocation.provider == LocationManager.NETWORK_PROVIDER) {
             originLocation.provider = LocationManager.GPS_PROVIDER
@@ -75,17 +72,20 @@ abstract class BaseLocationHook: BaseDivineService() {
         location.longitude = jitterLat.second
         location.altitude = FakeLoc.altitude
         KailLog.i(null, "DEBUG", "=== injectLocation after jitter: lat=${location.latitude}, lon=${location.longitude}")
-        val speedAmp = Random.nextDouble(-FakeLoc.speedAmplitude, FakeLoc.speedAmplitude)
-        location.speed = (originLocation.speed + speedAmp).toFloat()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && originLocation.hasSpeedAccuracy()) {
-            location.speedAccuracyMetersPerSecond = (FakeLoc.speed + speedAmp).toFloat()
+        // [本地化修改] 速度与位移一致：使用引擎实际步进速度+小幅噪声（原实现复制陈旧真实GPS速度±speedAmplitude）。
+        val speedNoise = Random.nextDouble(-0.15, 0.15)
+        location.speed = (FakeLoc.speed + speedNoise).toFloat().coerceAtLeast(0f)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            location.speedAccuracyMetersPerSecond = 0.5f
         }
 
         if (location.altitude == 0.0) {
             location.altitude = 80.0
         }
 
-        location.time = originLocation.time
+        // [本地化修改] 时间戳新鲜度修复：原实现复制陈旧真实GPS时间戳，
+        // 地图SDK按 elapsedRealtimeNanos 判重（delta=0 丢弃）→ 高频推送被去重成约1Hz 且被判过期。
+        location.time = System.currentTimeMillis()
 
         // final addition of zero is to remove -0 results. while these are technically within the
         // range [0, 360) according to IEEE semantics, this eliminates possible user confusion.
@@ -93,6 +93,8 @@ abstract class BaseLocationHook: BaseDivineService() {
         if (modBearing < 0) {
             modBearing += 360.0
         }
+        // [本地化修改] 叠加 ±1.5° 高斯噪声（真实 GPS 航向误差特征）。
+        modBearing = (modBearing + Random.nextDouble(-1.5, 1.5) + 360.0) % 360.0
         location.bearing = modBearing.toFloat()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             location.bearingAccuracyDegrees = modBearing.toFloat()
@@ -103,13 +105,11 @@ abstract class BaseLocationHook: BaseDivineService() {
             }
         }
 
-        if (location.speed == 0.0f) {
-            location.speed = 1.2f
-        }
+        // [本地化修改] 移除强制 1.2f hack：停止时速度就应为 0。
 
-        location.elapsedRealtimeNanos = originLocation.elapsedRealtimeNanos
+        location.elapsedRealtimeNanos = android.os.SystemClock.elapsedRealtimeNanos()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            location.elapsedRealtimeUncertaintyNanos = originLocation.elapsedRealtimeUncertaintyNanos
+            location.elapsedRealtimeUncertaintyNanos = 0.0
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             location.verticalAccuracyMeters = originLocation.verticalAccuracyMeters

@@ -282,24 +282,27 @@ object LocationProviderManagerHook {
                         location.isMock = false
                     }
                     location.altitude = FakeLoc.altitude
-                    location.speed = originLocation.speed
+                    // [本地化修改] 速度用引擎实际值（origin 为陈旧真实GPS）。
+                    location.speed = (FakeLoc.speed + kotlin.random.Random.nextDouble(-0.15, 0.15)).toFloat().coerceAtLeast(0f)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        location.speedAccuracyMetersPerSecond = 0F
+                        location.speedAccuracyMetersPerSecond = 0.5f
                     }
 
-                    location.time = originLocation.time
+                    // [本地化修改] 时间戳新鲜度（原复制陈旧真实GPS时间导致SDK判重丢弃→时走时停）。
+                    location.time = System.currentTimeMillis()
                     location.accuracy = originLocation.accuracy
                     var modBearing = FakeLoc.bearing % 360.0 + 0.0
                     if (modBearing < 0) {
                         modBearing += 360.0
                     }
-                    location.bearing = modBearing.toFloat()
+                    // [本地化修改] 叠加 ±1.5° 高斯噪声。
+                    location.bearing = ((modBearing + kotlin.random.Random.nextDouble(-1.5, 1.5) + 360.0) % 360.0).toFloat()
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && originLocation.hasBearingAccuracy()) {
                         location.bearingAccuracyDegrees = modBearing.toFloat()
                     }
-                    location.elapsedRealtimeNanos = originLocation.elapsedRealtimeNanos
+                    location.elapsedRealtimeNanos = android.os.SystemClock.elapsedRealtimeNanos()
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        location.elapsedRealtimeUncertaintyNanos = originLocation.elapsedRealtimeUncertaintyNanos
+                        location.elapsedRealtimeUncertaintyNanos = 0.0
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         location.verticalAccuracyMeters = originLocation.verticalAccuracyMeters

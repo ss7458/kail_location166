@@ -411,7 +411,7 @@ class ServiceGoDeveloper : Service() {
                     // [本地化修改] 用真实流逝时间推进路线：调度延迟不再造成里程丢失。
                     val now = SystemClock.elapsedRealtime()
                     val elapsedMs = if (lastTickElapsedMs > 0L) {
-                        (now - lastTickElapsedMs).coerceIn(0L, 30_000L)
+                        (now - lastTickElapsedMs).coerceIn(0L, currentLocationUpdateIntervalMs() * 3)
                     } else {
                         currentLocationUpdateIntervalMs()
                     }
@@ -420,7 +420,7 @@ class ServiceGoDeveloper : Service() {
                     if (!isStop) {
                         if (mRouteEngine.isActive) {
                             speedForStep = if (speedFluctuation) {
-                                GeoPredict.randomInRangeWithMean(mSpeed * 0.5, mSpeed * 1.5, mSpeed)
+                                GeoPredict.randomInRangeWithMean(mSpeed * 0.9, mSpeed * 1.1, mSpeed)
                             } else {
                                 mSpeed
                             }

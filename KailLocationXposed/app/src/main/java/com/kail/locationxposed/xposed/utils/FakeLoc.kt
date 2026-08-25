@@ -135,15 +135,11 @@ object FakeLoc {
 
     var bearing = 0.0
         get() {
-            if (hasBearings) {
-                return field
-            } else {
-                if (field >= 360.0) {
-                    field -= 360.0
-                }
-                field += 0.5
-                return field
+            // [本地化修改] 移除每次读取 +0.5° 自旋：航向应与实际位移方向一致，小噪声在消费端叠加。
+            if (field >= 360.0) {
+                field -= 360.0
             }
+            return field
         }
         set(value) {
             field = value

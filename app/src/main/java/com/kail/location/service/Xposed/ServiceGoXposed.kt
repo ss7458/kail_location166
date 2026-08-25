@@ -503,7 +503,7 @@ class ServiceGoXposed : Service() {
             putBoolean("hideMock", prefs.getBoolean("setting_hide_mock", true))
             putBoolean("hookWifi", prefs.getBoolean("setting_disable_wifi_scan", true))
             putBoolean("needDowngradeToCdma", prefs.getBoolean("setting_downgrade_to_cdma", true))
-            putBoolean("loopBroadcastLocation", prefs.getBoolean("setting_loop_broadcast", false))
+            // [本地化修改] key 兼容：设置页写 setting_anti_pullback，旧 key 作回退。`n            putBoolean("loopBroadcastLocation", prefs.getBoolean("setting_anti_pullback", prefs.getBoolean("setting_loop_broadcast", false)))
             putBoolean("enableNaturalJitter", prefs.getBoolean("setting_natural_jitter", false))
             putInt("minSatellites", prefs.getString("setting_min_satellites", "12")?.toIntOrNull() ?: 12)
             putFloat("accuracy", prefs.getString("setting_accuracy", "2.5")?.toFloatOrNull() ?: 2.5f)
@@ -835,7 +835,7 @@ class ServiceGoXposed : Service() {
                     // [本地化修改] 用真实流逝时间推进路线：调度延迟不再造成里程丢失。
                     val now = android.os.SystemClock.elapsedRealtime()
                     val elapsedMs = if (lastTickElapsedMs > 0L) {
-                        (now - lastTickElapsedMs).coerceIn(0L, 30_000L)
+                        (now - lastTickElapsedMs).coerceIn(0L, currentLocationUpdateIntervalMs() * 3)
                     } else {
                         currentLocationUpdateIntervalMs()
                     }
@@ -843,7 +843,7 @@ class ServiceGoXposed : Service() {
                     if (!isStop) {
                         if (mRouteEngine.isActive) {
                             val speedForStep = if (speedFluctuation) {
-                                GeoPredict.randomInRangeWithMean(mSpeed * 0.5, mSpeed * 1.5, mSpeed)
+                                GeoPredict.randomInRangeWithMean(mSpeed * 0.9, mSpeed * 1.1, mSpeed)
                             } else {
                                 mSpeed
                             }
