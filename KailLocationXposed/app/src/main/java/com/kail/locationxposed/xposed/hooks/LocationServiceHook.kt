@@ -881,6 +881,9 @@ internal object LocationServiceHook: BaseLocationHook() {
     // [本地化修改] onLocationChanged Method 缓存：消除每 listener 每 tick 两次 findMethodBestMatch 全类扫描（500次反射/s 的 CPU 热点）。
     private val onLocationChangedMethodCache = java.util.concurrent.ConcurrentHashMap<String, java.lang.reflect.Method>()
 
+    // [本地化修改] 诊断模式计数器。
+    private var diagCallCounter = 0L
+
     private fun hookILocationListener(listener: Any) {
         val classListener = listener.javaClass
         val hookKey = System.identityHashCode(classListener.classLoader).toString() + ":" + classListener.name
@@ -1002,6 +1005,12 @@ internal object LocationServiceHook: BaseLocationHook() {
     fun callOnLocationChanged() {
         // [本地化修改] 热路径日志降级。
         if (FakeLoc.enableDebugLog) KailLog.d(null, "Kail_Xposed", "=== callOnLocationChanged ENTER: size=${locationListeners.size} ===")
+
+        // [本地化修改] 诊断模式：定期输出通道摘要（监听器/GNSS/Hook类数量），写入日志文件用于排查渐进退化。
+        if (FakeLoc.enableDiag && ++diagCallCounter % 1500L == 0L) {
+            KailLog.w(null, "Kail_Xposed",
+                "[DIAG] calls=$diagCallCounter listeners=${locationListeners.size} gnss=${activeGnssListeners.size} hookedClasses=${hookedListenerClassKeys.size}")
+        }
         if (FakeLoc.enableDebugLog) {
             KailLog.d(null, "Kail_Xposed", "==> callOnLocationChanged: ${locationListeners.size}")
         }

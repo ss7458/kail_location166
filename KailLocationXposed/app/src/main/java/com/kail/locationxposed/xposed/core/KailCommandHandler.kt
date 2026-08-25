@@ -244,6 +244,7 @@ internal object KailCommandHandler {
                     out.getBoolean("disableGetFromLocation", FakeLoc.disableGetFromLocation).let { FakeLoc.disableGetFromLocation = it }
                     out.getBoolean("enableAGPS", FakeLoc.enableAGPS).let { FakeLoc.enableAGPS = it }
                     out.getBoolean("enableNMEA", FakeLoc.enableNMEA).let { FakeLoc.enableNMEA = it }
+                    out.getBoolean("enableDiag", FakeLoc.enableDiag).let { FakeLoc.enableDiag = it }
                     out.getBoolean("hideMock", FakeLoc.hideMock).let { FakeLoc.hideMock = it }
                     out.getBoolean("hookWifi", FakeLoc.hookWifi).let { FakeLoc.hookWifi = it }
                     out.getBoolean("needDowngradeToCdma", FakeLoc.needDowngradeToCdma).let { FakeLoc.needDowngradeToCdma = it }

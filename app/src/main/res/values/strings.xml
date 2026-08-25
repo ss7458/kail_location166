@@ -148,7 +148,8 @@
     <string name="run_mode_noroot">NoRoot 模式</string>
     <string name="xposed_module_not_found">未检测到 Xposed 模块</string>
     <string name="xposed_module_download_hint">请先安装 KailLocation Xposed 模块才能使用 Xposed 模式。</string>
-    <string name="xposed_module_use_anyway">仍然使用</string>`n    <string name="xposed_module_download">前往下载</string>
+    <string name="xposed_module_use_anyway">仍然使用</string>
+    <string name="xposed_module_download">前往下载</string>
     <string name="xposed_module_version_mismatch">Xposed 模块版本不匹配</string>
     <string name="xposed_module_version_hint">Xposed 模块版本与当前应用版本不兼容，请更新后再使用。</string>
     <string name="run_mode_changed">运行模式已切换为 %s</string>
@@ -280,6 +281,8 @@
     <string name="setting_hide_mock_summary">移除 Location.isFromMockProvider 标记</string>
     <string name="setting_anti_pullback">反定位拉回</string>
     <string name="setting_anti_pullback_summary">持续广播位置，一定程度解决被系统拉回</string>
+    <string name="setting_diag_mode">诊断模式</string>
+    <string name="setting_diag_mode_summary">开启后定期将监听器数量、通道状态等诊断摘要写入日志文件，用于排查定位异常</string>
     <string name="setting_natural_jitter">自然 GPS 抖动</string>
     <string name="setting_natural_jitter_summary">在注入位置上叠加漂移，关闭后固定点和路线更稳定</string>
     <string name="setting_group_other">其他</string>

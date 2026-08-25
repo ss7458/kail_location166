@@ -26,6 +26,9 @@ object FakeLoc {
      */
     var enableDebugLog = false
 
+    // [本地化修改] 诊断模式：开启后定期输出监听器/通道摘要到日志。
+    var enableDiag = false
+
     /**
      * 模拟定位服务开关
      */
