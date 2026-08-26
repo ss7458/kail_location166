@@ -9,8 +9,15 @@ plugins {
     id("com.google.firebase.crashlytics")
 }
 
+// [本地化修改] 注入构建 SHA：日志会话头可精确标识构建版本（CI 与本地构建自动获取）。
+val gitSha: String = try {
+    val p = ProcessBuilder("git", "rev-parse", "--short", "HEAD").start()
+    p.inputStream.bufferedReader().readText().trim().ifEmpty { "unknown" }
+} catch (e: Exception) {
+    "unknown"
+}
+
 android {
-    namespace = "com.kail.location"
     compileSdk = 36
 
     defaultConfig {
@@ -19,6 +26,7 @@ android {
         targetSdk = 36
         versionCode = 45
         versionName = "1.6.12"
+        buildConfigField("String", "GIT_SHA", "$gitSha")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         

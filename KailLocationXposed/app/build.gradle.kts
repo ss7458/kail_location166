@@ -5,6 +5,14 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+// [本地化修改] 注入构建 SHA（与主 app 同一提交构建）。
+val gitSha: String = try {
+    val p = ProcessBuilder("git", "rev-parse", "--short", "HEAD").start()
+    p.inputStream.bufferedReader().readText().trim().ifEmpty { "unknown" }
+} catch (e: Exception) {
+    "unknown"
+}
+
 android {
     namespace = "com.kail.locationxposed"
     compileSdk = 36
@@ -15,6 +23,7 @@ android {
         targetSdk = 36
         versionCode = 45
         versionName = "1.6.12"
+        buildConfigField("String", "GIT_SHA", "$gitSha")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -37,6 +46,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

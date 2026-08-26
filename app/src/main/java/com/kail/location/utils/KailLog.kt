@@ -361,10 +361,20 @@ object KailLog {
         kotlin.runCatching {
             val versionName = context.packageManager
                 .getPackageInfo(context.packageName, 0).versionName ?: "?"
+            // [本地化修改] 会话头补充 versionCode 与构建 SHA，精确标识构建版本。
+            val versionCode = try {
+                context.packageManager.getPackageInfo(context.packageName, 0).let {
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                        it.longVersionCode
+                    } else {
+                        it.versionCode.toLong()
+                    }
+                }
+            } catch (e: Exception) { -1L }
             val header = buildString {
                 append("========== KailLog session ==========\n")
                 append("${formatTime(System.currentTimeMillis())} process=${processName()} pkg=${context.packageName}\n")
-                append("app=$versionName android=${android.os.Build.VERSION.RELEASE}(API ${android.os.Build.VERSION.SDK_INT}) ")
+                append("app=$versionName(vc=$versionCode sha=${com.kail.location.BuildConfig.GIT_SHA}) android=${android.os.Build.VERSION.RELEASE}(API ${android.os.Build.VERSION.SDK_INT}) ")
                 append("device=${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}\n")
                 append("======================================\n")
             }
