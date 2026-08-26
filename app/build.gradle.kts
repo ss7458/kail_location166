@@ -18,6 +18,7 @@ val gitSha: String = try {
 }
 
 android {
+    namespace = "com.kail.location"
     compileSdk = 36
 
     defaultConfig {
