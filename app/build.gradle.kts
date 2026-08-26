@@ -27,7 +27,7 @@ android {
         targetSdk = 36
         versionCode = 45
         versionName = "1.6.12"
-        buildConfigField("String", "GIT_SHA", "$gitSha")
+        buildConfigField("String", "GIT_SHA", "\"$gitSha\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
