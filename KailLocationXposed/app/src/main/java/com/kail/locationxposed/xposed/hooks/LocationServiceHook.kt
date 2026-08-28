@@ -1007,9 +1007,13 @@ internal object LocationServiceHook: BaseLocationHook() {
         if (FakeLoc.enableDebugLog) KailLog.d(null, "Kail_Xposed", "=== callOnLocationChanged ENTER: size=${locationListeners.size} ===")
 
         // [本地化修改] 诊断模式：定期输出通道摘要（监听器/GNSS/Hook类数量），写入日志文件用于排查渐进退化。
-        if (FakeLoc.enableDiag && ++diagCallCounter % 1500L == 0L) {
-            KailLog.w(null, "Kail_Xposed",
-                "[DIAG] calls=$diagCallCounter listeners=${locationListeners.size} gnss=${activeGnssListeners.size} hookedClasses=${hookedListenerClassKeys.size}")
+        // 首次调用立即输出一条，之后每 300 次（约 60 秒）输出一条，保证短会话也有数据。
+        if (FakeLoc.enableDiag) {
+            val call = ++diagCallCounter
+            if (call == 1L || call % 300L == 0L) {
+                KailLog.w(null, "Kail_Xposed",
+                    "[DIAG] calls=$call listeners=${locationListeners.size} gnss=${activeGnssListeners.size} hookedClasses=${hookedListenerClassKeys.size}")
+            }
         }
         if (FakeLoc.enableDebugLog) {
             KailLog.d(null, "Kail_Xposed", "==> callOnLocationChanged: ${locationListeners.size}")

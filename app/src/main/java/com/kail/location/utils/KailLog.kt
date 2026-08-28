@@ -447,6 +447,15 @@ object KailLog {
                         output.write("\n".toByteArray())
                     }
                 }
+                // [本地化修改] 追加模块侧公共目录日志（诊断模式 [DIAG] 等）。
+                // app 私有目录与模块公共目录不同源，直接读取受作用域存储限制，经 root cat 汇总。
+                runCatching {
+                    val pub = ShellUtils.executeCommand("cat /sdcard/Documents/KailLocation/logs/kail_log_*.txt 2>/dev/null")
+                    if (pub.isNotBlank()) {
+                        output.write("===== MODULE PUBLIC LOGS =====\n".toByteArray())
+                        output.write(pub.toByteArray())
+                    }
+                }
             } ?: return false
             true
         }.getOrDefault(false)
