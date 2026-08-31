@@ -24,14 +24,13 @@ import com.kail.locationxposed.xposed.hooks.wlan.WlanHook
 import com.kail.locationxposed.xposed.hooks.fused.AndroidFusedLocationProviderHook
 import com.kail.locationxposed.xposed.hooks.fused.ThirdPartyLocationHook
 import com.kail.locationxposed.xposed.hooks.thirdparty.ThirdPartyLocationHookLite
-import com.kail.locationxposed.xposed.camera.CameraDispatcher
-import com.kail.locationxposed.xposed.camera.CameraAppHook
-import com.kail.locationxposed.xposed.camera.CameraHookState
 
 class FakeLocationXposed : IXposedHookLoadPackage, IXposedHookZygoteInit {
     private val firstHandleRef = AtomicBoolean(false)
 
     override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam?) {
+        // [本地化修改] 模块版本横幅：便于从日志确认实际安装的模块构建（排查是否漏更新模块）。
+        KailLog.w(null, "XPOSED", "[MODULE vc=${com.kail.locationxposed.BuildConfig.VERSION_CODE} sha=${com.kail.locationxposed.BuildConfig.GIT_SHA}] zygote init")
         KailLog.d(null, "XPOSED", "初始化Zygote")
         startupParam?.modulePath?.let { FakeLocState.setModuleApkPath(it) }
     }
@@ -59,12 +58,7 @@ class FakeLocationXposed : IXposedHookLoadPackage, IXposedHookZygoteInit {
         if (firstHandleRef.compareAndSet(false, true)) {
             KailLog.d(null, "XPOSED", "首次处理加载 pkg=$pkg process=$process")
         }
-        if (pkg !in allowedPkgs) {
-            // Camera target app — install hooks if the host config enables us.
-            CameraDispatcher.setCurrentPackage(pkg)
-            CameraAppHook.install(lpparam.classLoader)
-            return
-        }
+        if (pkg !in allowedPkgs) return
 
         val injectedKey = "kail_location.injected_$pkg"
         if (System.getProperty(injectedKey) == "true") {
