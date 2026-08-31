@@ -244,12 +244,12 @@ internal object KailCommandHandler {
                     out.getBoolean("disableGetFromLocation", FakeLoc.disableGetFromLocation).let { FakeLoc.disableGetFromLocation = it }
                     out.getBoolean("enableAGPS", FakeLoc.enableAGPS).let { FakeLoc.enableAGPS = it }
                     out.getBoolean("enableNMEA", FakeLoc.enableNMEA).let { FakeLoc.enableNMEA = it }
-                    out.getBoolean("enableDiag", FakeLoc.enableDiag).let { FakeLoc.enableDiag = it }
                     out.getBoolean("hideMock", FakeLoc.hideMock).let { FakeLoc.hideMock = it }
                     out.getBoolean("hookWifi", FakeLoc.hookWifi).let { FakeLoc.hookWifi = it }
                     out.getBoolean("needDowngradeToCdma", FakeLoc.needDowngradeToCdma).let { FakeLoc.needDowngradeToCdma = it }
                     out.getBoolean("loopBroadcastLocation", FakeLoc.loopBroadcastLocation).let { FakeLoc.loopBroadcastLocation = it }
                     out.getBoolean("enableNaturalJitter", FakeLoc.enableNaturalJitter).let { FakeLoc.enableNaturalJitter = it }
+                    out.getBoolean("enableDiag", FakeLoc.enableDiag).let { FakeLoc.enableDiag = it }
                     out.getInt("minSatellites", FakeLoc.minSatellites).let { FakeLoc.minSatellites = it }
                     out.getFloat("accuracy", FakeLoc.accuracy).let { FakeLoc.accuracy = it }
                     out.getInt("reportIntervalMs", 200).let {
@@ -307,24 +307,6 @@ internal object KailCommandHandler {
                     out.putBoolean("ok", false)
                     out.putString("error", e.message)
                     KailLog.e(null, "XPOSED", "KAIL接收：load_dex 失败 ${e.message}")
-                }
-                return true
-            }
-            "force_stop" -> {
-                val targetPkg = out.getString("package") ?: return false
-                KailLog.i(null, "XPOSED", "KAIL接收：force_stop pkg=$targetPkg")
-                try {
-                    val amClz = Class.forName("android.app.ActivityManager")
-                    val service = amClz.getDeclaredField("IActivityManagerSingleton")
-                    service.isAccessible = true
-                    val singleton = service.get(null)
-                    val amService = singleton.javaClass.getMethod("get").invoke(singleton)
-                    amService.javaClass.getMethod("forceStopPackage", String::class.java).invoke(amService, targetPkg)
-                    out.putBoolean("ok", true)
-                } catch (t: Throwable) {
-                    out.putBoolean("ok", false)
-                    out.putString("error", t.message)
-                    KailLog.e(null, "XPOSED", "force_stop failed: ${t.message}")
                 }
                 return true
             }
