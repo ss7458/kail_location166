@@ -254,9 +254,11 @@ object LocationProviderManagerHook {
             }
 
             val registrations = fieldMRegistrations.get(thisObject) as ArrayMap<*, *>
-            val newRegistrations = ArrayMap<Any, Any>()
-            registrations.forEach { registration ->
-                val value = registration.value ?: return@forEach
+            // [本地化修改] 快照在系统锁内获取，防止 register/unregister 并发致 CME 崩溃 system_server；
+            // 并对快照迭代分发伪造位置，绝不替换 mRegistrations 字段（原实现会永久丢失监听注册表）。
+            val snapshot = synchronized(registrations) { registrations.entries.toList() }
+            snapshot.forEach { entry ->
+                val value = entry.value ?: return@forEach
                 val locationResult = args[0]
 
                 val mLocationsField = XposedHelpers.findFieldIfExists(locationResult.javaClass, "mLocations")
@@ -315,7 +317,9 @@ object LocationProviderManagerHook {
                 KailLog.d(null, "Kail_Xposed", "onReportLocation: injected!")
             }
 
-            fieldMRegistrations.set(thisObject, newRegistrations)
+            // [本地化修改] 抑制原生分发：伪造位置已自行派发给快照内的全部监听器，
+            // 若放行原生 onReportLocation 会再派发一帧真实位置（真假交替泄漏/拉扯）。
+            result = null
         }
     }
 

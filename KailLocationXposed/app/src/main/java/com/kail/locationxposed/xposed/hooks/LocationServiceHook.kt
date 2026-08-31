@@ -34,7 +34,7 @@ import kotlin.random.Random
 import kotlin.uuid.ExperimentalUuidApi
 
 private const val MAX_TRACKED_GNSS_LISTENERS = 128
-private const val MAX_TRACKED_LOCATION_LISTENERS = 256
+private const val MAX_TRACKED_LOCATION_LISTENERS = 48
 
 private const val CONSTELLATION_GPS = 1
 private const val CONSTELLATION_BEIDOU = 5
@@ -876,8 +876,22 @@ internal object LocationServiceHook: BaseLocationHook() {
 
     }
 
+    // [本地化修改] 已叠加 Hook 的监听器类集合：防止同一类被重复 hookAllMethods 叠层（N 层=N 倍注入开销）。
+    private val hookedListenerClassKeys = java.util.Collections.newSetFromMap(java.util.concurrent.ConcurrentHashMap<String, Boolean>())
+
+    // [本地化修改] onLocationChanged Method 缓存：消除每 listener 每 tick 两次 findMethodBestMatch 全类扫描（500次反射/s 的 CPU 热点）。
+    private val onLocationChangedMethodCache = java.util.concurrent.ConcurrentHashMap<String, java.lang.reflect.Method>()
+
+    // [本地化修改] 诊断模式计数器。
+    private var diagCallCounter = 0L
+
     private fun hookILocationListener(listener: Any) {
         val classListener = listener.javaClass
+        // [本地化修改] 防叠层：同一监听器类只 hook 一次。
+        val hookKey = System.identityHashCode(classListener.classLoader).toString() + ":" + classListener.name
+        if (!hookedListenerClassKeys.add(hookKey)) {
+            return
+        }
         if (FakeLoc.enableDebugLog)
             KailLog.d(null, "Kail_Xposed", "will hook ILocationListener: ${classListener.name}")
 
@@ -885,7 +899,7 @@ internal object LocationServiceHook: BaseLocationHook() {
         
         if(XposedBridge.hookAllMethods(classListener, "onLocationChanged", object: XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
-                    KailLog.e(null, "Kail_Xposed", "=== onLocationChanged TRIGGERED: enable=${FakeLoc.enable} ===")
+                    if (FakeLoc.enableDebugLog) KailLog.d(null, "Kail_Xposed", "=== onLocationChanged TRIGGERED ===")
                     if (param.args.isEmpty()) return
                     if (!FakeLoc.enable) return
 
@@ -951,11 +965,11 @@ internal object LocationServiceHook: BaseLocationHook() {
 
     private fun addLocationListenerInner(provider: String, listener: IInterface) {
         val binder = listener.asBinder()
-        val mDeathRecipient = object: IBinder.DeathRecipient {
-            override fun binderDied() {}
-            override fun binderDied(who: IBinder) {
-                who.unlinkToDeath(this, 0)
-                removeLocationListenerByBinder(who)
+        // [本地化修改] AOSP 只回调无参 binderDied()；原空实现导致死亡监听器永不回收（僵尸累积→每tick遍历变慢→渐进卡顿）。
+        val mDeathRecipient = object : IBinder.DeathRecipient {
+            override fun binderDied() {
+                runCatching { binder.unlinkToDeath(this, 0) }
+                removeLocationListenerByBinder(binder)
             }
         }
         kotlin.runCatching { binder.linkToDeath(mDeathRecipient, 0) }
@@ -991,7 +1005,18 @@ internal object LocationServiceHook: BaseLocationHook() {
     }
 
     fun callOnLocationChanged() {
-        KailLog.e(null, "Kail_Xposed", "=== callOnLocationChanged ENTER: size=${locationListeners.size} ===")
+        // [本地化修改] 热路径日志降级。
+        if (FakeLoc.enableDebugLog) KailLog.d(null, "Kail_Xposed", "=== callOnLocationChanged ENTER: size=${locationListeners.size} ===")
+
+        // [本地化修改] 诊断模式：定期输出通道摘要（监听器/GNSS/Hook类数量），写入日志文件用于排查渐进退化。
+        // 首次调用立即输出一条，之后每 300 次（约 60 秒）输出一条，保证短会话也有数据。
+        if (FakeLoc.enableDiag) {
+            val call = ++diagCallCounter
+            if (call == 1L || call % 300L == 0L) {
+                KailLog.w(null, "Kail_Xposed",
+                    "[DIAG] calls=$call listeners=${locationListeners.size} gnss=${activeGnssListeners.size} hookedClasses=${hookedListenerClassKeys.size}")
+            }
+        }
         if (FakeLoc.enableDebugLog) {
             KailLog.d(null, "Kail_Xposed", "==> callOnLocationChanged: ${locationListeners.size}")
         }
@@ -1005,14 +1030,21 @@ internal object LocationServiceHook: BaseLocationHook() {
                     Location(listenerWithProvider.first)
                 }
             }
-            KailLog.i(null, "DEBUG", "=== callOnLocationChanged before inject: ${location.latitude},${location.longitude}")
+            if (FakeLoc.enableDebugLog) {
+                KailLog.i(null, "DEBUG", "=== callOnLocationChanged before inject: ${location.latitude},${location.longitude}")
+            }
             location = injectLocation(location)
-            KailLog.i(null, "DEBUG", "=== callOnLocationChanged after inject: ${location.latitude},${location.longitude}")
+            if (FakeLoc.enableDebugLog) {
+                KailLog.i(null, "DEBUG", "=== callOnLocationChanged after inject: ${location.latitude},${location.longitude}")
+            }
             var called = false
             var error: Throwable? = null
             kotlin.runCatching {
                 val locations = listOf(location)
-                val mOnLocationChanged = XposedHelpers.findMethodBestMatch(listener.javaClass, "onLocationChanged", locations, null)
+                // [本地化修改] 反射 Method 缓存：消除每 listener 每 tick 的重复方法扫描。
+                val mOnLocationChanged = onLocationChangedMethodCache.computeIfAbsent(listener.javaClass.name + "|list") {
+                    XposedHelpers.findMethodBestMatch(listener.javaClass, "onLocationChanged", locations, null)
+                }
                 XposedBridge.invokeOriginalMethod(mOnLocationChanged, listener, arrayOf(locations, null))
                 called = true
             }.onFailure {
@@ -1023,7 +1055,10 @@ internal object LocationServiceHook: BaseLocationHook() {
             }
 
             if (!called) runCatching {
-                val mOnLocationChanged = XposedHelpers.findMethodBestMatch(listener.javaClass, "onLocationChanged", location)
+                // [本地化修改] 反射 Method 缓存（单 Location 签名变体）。
+                val mOnLocationChanged = onLocationChangedMethodCache.computeIfAbsent(listener.javaClass.name + "|single") {
+                    XposedHelpers.findMethodBestMatch(listener.javaClass, "onLocationChanged", location)
+                }
                 XposedBridge.invokeOriginalMethod(mOnLocationChanged, listener, arrayOf(location))
                 called = true
             }.onFailure {
