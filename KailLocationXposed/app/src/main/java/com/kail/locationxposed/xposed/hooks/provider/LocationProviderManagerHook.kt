@@ -3,6 +3,7 @@ package com.kail.locationxposed.xposed.hooks.provider
 import android.location.Location
 import android.location.LocationManager
 import android.os.Build
+import android.os.SystemClock
 import android.telephony.CellIdentity
 import android.telephony.CellInfo
 import android.util.ArrayMap
@@ -51,24 +52,25 @@ object LocationProviderManagerHook {
             location.isMock = false
         }
         location.altitude = FakeLoc.altitude
-        location.speed = originLocation.speed
+        location.speed = (FakeLoc.speed + Random.nextDouble(-0.15, 0.15)).toFloat().coerceAtLeast(0f)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            location.speedAccuracyMetersPerSecond = 0F
+            location.speedAccuracyMetersPerSecond = 0.5f
         }
 
-        location.time = originLocation.time
+        location.time = System.currentTimeMillis()
         location.accuracy = originLocation.accuracy
         var modBearing = FakeLoc.bearing % 360.0 + 0.0
         if (modBearing < 0) {
             modBearing += 360.0
         }
+        modBearing = (modBearing + Random.nextDouble(-1.5, 1.5) + 360.0) % 360.0
         location.bearing = modBearing.toFloat()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && originLocation.hasBearingAccuracy()) {
             location.bearingAccuracyDegrees = modBearing.toFloat()
         }
-        location.elapsedRealtimeNanos = originLocation.elapsedRealtimeNanos
+        location.elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            location.elapsedRealtimeUncertaintyNanos = originLocation.elapsedRealtimeUncertaintyNanos
+            location.elapsedRealtimeUncertaintyNanos = 0.0
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             location.verticalAccuracyMeters = originLocation.verticalAccuracyMeters
@@ -252,81 +254,68 @@ object LocationProviderManagerHook {
             }
 
             val registrations = fieldMRegistrations.get(thisObject) as ArrayMap<*, *>
-            // [本地化修改] 安全修复：不再用空 ArrayMap 替换 mRegistrations 字段（原实现会导致
-            // 系统监听注册表永久丢失，且无锁替换与系统并发写竞争可抛 CME 直接崩 system_server）。
-            // 改为对快照迭代；单条监听器处理失败只跳过该条，不中断其余、不逃逸异常。
-            // [本地化修改] 快照必须在系统锁内获取：mRegistrations 受 synchronized 保护，
-            // 无锁 toList 与 register/unregister 并发会抛 CME 崩溃 system_server。
-            val snapshot = synchronized(registrations) { registrations.entries.toList() }
-            snapshot.forEach { entry ->
-                runCatching {
-                    val value = entry.value ?: return@runCatching
-                    val locationResult = args[0]
+            val newRegistrations = ArrayMap<Any, Any>()
+            registrations.forEach { registration ->
+                val value = registration.value ?: return@forEach
+                val locationResult = args[0]
 
-                    val mLocationsField = XposedHelpers.findFieldIfExists(locationResult.javaClass, "mLocations")
-                    if (mLocationsField == null) {
-                        KailLog.e(null, "Kail_Xposed", "Failed to find mLocations in LocationResult")
-                        return@runCatching
-                    }
-                    mLocationsField.isAccessible = true
-                    val mLocations = mLocationsField.get(locationResult) as ArrayList<*>
-
-                    val originLocation = mLocations.firstOrNull() as? Location
-                        ?: Location(LocationManager.GPS_PROVIDER)
-                    val location = Location(originLocation.provider)
-
-                    val jitterLat = FakeLoc.jitterLocation()
-                    location.latitude = jitterLat.first
-                    location.longitude = jitterLat.second
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        location.isMock = false
-                    }
-                    location.altitude = FakeLoc.altitude
-                    // [本地化修改] 速度用引擎实际值（origin 为陈旧真实GPS）。
-                    location.speed = (FakeLoc.speed + kotlin.random.Random.nextDouble(-0.15, 0.15)).toFloat().coerceAtLeast(0f)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        location.speedAccuracyMetersPerSecond = 0.5f
-                    }
-
-                    // [本地化修改] 时间戳新鲜度（原复制陈旧真实GPS时间导致SDK判重丢弃→时走时停）。
-                    location.time = System.currentTimeMillis()
-                    location.accuracy = originLocation.accuracy
-                    var modBearing = FakeLoc.bearing % 360.0 + 0.0
-                    if (modBearing < 0) {
-                        modBearing += 360.0
-                    }
-                    // [本地化修改] 叠加 ±1.5° 高斯噪声。
-                    location.bearing = ((modBearing + kotlin.random.Random.nextDouble(-1.5, 1.5) + 360.0) % 360.0).toFloat()
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && originLocation.hasBearingAccuracy()) {
-                        location.bearingAccuracyDegrees = modBearing.toFloat()
-                    }
-                    location.elapsedRealtimeNanos = android.os.SystemClock.elapsedRealtimeNanos()
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        location.elapsedRealtimeUncertaintyNanos = 0.0
-                    }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        location.verticalAccuracyMeters = originLocation.verticalAccuracyMeters
-                    }
-                    originLocation.extras?.let {
-                        location.extras = it
-                    }
-
-                    mLocationsField.set(locationResult, arrayListOf(location))
-
-                    val operation = XposedHelpers.callMethod(value, "acceptLocationChange", locationResult)
-                    XposedHelpers.callMethod(value, "executeOperation", operation)
-                }.onFailure {
-                    KailLog.e(null, "Kail_Xposed", "onReportLocation: listener dispatch failed: ${it.message}")
+                val mLocationsField = XposedHelpers.findFieldIfExists(locationResult.javaClass, "mLocations")
+                if (mLocationsField == null) {
+                    KailLog.e(null, "Kail_Xposed", "Failed to find mLocations in LocationResult")
+                    return@onceHookMethodBefore
                 }
+                mLocationsField.isAccessible = true
+                val mLocations = mLocationsField.get(locationResult) as ArrayList<*>
+
+                val originLocation = mLocations.firstOrNull() as? Location
+                    ?: Location(LocationManager.GPS_PROVIDER)
+                val location = Location(originLocation.provider)
+
+                val jitterLat = FakeLoc.jitterLocation()
+                location.latitude = jitterLat.first
+                location.longitude = jitterLat.second
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    location.isMock = false
+                }
+                location.altitude = FakeLoc.altitude
+                location.speed = (FakeLoc.speed + Random.nextDouble(-0.15, 0.15)).toFloat().coerceAtLeast(0f)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    location.speedAccuracyMetersPerSecond = 0.5f
+                }
+
+                location.time = System.currentTimeMillis()
+                location.accuracy = originLocation.accuracy
+                var modBearing = FakeLoc.bearing % 360.0 + 0.0
+                if (modBearing < 0) {
+                    modBearing += 360.0
+                }
+                modBearing = (modBearing + Random.nextDouble(-1.5, 1.5) + 360.0) % 360.0
+                location.bearing = modBearing.toFloat()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && originLocation.hasBearingAccuracy()) {
+                    location.bearingAccuracyDegrees = modBearing.toFloat()
+                }
+                location.elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    location.elapsedRealtimeUncertaintyNanos = 0.0
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    location.verticalAccuracyMeters = originLocation.verticalAccuracyMeters
+                }
+                originLocation.extras?.let {
+                    location.extras = it
+                }
+
+                mLocationsField.set(locationResult, arrayListOf(location))
+
+                val operation = XposedHelpers.callMethod(value, "acceptLocationChange", locationResult)
+                XposedHelpers.callMethod(value, "executeOperation", operation)
             }
 
             if (FakeLoc.enableDebugLog) {
                 KailLog.d(null, "Kail_Xposed", "onReportLocation: injected!")
             }
 
-            // [本地化修改] 抑制原生分发：伪造位置已自行派发给全部监听器，
-            // 若放行原生 onReportLocation 会再派发一帧真实位置（真假交替泄漏/拉扯）。
-            result = null
+            fieldMRegistrations.set(thisObject, newRegistrations)
         }
     }
 

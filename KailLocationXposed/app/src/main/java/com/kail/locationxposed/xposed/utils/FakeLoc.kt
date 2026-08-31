@@ -26,9 +26,6 @@ object FakeLoc {
      */
     var enableDebugLog = false
 
-    // [本地化修改] 诊断模式：开启后定期输出监听器/通道摘要到日志。
-    var enableDiag = false
-
     /**
      * 模拟定位服务开关
      */
@@ -138,11 +135,14 @@ object FakeLoc {
 
     var bearing = 0.0
         get() {
-            // [本地化修改] 移除每次读取 +0.5° 自旋：航向应与实际位移方向一致，小噪声在消费端叠加。
-            if (field >= 360.0) {
-                field -= 360.0
+            if (hasBearings) {
+                return field
+            } else {
+                if (field >= 360.0) {
+                    field -= 360.0
+                }
+                return field
             }
-            return field
         }
         set(value) {
             field = value

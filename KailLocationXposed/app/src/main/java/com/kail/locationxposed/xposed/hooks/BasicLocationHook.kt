@@ -3,6 +3,7 @@ package com.kail.locationxposed.xposed.hooks
 import android.location.Location
 import android.location.LocationManager
 import android.os.Build
+import android.os.SystemClock
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
@@ -70,26 +71,27 @@ object BasicLocationHook: BaseLocationHook() {
                     location.isMock = false
                 }
                 location.altitude = FakeLoc.altitude
-                location.speed = originLocation.speed
+                location.speed = (FakeLoc.speed + Random.nextDouble(-0.15, 0.15)).toFloat().coerceAtLeast(0f)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    location.speedAccuracyMetersPerSecond = 0F
+                    location.speedAccuracyMetersPerSecond = 0.5f
                 }
 
-                location.time = originLocation.time
+                location.time = System.currentTimeMillis()
                 location.accuracy = originLocation.accuracy
                 var modBearing = FakeLoc.bearing % 360.0 + 0.0
                 if (modBearing < 0) {
                     modBearing += 360.0
                 }
+                modBearing = (modBearing + Random.nextDouble(-1.5, 1.5) + 360.0) % 360.0
                 if (location.hasBearing()) {
                     location.bearing = modBearing.toFloat()
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     location.bearingAccuracyDegrees = modBearing.toFloat()
                 }
-                location.elapsedRealtimeNanos = originLocation.elapsedRealtimeNanos
+                location.elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    location.elapsedRealtimeUncertaintyNanos = originLocation.elapsedRealtimeUncertaintyNanos
+                    location.elapsedRealtimeUncertaintyNanos = 0.0
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     location.verticalAccuracyMeters = originLocation.verticalAccuracyMeters
